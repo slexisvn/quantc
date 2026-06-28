@@ -4,13 +4,32 @@
   "private": true,
   "type": "module",
   "description": "A quant-finance pricing/risk compiler: the Quill payoff DSL to vectorised Monte Carlo and AAD Greeks",
+  "main": "./dist/quantc.node.js",
+  "module": "./dist/quantc.node.js",
+  "browser": "./dist/quantc.browser.js",
+  "types": "./dist/types/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/src/index.d.ts",
+      "browser": "./dist/quantc.browser.js",
+      "node": "./dist/quantc.node.js",
+      "default": "./dist/quantc.node.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "src"],
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepare": "node scripts/build.mjs && tsc -p tsconfig.build.json",
+    "build": "node scripts/build.mjs && tsc -p tsconfig.build.json",
+    "build:bundles": "node scripts/build.mjs",
+    "build:types": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
+    "esbuild": "^0.21.5",
     "typescript": "^5.6.3",
     "vitest": "^2.1.8"
   },

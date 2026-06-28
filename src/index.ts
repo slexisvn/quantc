@@ -119,6 +119,8 @@ export { jyInflationCallMc } from './models/rates/jarrow-yildirim-stochastic'
 export { fullPathGradient, checkpointedPathGradient } from './aad/checkpoint-path'
 export { aadLevenbergMarquardt, evaluateResidualJacobian } from './engines/aad-calibration'
 
+export * from './alpha/index'
+
 export { mlmcAsian } from './numerics/mlmc'
 export { importanceSampledCall } from './numerics/variance-reduction/importance-sampling'
 export { qmcEuropeanCall, qmcAsianCall } from './engines/qmc-engine'

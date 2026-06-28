@@ -1,5 +1,4 @@
-import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
+import directionTable from '../../../data/sobol/joe-kuo.json'
 
 interface DirectionEntry {
   readonly d: number
@@ -13,7 +12,7 @@ interface DirectionTable {
   readonly dimensions: DirectionEntry[]
 }
 
-const TABLE: DirectionTable = JSON.parse(readFileSync(fileURLToPath(new URL('../../../data/sobol/joe-kuo.json', import.meta.url)), 'utf8')) as DirectionTable
+const TABLE = directionTable as DirectionTable
 const SCALE = 1 / 2 ** 32
 
 function trailingZeros(value: number): number {

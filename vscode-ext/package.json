@@ -1,0 +1,121 @@
+{
+  "name": "quill-language",
+  "displayName": "Quill",
+  "description": "Language support for the Quill quant-finance payoff/contract DSL (.quill): syntax highlighting, diagnostics, completion, hover, formatting, and pricing.",
+  "version": "0.2.3",
+  "publisher": "quantc",
+  "license": "MIT",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quantc/quantc"
+  },
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Linters"
+  ],
+  "keywords": [
+    "quill",
+    "quant",
+    "finance",
+    "derivatives",
+    "payoff",
+    "dsl"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:quill"
+  ],
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --external:koffi --format=cjs --platform=node --target=node18 --minify",
+    "watch": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --external:koffi --format=cjs --platform=node --target=node18 --sourcemap --watch",
+    "vscode:prepublish": "npm run build",
+    "package": "vsce package --no-dependencies"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "quill",
+        "aliases": [
+          "Quill",
+          "quill"
+        ],
+        "extensions": [
+          ".quill"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./assets/quill-logo.svg",
+          "dark": "./assets/quill-logo-dark.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "quill",
+        "scopeName": "source.quill",
+        "path": "./syntaxes/quill.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "quill",
+        "path": "./snippets/quill.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "quill.price",
+        "title": "Quill: Price Current File",
+        "category": "Quill"
+      },
+      {
+        "command": "quill.check",
+        "title": "Quill: Check Current File",
+        "category": "Quill"
+      }
+    ],
+    "configuration": {
+      "title": "Quill",
+      "properties": {
+        "quill.market.spot": {
+          "type": "number",
+          "default": 100,
+          "description": "Spot price used by Quill: Price Current File."
+        },
+        "quill.market.rate": {
+          "type": "number",
+          "default": 0.03,
+          "description": "Risk-free rate used by Quill: Price Current File."
+        },
+        "quill.market.vol": {
+          "type": "number",
+          "default": 0.2,
+          "description": "Volatility used by Quill: Price Current File."
+        },
+        "quill.pricing.paths": {
+          "type": "number",
+          "default": 100000,
+          "description": "Number of Monte Carlo paths used when pricing."
+        },
+        "quill.pricing.seed": {
+          "type": "number",
+          "default": 1,
+          "description": "RNG seed used when pricing."
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/node": "^22.10.0",
+    "@types/vscode": "^1.75.0",
+    "@vscode/vsce": "^3.2.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.3"
+  }
+}

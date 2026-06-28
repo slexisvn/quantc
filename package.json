@@ -1,9 +1,9 @@
 {
   "name": "quantc",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "A quant-finance pricing/risk compiler: payoff DSL to vectorised Monte Carlo and AAD Greeks",
+  "description": "A quant-finance pricing/risk compiler: the Quill payoff DSL to vectorised Monte Carlo and AAD Greeks",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

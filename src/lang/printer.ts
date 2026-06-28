@@ -14,6 +14,8 @@ function printExpr(expr: Expr): string {
       return `(${printExpr(expr.cond)} ? ${printExpr(expr.whenTrue)} : ${printExpr(expr.whenFalse)})`
     case 'call':
       return `${expr.callee}(${expr.args.map(printExpr).join(', ')})`
+    case 'let':
+      return `(let ${expr.name} = ${printExpr(expr.value)} in ${printExpr(expr.body)})`
   }
 }
 
@@ -27,7 +29,7 @@ function printStmt(stmt: Stmt, depth: number): string {
     case 'assign':
       return `${pad}${stmt.declare ? 'var ' : ''}${stmt.name} = ${printExpr(stmt.expr)}`
     case 'pay':
-      return `${pad}pay ${printExpr(stmt.amount)} at ${printExpr(stmt.date)}`
+      return `${pad}pay ${printExpr(stmt.amount)}${stmt.currency !== null ? ` in ${stmt.currency}` : ''} at ${printExpr(stmt.date)}`
     case 'stop':
       return `${pad}stop`
     case 'if': {
@@ -55,7 +57,10 @@ function printEvent(event: EventDecl, depth: number): string {
 
 export function printProduct(product: Product): string {
   const lines: string[] = [`product ${product.name} {`]
-  for (const underlying of product.underlyings) lines.push(`${indent(1)}underlying ${underlying.name} model ${underlying.model}`)
+  for (const underlying of product.underlyings) {
+    const params = underlying.modelParams.length > 0 ? `(${underlying.modelParams.map((p) => `${p.name} = ${printExpr(p.value)}`).join(', ')})` : ''
+    lines.push(`${indent(1)}underlying ${underlying.name} model ${underlying.model}${params}`)
+  }
   for (const param of product.params) lines.push(`${indent(1)}param ${param.name} = ${printExpr(param.value)}`)
   for (const declaration of product.vars) lines.push(`${indent(1)}var ${declaration.name} = ${printExpr(declaration.init)}`)
   for (const event of product.events) lines.push(printEvent(event, 1))

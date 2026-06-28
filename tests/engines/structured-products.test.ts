@@ -19,7 +19,7 @@ describe('convexity and quanto adjustments', () => {
   })
 })
 
-describe('structured product in the .qc language (range accrual)', () => {
+describe('structured product in the Quill language (range accrual)', () => {
   const rangeAccrual = parseProduct(`
     product RangeAccrual {
       underlying S model gbm

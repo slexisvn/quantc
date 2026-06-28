@@ -34,6 +34,7 @@ export const KEYWORDS = new Set([
   'pay',
   'at',
   'stop',
+  'let',
   'exercise',
   'and',
   'or',

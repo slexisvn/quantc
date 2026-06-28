@@ -1,0 +1,7 @@
+product G2ppSwaption {
+  underlying r model g2pp(meanReversionA = 0.7, meanReversionB = 0.1, volA = 0.01, volB = 0.012, correlation = -0.7)
+  param K = 0.03
+  event T = 1.0 {
+    pay max(1 - (K * bond(r, 2.0) + K * bond(r, 3.0) + K * bond(r, 4.0) + (1 + K) * bond(r, 5.0)), 0) at T
+  }
+}

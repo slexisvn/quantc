@@ -5,7 +5,7 @@ import { blackScholes } from '../../src/numerics/analytic/black-scholes'
 
 const market = { spot: 100, rate: 0.03, vol: 0.2 }
 
-describe('compiled .qc language — European parity', () => {
+describe('compiled Quill language — European parity', () => {
   const european = parseProduct(`
     product EuropeanCall {
       underlying S model gbm
@@ -30,7 +30,7 @@ describe('compiled .qc language — European parity', () => {
   })
 })
 
-describe('compiled .qc language — path-dependent products', () => {
+describe('compiled Quill language — path-dependent products', () => {
   it('up-and-out barrier (explicit state) is cheaper than the vanilla call', () => {
     const barrier = parseProduct(`
       product UpAndOut {

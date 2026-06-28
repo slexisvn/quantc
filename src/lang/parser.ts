@@ -1,6 +1,6 @@
 import { tokenize } from './lexer'
 import type { Token, TokenType } from './token'
-import type { Expr, Stmt, Product, Underlying, ParamDecl, VarDecl, EventDecl, EventSchedule, Position } from './ast'
+import type { Expr, Stmt, Product, Underlying, ModelParam, ParamDecl, VarDecl, EventDecl, EventSchedule, Position } from './ast'
 
 const INFIX_PRECEDENCE: Readonly<Record<string, number>> = {
   or: 10,
@@ -87,7 +87,26 @@ class Parser {
     const name = this.expect('ident').value
     this.expectKeyword('model')
     const model = this.expect('ident').value
-    return { name, model, pos }
+    const modelParams: ModelParam[] = []
+    if (this.peek().type === 'lparen') {
+      this.advance()
+      if (this.peek().type !== 'rparen') {
+        modelParams.push(this.parseModelParam())
+        while (this.peek().type === 'comma') {
+          this.advance()
+          modelParams.push(this.parseModelParam())
+        }
+      }
+      this.expect('rparen')
+    }
+    return { name, model, modelParams, pos }
+  }
+
+  private parseModelParam(): ModelParam {
+    const pos = this.position()
+    const name = this.expect('ident').value
+    this.expectOperator('=')
+    return { name, value: this.parseExpression(), pos }
   }
 
   private parseParam(): ParamDecl {
@@ -161,8 +180,13 @@ class Parser {
     if (this.isKeyword('pay')) {
       this.advance()
       const amount = this.parseExpression()
+      let currency: string | null = null
+      if (this.isKeyword('in')) {
+        this.advance()
+        currency = this.expect('ident').value
+      }
       this.expectKeyword('at')
-      return { kind: 'pay', amount, date: this.parseExpression(), pos }
+      return { kind: 'pay', amount, date: this.parseExpression(), currency, pos }
     }
     if (this.isKeyword('stop')) {
       this.advance()
@@ -188,6 +212,16 @@ class Parser {
   }
 
   parseExpression(): Expr {
+    if (this.isKeyword('let')) {
+      const pos = this.position()
+      this.advance()
+      const name = this.expect('ident').value
+      this.expectOperator('=')
+      const value = this.parseExpression()
+      this.expectKeyword('in')
+      const body = this.parseExpression()
+      return { kind: 'let', name, value, body, pos }
+    }
     const cond = this.parseBinary(0)
     if (this.peek().type === 'question') {
       const pos = this.position()

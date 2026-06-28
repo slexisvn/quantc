@@ -32,9 +32,9 @@ describe('language CLI', () => {
   })
 
   it('runs example files end to end', () => {
-    expect(runLangCli(['check', 'examples/european.qc'])).toBe('ok')
-    expect(runLangCli(['check', 'examples/autocall.qc'])).toBe('ok')
-    const output = runLangCli(['run', 'examples/european.qc', '--paths', '50000', '--seed', '1'])
+    expect(runLangCli(['check', 'examples/european.quill'])).toBe('ok')
+    expect(runLangCli(['check', 'examples/autocall.quill'])).toBe('ok')
+    const output = runLangCli(['run', 'examples/european.quill', '--paths', '50000', '--seed', '1'])
     expect(output).toContain('price')
     expect(output).toContain('delta')
   })

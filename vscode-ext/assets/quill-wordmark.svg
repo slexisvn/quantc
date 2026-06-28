@@ -1,0 +1,8 @@
+<svg width="252" height="100" viewBox="0 0 252 100" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Quill">
+  <title>Quill</title>
+  <g transform="translate(44,50) scale(0.62)">
+    <path d="M -44 0 a 44 44 0 1 0 88 0 a 44 44 0 1 0 -88 0 Z M -38 -6 a 32 32 0 1 0 64 0 a 32 32 0 1 0 -64 0 Z" fill="#6366F1" fill-rule="evenodd"/>
+    <path d="M 33 49 L 59 59 L 49 33 Z" fill="#14B8A6"/>
+  </g>
+  <text x="92" y="66" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="50" font-weight="500" fill="#6366F1" letter-spacing="-1">quill</text>
+</svg>

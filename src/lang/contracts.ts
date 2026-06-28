@@ -86,8 +86,8 @@ export function desugar(contract: Contract, underlying = 'S', model = 'gbm'): Pr
   const events: EventDecl[] = cashflows.map((cashflow, i) => ({
     variable: `e${i}`,
     schedule: { kind: 'single', date: num(cashflow.date) },
-    body: [{ kind: 'pay', amount: cashflow.amount(cashflow.date, underlying), date: num(cashflow.date), pos: ORIGIN }],
+    body: [{ kind: 'pay', amount: cashflow.amount(cashflow.date, underlying), date: num(cashflow.date), currency: null, pos: ORIGIN }],
     pos: ORIGIN,
   }))
-  return { name: 'Contract', underlyings: [{ name: underlying, model, pos: ORIGIN }], params: [], vars: [], events, pos: ORIGIN }
+  return { name: 'Contract', underlyings: [{ name: underlying, model, modelParams: [], pos: ORIGIN }], params: [], vars: [], events, pos: ORIGIN }
 }

@@ -1,0 +1,7 @@
+product FxCall {
+  underlying X model fx(foreignRate = 0.01)
+  param strike = 1.30
+  event T = 1.0 {
+    pay max(X(T) - strike, 0) at T
+  }
+}

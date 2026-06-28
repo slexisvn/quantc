@@ -1,5 +1,6 @@
 import type { Expr, Stmt, Product, Position } from './ast'
 import { type Type, ARITHMETIC_OPS, COMPARISON_OPS, LOGICAL_OPS, FUNCTIONS, PATH_FUNCTIONS } from './types'
+import { isModel, modelParams } from './models'
 
 export interface TypeError {
   readonly message: string
@@ -73,6 +74,15 @@ class Checker {
       }
       case 'call':
         return this.checkCall(expr)
+      case 'let': {
+        const valueType = this.checkExpr(expr.value)
+        const previous = this.scope.bindings.get(expr.name)
+        this.scope.bindings.set(expr.name, valueType)
+        const bodyType = this.checkExpr(expr.body)
+        if (previous === undefined) this.scope.bindings.delete(expr.name)
+        else this.scope.bindings.set(expr.name, previous)
+        return bodyType
+      }
     }
   }
 
@@ -80,6 +90,15 @@ class Checker {
     if (this.scope.underlyings.has(expr.callee)) {
       if (expr.args.length !== 1) this.report(`observable ${expr.callee}(t) takes one time argument`, expr.pos)
       else if (this.checkExpr(expr.args[0]) !== 'Number') this.report('observation time must be Number', expr.pos)
+      return 'Number'
+    }
+    if (expr.callee === 'bond') {
+      const underlying = expr.args[0]
+      if (underlying === undefined || underlying.kind !== 'ident' || !this.scope.underlyings.has(underlying.name)) {
+        this.report('bond expects a rate underlying as its first argument', expr.pos)
+      }
+      if (expr.args.length !== 2) this.report('bond(rate, maturity) takes two arguments', expr.pos)
+      else if (this.checkExpr(expr.args[1]) !== 'Number') this.report('bond maturity must be Number', expr.pos)
       return 'Number'
     }
     if (PATH_FUNCTIONS.has(expr.callee)) {
@@ -123,6 +142,7 @@ class Checker {
       case 'pay':
         if (this.checkExpr(stmt.amount) !== 'Number') this.report('pay amount must be Number', stmt.pos)
         if (this.checkExpr(stmt.date) !== 'Number') this.report('pay date must be Number', stmt.pos)
+        if (stmt.currency !== null && !this.scope.underlyings.has(stmt.currency)) this.report(`pay currency '${stmt.currency}' must be an FX underlying`, stmt.pos)
         return
       case 'stop':
         return
@@ -140,6 +160,16 @@ export function checkProduct(product: Product): TypeError[] {
   for (const declaration of product.vars) bindings.set(declaration.name, 'Number')
 
   const errors: TypeError[] = []
+  for (const underlying of product.underlyings) {
+    if (!isModel(underlying.model)) {
+      errors.push({ message: `unknown model '${underlying.model}'`, line: underlying.pos.line, col: underlying.pos.col })
+      continue
+    }
+    const schema = modelParams(underlying.model)
+    for (const param of underlying.modelParams) {
+      if (!schema.includes(param.name)) errors.push({ message: `model '${underlying.model}' has no parameter '${param.name}'`, line: param.pos.line, col: param.pos.col })
+    }
+  }
   for (const event of product.events) {
     const scope: Scope = { underlyings, bindings: new Map(bindings) }
     scope.bindings.set(event.variable, 'Number')

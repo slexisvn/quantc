@@ -1,0 +1,81 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Quill",
+  "scopeName": "source.quill",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#keywords" },
+    { "include": "#builtins" },
+    { "include": "#constants" },
+    { "include": "#numbers" },
+    { "include": "#functions" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.quill",
+          "begin": "//",
+          "end": "$"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "storage.type.quill",
+          "match": "\\b(product|underlying|model|param|var)\\b"
+        },
+        {
+          "name": "keyword.control.quill",
+          "match": "\\b(event|in|schedule|if|then|else|pay|at|stop|exercise|let)\\b"
+        },
+        {
+          "name": "keyword.operator.logical.quill",
+          "match": "\\b(and|or|not)\\b"
+        }
+      ]
+    },
+    "builtins": {
+      "patterns": [
+        {
+          "name": "support.function.builtin.quill",
+          "match": "\\b(max|min|exp|log|sqrt|abs|runningMax|runningMin|average|bond)\\b(?=\\s*\\()"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "support.constant.model.quill",
+          "match": "\\b(gbm|bachelier|displaced|cev|heston|merton|hw1f|g2pp|fx)\\b"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.quill",
+          "match": "\\b\\d+(\\.\\d+)?([eE][+-]?\\d+)?\\b|(?<![\\w.])\\.\\d+([eE][+-]?\\d+)?"
+        }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        {
+          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\()",
+          "name": "entity.name.function.quill"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.quill",
+          "match": "<=|>=|==|!=|<|>|\\+|-|\\*|/|=|\\?|:"
+        }
+      ]
+    }
+  }
+}

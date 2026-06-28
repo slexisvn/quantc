@@ -1,0 +1,100 @@
+{
+  "Product skeleton": {
+    "prefix": "product",
+    "body": [
+      "product ${1:Name} {",
+      "  underlying ${2:S} model ${3:gbm}",
+      "  param ${4:strike} = ${5:100}",
+      "  event ${6:T} = ${7:1.0} {",
+      "    pay ${8:max($2(T) - $4, 0)} at $6",
+      "  }",
+      "}"
+    ],
+    "description": "A new Quill product with one event"
+  },
+  "European call": {
+    "prefix": "european",
+    "body": [
+      "product ${1:EuropeanCall} {",
+      "  underlying S model gbm",
+      "  param strike = ${2:100}",
+      "  event T = ${3:1.0} {",
+      "    pay max(S(T) - strike, 0) at T",
+      "  }",
+      "}"
+    ],
+    "description": "European call option"
+  },
+  "Single fixing event": {
+    "prefix": "event",
+    "body": [
+      "event ${1:T} = ${2:1.0} {",
+      "  pay ${3:payoff} at $1",
+      "}"
+    ],
+    "description": "An event at a single time"
+  },
+  "Scheduled event": {
+    "prefix": "eventsched",
+    "body": [
+      "event ${1:t} in schedule(${2:0.25}, ${3:3.0}, ${4:0.25}) {",
+      "  $0",
+      "}"
+    ],
+    "description": "An event over a date schedule"
+  },
+  "Schedule": {
+    "prefix": "schedule",
+    "body": "schedule(${1:start}, ${2:end}, ${3:step})",
+    "description": "A date schedule (start, end, step)"
+  },
+  "Pay statement": {
+    "prefix": "pay",
+    "body": "pay ${1:amount} at ${2:T}",
+    "description": "Record a cashflow"
+  },
+  "If statement": {
+    "prefix": "if",
+    "body": [
+      "if ${1:condition} then {",
+      "  $0",
+      "}"
+    ],
+    "description": "Conditional block"
+  },
+  "If/else statement": {
+    "prefix": "ifelse",
+    "body": [
+      "if ${1:condition} then {",
+      "  $2",
+      "} else {",
+      "  $0",
+      "}"
+    ],
+    "description": "Conditional with else branch"
+  },
+  "Early exercise": {
+    "prefix": "exercise",
+    "body": [
+      "exercise continuation {",
+      "  pay ${1:max(strike - S(t), 0)} at ${2:t}",
+      "}"
+    ],
+    "description": "Early-exercise (Longstaff-Schwartz) decision"
+  },
+  "Parameter": {
+    "prefix": "param",
+    "body": "param ${1:name} = ${2:value}",
+    "description": "A compile-time parameter"
+  },
+  "Path variable": {
+    "prefix": "var",
+    "body": "var ${1:name} = ${2:0}",
+    "description": "Mutable path state"
+  },
+  "Underlying": {
+    "prefix": "underlying",
+    "body": "underlying ${1:S} model ${2:gbm}",
+    "description": "Bind an asset to a model"
+  }
+}

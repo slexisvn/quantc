@@ -33,7 +33,7 @@ export function hullWhiteBond(spec: HullWhiteSpec, t: number, maturity: number, 
   return Math.exp(logA - b * shortRate)
 }
 
-function zeroBondPut(spec: HullWhiteSpec, expiry: number, bondMaturity: number, strike: number): number {
+export function zeroBondPut(spec: HullWhiteSpec, expiry: number, bondMaturity: number, strike: number): number {
   const a = spec.meanReversion
   const sigmaP = spec.vol * bFactor(a, bondMaturity - expiry) * Math.sqrt((1 - Math.exp(-2 * a * expiry)) / (2 * a))
   const pBond = spec.curve.discountFactor(bondMaturity)

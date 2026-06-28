@@ -4,7 +4,7 @@ import { priceProduct } from '../../src/lang/compile'
 import { pricePde } from '../../src/engines/pde-engine'
 import { blackScholes } from '../../src/numerics/analytic/black-scholes'
 
-describe('compiled .qc language — early exercise (in-graph LSM)', () => {
+describe('compiled Quill language — early exercise (in-graph LSM)', () => {
   const bermudan = parseProduct(`
     product BermudanPut {
       underlying S model gbm

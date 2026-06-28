@@ -16,7 +16,8 @@ export function priceScript(source: string, market: ProductMarket, paths: number
   const product = parseProduct(source)
   const errors = checkProduct(product)
   if (errors.length > 0) throw new Error(`type errors:\n${errors.map((e) => `${e.line}:${e.col}: ${e.message}`).join('\n')}`)
-  return priceProduct(product, market, paths, seed)
+
+  return priceProduct(product, market, paths, seed, { greeks: 'first-order' })
 }
 
 function parseFlags(args: readonly string[]): Map<string, string> {
@@ -35,7 +36,7 @@ function flagNumber(flags: Map<string, string>, key: string, fallback: number): 
 export function runLangCli(argv: readonly string[]): string {
   const command = argv[0]
   const file = argv[1]
-  if (command === undefined || file === undefined) return 'usage: quantc <run|check|print> file.qc'
+  if (command === undefined || file === undefined) return 'usage: quill <run|check|print> file.quill'
   const source = readFileSync(file, 'utf8')
 
   if (command === 'check') {

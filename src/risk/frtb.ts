@@ -1,3 +1,5 @@
+import { quadraticAggregate, nestedAggregate, constantCorrelation } from './aggregation'
+
 export interface FrtbSensitivity {
   readonly bucket: number
   readonly sensitivity: number
@@ -18,28 +20,13 @@ export function deltaRiskCharge(sensitivities: readonly FrtbSensitivity[], corre
     else buckets.set(sensitivity.bucket, [weighted])
   }
 
-  const bucketKeys = [...buckets.keys()]
-  const kb: number[] = []
-  const sb: number[] = []
-  for (const key of bucketKeys) {
-    const weighted = buckets.get(key)!
-    let variance = 0
+  const withinCorrelation = constantCorrelation(correlations.withinBucket)
+  const cells = [...buckets.values()].map((weighted) => {
     let sum = 0
-    for (let i = 0; i < weighted.length; i += 1) {
-      sum += weighted[i]
-      for (let j = 0; j < weighted.length; j += 1) variance += (i === j ? 1 : correlations.withinBucket) * weighted[i] * weighted[j]
-    }
-    kb.push(Math.sqrt(Math.max(variance, 0)))
-    sb.push(sum)
-  }
-
-  let total = 0
-  for (let b = 0; b < bucketKeys.length; b += 1) {
-    for (let c = 0; c < bucketKeys.length; c += 1) {
-      total += (b === c ? 1 : correlations.acrossBucket) * (b === c ? kb[b] * kb[b] : sb[b] * sb[c])
-    }
-  }
-  return Math.sqrt(Math.max(total, 0))
+    for (const w of weighted) sum += w
+    return { margin: quadraticAggregate(weighted, withinCorrelation), residual: sum }
+  })
+  return nestedAggregate(cells, constantCorrelation(correlations.acrossBucket)).margin
 }
 
 export function vegaRiskCharge(sensitivities: readonly FrtbSensitivity[], correlations: FrtbCorrelations): number {

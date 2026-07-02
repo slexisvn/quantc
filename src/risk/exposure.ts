@@ -1,6 +1,7 @@
 import { MersenneTwister } from '../numerics/rng/mersenne-twister'
 import { inverseNormalCdf } from '../numerics/rng/inverse-normal-cdf'
 import { blackScholes } from '../numerics/analytic/black-scholes'
+import { exposureStatistics } from '../xva/exposure-stats'
 
 export interface Trade {
   mtm(spot: number, time: number): number
@@ -49,12 +50,6 @@ export interface ExposureProfile {
   readonly mtmPaths: Float64Array[]
 }
 
-function quantileOf(values: Float64Array, q: number): number {
-  const sorted = Float64Array.from(values).sort()
-  const index = Math.min(sorted.length - 1, Math.floor(q * sorted.length))
-  return sorted[index]
-}
-
 export function simulateExposure(portfolio: readonly Trade[], market: MarketState, config: ExposureConfig): ExposureProfile {
   const steps = config.grid.length
   const generator = new MersenneTwister(config.seed)
@@ -76,39 +71,7 @@ export function simulateExposure(portfolio: readonly Trade[], market: MarketStat
     }
   }
 
-  const epe: number[] = []
-  const ene: number[] = []
-  const pfe: number[] = []
-  const collateralEpe: number[] = []
-  for (let k = 0; k < steps; k += 1) {
-    const positive = new Float64Array(config.paths)
-    let sumPositive = 0
-    let sumNegative = 0
-    let sumCollateral = 0
-    for (let p = 0; p < config.paths; p += 1) {
-      const value = mtmPaths[k][p]
-      const exposure = Math.max(value, 0)
-      positive[p] = exposure
-      sumPositive += exposure
-      sumNegative += Math.min(value, 0)
-      const collateral = k > 0 ? Math.max(mtmPaths[k - 1][p] - config.collateralThreshold, 0) : 0
-      sumCollateral += Math.max(value - collateral, 0)
-    }
-    epe.push(sumPositive / config.paths)
-    ene.push(sumNegative / config.paths)
-    pfe.push(quantileOf(positive, config.quantile))
-    collateralEpe.push(sumCollateral / config.paths)
-  }
+  const stats = exposureStatistics(config.grid, mtmPaths, { quantile: config.quantile, collateralThreshold: config.collateralThreshold })
 
-  let runningMax = 0
-  let integral = 0
-  let previousTime = 0
-  for (let k = 0; k < steps; k += 1) {
-    runningMax = Math.max(runningMax, epe[k])
-    integral += runningMax * (config.grid[k] - previousTime)
-    previousTime = config.grid[k]
-  }
-  const eepe = integral / config.grid[steps - 1]
-
-  return { times: config.grid, epe, ene, pfe, collateralEpe, eepe, spotPaths, mtmPaths }
+  return { times: config.grid, epe: stats.epe, ene: stats.ene, pfe: stats.pfe, collateralEpe: stats.collateralEpe, eepe: stats.eepe, spotPaths, mtmPaths }
 }

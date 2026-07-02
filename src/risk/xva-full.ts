@@ -1,6 +1,7 @@
 import { MersenneTwister } from '../numerics/rng/mersenne-twister'
 import { inverseNormalCdf } from '../numerics/rng/inverse-normal-cdf'
 import { blackScholes } from '../numerics/analytic/black-scholes'
+import { collateralisedMtm } from '../xva/collateral'
 
 export interface FullTrade {
   mtm(spot: number, time: number): number
@@ -69,6 +70,7 @@ export function simulateFullExposure(portfolio: readonly FullTrade[], market: Fu
     }
   }
 
+  const residual = collateralisedMtm(mtm, config.grid, { threshold: config.threshold, minimumTransfer: config.minimumTransfer, independentAmount: 0, mporSteps: config.mporSteps })
   const epe: number[] = []
   const collateralEpe: number[] = []
   const imProfile: number[] = []
@@ -78,11 +80,7 @@ export function simulateFullExposure(portfolio: readonly FullTrade[], market: Fu
     let sumIm = 0
     for (let p = 0; p < config.paths; p += 1) {
       sumPositive += Math.max(mtm[k][p], 0)
-      const lagIndex = k - config.mporSteps
-      const lagged = lagIndex >= 0 ? mtm[lagIndex][p] : 0
-      const required = Math.max(lagged - config.threshold, 0)
-      const collateral = required >= config.minimumTransfer ? required : 0
-      sumCollateral += Math.max(mtm[k][p] - collateral, 0)
+      sumCollateral += Math.max(residual[k][p], 0)
       sumIm += im[k][p]
     }
     epe.push(sumPositive / config.paths)

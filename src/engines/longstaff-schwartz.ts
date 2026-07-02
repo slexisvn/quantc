@@ -1,6 +1,8 @@
 import { MersenneTwister } from '../numerics/rng/mersenne-twister'
 import { inverseNormalCdf } from '../numerics/rng/inverse-normal-cdf'
 import { solveLinearSystem } from '../numerics/linalg/solve'
+import { ridgeRegression } from '../alpha/regression'
+import type { Basis } from '../numerics/basis'
 
 export interface BermudanSpec {
   readonly spot: number
@@ -12,6 +14,8 @@ export interface BermudanSpec {
   readonly exerciseDates: number
   readonly paths: number
   readonly seed: number
+  readonly basis?: Basis
+  readonly ridgeLambda?: number
 }
 
 function intrinsic(spot: number, strike: number, isCall: boolean): number {
@@ -52,29 +56,52 @@ export function priceBermudanLsm(spec: BermudanSpec): number {
     for (let p = 0; p < spec.paths; p += 1) value[p] *= stepDiscount
     const level = fixings[step]
 
-    const ata = [
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-    ]
-    const aty = [0, 0, 0]
+    if (spec.basis === undefined) {
+      const ata = [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+      ]
+      const aty = [0, 0, 0]
+      const inMoney: number[] = []
+      for (let p = 0; p < spec.paths; p += 1) {
+        if (intrinsic(level[p], spec.strike, spec.isCall) <= 0) continue
+        inMoney.push(p)
+        const x = level[p] / spec.strike
+        const basis = [1, x, x * x]
+        for (let i = 0; i < 3; i += 1) {
+          for (let j = 0; j < 3; j += 1) ata[i][j] += basis[i] * basis[j]
+          aty[i] += basis[i] * value[p]
+        }
+      }
+      if (inMoney.length < 3) continue
+
+      const coefficients = solveLinearSystem(ata, aty)
+      for (const p of inMoney) {
+        const x = level[p] / spec.strike
+        const continuation = coefficients[0] + coefficients[1] * x + coefficients[2] * x * x
+        const exercise = intrinsic(level[p], spec.strike, spec.isCall)
+        if (exercise > continuation) value[p] = exercise
+      }
+      continue
+    }
+
+    const design: number[][] = []
+    const response: number[] = []
     const inMoney: number[] = []
     for (let p = 0; p < spec.paths; p += 1) {
       if (intrinsic(level[p], spec.strike, spec.isCall) <= 0) continue
       inMoney.push(p)
-      const x = level[p] / spec.strike
-      const basis = [1, x, x * x]
-      for (let i = 0; i < 3; i += 1) {
-        for (let j = 0; j < 3; j += 1) ata[i][j] += basis[i] * basis[j]
-        aty[i] += basis[i] * value[p]
-      }
+      design.push(spec.basis.evaluate(level[p] / spec.strike))
+      response.push(value[p])
     }
-    if (inMoney.length < 3) continue
+    if (inMoney.length < spec.basis.size) continue
 
-    const coefficients = solveLinearSystem(ata, aty)
+    const coefficients = ridgeRegression(design, response, spec.ridgeLambda ?? 0)
     for (const p of inMoney) {
-      const x = level[p] / spec.strike
-      const continuation = coefficients[0] + coefficients[1] * x + coefficients[2] * x * x
+      const features = spec.basis.evaluate(level[p] / spec.strike)
+      let continuation = 0
+      for (let i = 0; i < features.length; i += 1) continuation += features[i] * coefficients[i]
       const exercise = intrinsic(level[p], spec.strike, spec.isCall)
       if (exercise > continuation) value[p] = exercise
     }

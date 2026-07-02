@@ -1,6 +1,7 @@
 import { MersenneTwister } from '../../numerics/rng/mersenne-twister'
 import { inverseNormalCdf } from '../../numerics/rng/inverse-normal-cdf'
 import { Welford } from '../../numerics/stats/welford'
+import { conditionalVariance } from './slv-particle'
 
 export interface SlvCalibrationSpec {
   readonly spot: number
@@ -22,21 +23,6 @@ export type TargetLocalVol = (spot: number, time: number) => number
 export interface SlvCalibrationResult {
   readonly price: number
   readonly standardError: number
-}
-
-function conditionalVariance(spots: Float64Array, variances: Float64Array, bins: number): Float64Array {
-  const paths = spots.length
-  const order = Array.from({ length: paths }, (_, i) => i).sort((a, b) => spots[a] - spots[b])
-  const conditional = new Float64Array(paths)
-  const binSize = Math.ceil(paths / bins)
-  for (let start = 0; start < paths; start += binSize) {
-    const end = Math.min(start + binSize, paths)
-    let sum = 0
-    for (let k = start; k < end; k += 1) sum += variances[order[k]]
-    const mean = sum / (end - start)
-    for (let k = start; k < end; k += 1) conditional[order[k]] = mean
-  }
-  return conditional
 }
 
 export function calibrateAndPriceSlvCall(spec: SlvCalibrationSpec, strike: number, targetLocalVol: TargetLocalVol): SlvCalibrationResult {

@@ -68,4 +68,18 @@ export class Sobol {
     }
     return point
   }
+
+  directionNumbers(): readonly Uint32Array[] {
+    return this.directions
+  }
+
+  get bits(): number {
+    return TABLE.bits
+  }
+}
+
+export const SOBOL_SCALE = SCALE
+
+export function sobolTrailingZeros(value: number): number {
+  return trailingZeros(value)
 }

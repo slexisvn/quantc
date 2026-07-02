@@ -57,8 +57,13 @@ export function volTarget(weights: Matrix, returns: Matrix, target: number, peri
   return weights.map((row) => row.map((w) => w * scale))
 }
 
+export function identityPortfolio(): Portfolio {
+  return (score) => score
+}
+
 export const PORTFOLIOS: Record<string, PortfolioFactory> = {
   equalWeight: () => equalWeight(),
   crossSectional: () => crossSectional(),
   longShortRank: (params = {}) => longShortRank(params.fraction),
+  identity: () => identityPortfolio(),
 }

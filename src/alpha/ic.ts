@@ -31,10 +31,9 @@ export function alphaDecay(signal: Matrix, returns: Matrix, horizons: number[], 
   return horizons.map((horizon) => ({ horizon, ic: meanStd(icSeries(signal, returns, horizon, rank)).mean }))
 }
 
-export function combineSignals(signals: Matrix[], weights?: number[]): Matrix {
+export function blendZscored(signals: readonly Matrix[], weightAt: (t: number, s: number) => number): Matrix {
   const count = signals.length
   if (count === 0) return []
-  const blend = weights ?? new Array<number>(count).fill(1 / count)
   const t = signals[0].length
   const n = t === 0 ? 0 : signals[0][0].length
   const out = Array.from({ length: t }, () => new Array<number>(n).fill(0))
@@ -42,8 +41,15 @@ export function combineSignals(signals: Matrix[], weights?: number[]): Matrix {
     for (let i = 0; i < t; i += 1) {
       const row = signals[s][i]
       const { mean, std } = meanStd(row)
-      for (let j = 0; j < n; j += 1) out[i][j] += blend[s] * (std < 1e-12 ? 0 : (row[j] - mean) / std)
+      for (let j = 0; j < n; j += 1) out[i][j] += weightAt(i, s) * (std < 1e-12 ? 0 : (row[j] - mean) / std)
     }
   }
   return out
+}
+
+export function combineSignals(signals: Matrix[], weights?: number[]): Matrix {
+  const count = signals.length
+  if (count === 0) return []
+  const blend = weights ?? new Array<number>(count).fill(1 / count)
+  return blendZscored(signals, (_t, s) => blend[s])
 }

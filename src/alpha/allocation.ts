@@ -1,7 +1,9 @@
 import type { Matrix } from './types'
 import { differentialEvolution } from '../numerics/optimization/differential-evolution'
+import { solveLinearSystem } from '../numerics/linalg/solve'
 import { correlationFromCovariance } from './covariance'
 import { matVec, dot, matMul, transpose, invert, scaleMatrix, addMatrices } from './linalg'
+import { singleLinkage, orderFromLinkage, clusterVariance, correlationDistance } from './cluster'
 
 export function riskContributions(covariance: Matrix, weights: number[]): number[] {
   const sigmaW = matVec(covariance, weights)
@@ -32,67 +34,10 @@ export function riskParity(covariance: Matrix, budget?: number[], iterations = 2
   return weights
 }
 
-type ClusterNode = number | { readonly left: ClusterNode; readonly right: ClusterNode }
-
-function singleLinkageOrder(distance: Matrix): number[] {
-  const n = distance.length
-  const clusters: { members: number[]; node: ClusterNode }[] = []
-  for (let i = 0; i < n; i += 1) clusters.push({ members: [i], node: i })
-  const linkage = (a: number[], b: number[]): number => {
-    let minimum = Infinity
-    for (const x of a) for (const y of b) if (distance[x][y] < minimum) minimum = distance[x][y]
-    return minimum
-  }
-  while (clusters.length > 1) {
-    let bestI = 0
-    let bestJ = 1
-    let best = Infinity
-    for (let i = 0; i < clusters.length; i += 1) {
-      for (let j = i + 1; j < clusters.length; j += 1) {
-        const d = linkage(clusters[i].members, clusters[j].members)
-        if (d < best) {
-          best = d
-          bestI = i
-          bestJ = j
-        }
-      }
-    }
-    const merged = {
-      members: [...clusters[bestI].members, ...clusters[bestJ].members],
-      node: { left: clusters[bestI].node, right: clusters[bestJ].node } as ClusterNode,
-    }
-    clusters.splice(bestJ, 1)
-    clusters.splice(bestI, 1)
-    clusters.push(merged)
-  }
-  const order: number[] = []
-  const flatten = (node: ClusterNode): void => {
-    if (typeof node === 'number') order.push(node)
-    else {
-      flatten(node.left)
-      flatten(node.right)
-    }
-  }
-  if (clusters.length > 0) flatten(clusters[0].node)
-  return order
-}
-
-function clusterVariance(covariance: Matrix, items: number[]): number {
-  const inverse = items.map((i) => 1 / Math.max(covariance[i][i], 1e-18))
-  const sum = inverse.reduce((s, x) => s + x, 0)
-  const weights = inverse.map((x) => x / sum)
-  let variance = 0
-  for (let a = 0; a < items.length; a += 1) {
-    for (let b = 0; b < items.length; b += 1) variance += weights[a] * covariance[items[a]][items[b]] * weights[b]
-  }
-  return variance
-}
-
 export function hierarchicalRiskParity(covariance: Matrix): number[] {
   const n = covariance.length
-  const correlation = correlationFromCovariance(covariance)
-  const distance = correlation.map((row) => row.map((c) => Math.sqrt(Math.max(0.5 * (1 - c), 0))))
-  const order = singleLinkageOrder(distance)
+  const distance = correlationDistance(correlationFromCovariance(covariance))
+  const order = orderFromLinkage(singleLinkage(distance), n)
   const weights = new Array<number>(n).fill(1)
   let clusters: number[][] = order.length > 0 ? [order] : []
   while (clusters.length > 0) {
@@ -153,18 +98,62 @@ export interface MeanVarianceConstraints {
   readonly seed?: number
 }
 
+function negativeQuadraticUtility(expectedReturns: readonly number[], covariance: Matrix, riskAversion: number): (x: number[]) => number {
+  const n = expectedReturns.length
+  return (x) => {
+    let expected = 0
+    for (let i = 0; i < n; i += 1) expected += expectedReturns[i] * x[i]
+    let risk = 0
+    for (let i = 0; i < n; i += 1) for (let j = 0; j < n; j += 1) risk += x[i] * covariance[i][j] * x[j]
+    return -(expected - 0.5 * riskAversion * risk)
+  }
+}
+
+function grossExposure(x: readonly number[]): number {
+  return x.reduce((s, v) => s + Math.abs(v), 0)
+}
+
 export function constrainedMeanVariance(expectedReturns: number[], covariance: Matrix, constraints: MeanVarianceConstraints = {}): number[] {
   const { longOnly = false, maxWeight = 1, maxLeverage = 1, riskAversion = 1, penaltyWeight = 1e3, seed = 1 } = constraints
   const n = expectedReturns.length
   const lower = new Array<number>(n).fill(longOnly ? 0 : -maxWeight)
   const upper = new Array<number>(n).fill(maxWeight)
+  const utility = negativeQuadraticUtility(expectedReturns, covariance, riskAversion)
+  const objective = (x: number[]): number => utility(x) + penaltyWeight * (grossExposure(x) - maxLeverage) ** 2
+  return differentialEvolution(objective, lower, upper, { seed }).point
+}
+
+export function minVariance(covariance: Matrix): number[] {
+  const raw = solveLinearSystem(covariance, new Array<number>(covariance.length).fill(1))
+  const total = raw.reduce((s, x) => s + x, 0)
+  return Math.abs(total) < 1e-12 ? raw : raw.map((x) => x / total)
+}
+
+export interface TurnoverAwareOptions {
+  readonly riskAversion: number
+  readonly costPerTurnover: number
+  readonly maxWeight: number
+  readonly maxLeverage: number
+  readonly penaltyWeight: number
+  readonly seed: number
+}
+
+export function turnoverAwareOptimize(expectedReturns: readonly number[], covariance: Matrix, previousWeights: readonly number[], options: Partial<TurnoverAwareOptions> = {}): number[] {
+  const { riskAversion = 1, costPerTurnover = 0, maxWeight = 1, maxLeverage = 1, penaltyWeight = 1e3, seed = 1 } = options
+  const n = expectedReturns.length
+  const lower = new Array<number>(n).fill(-maxWeight)
+  const upper = new Array<number>(n).fill(maxWeight)
+  const utility = negativeQuadraticUtility(expectedReturns, covariance, riskAversion)
   const objective = (x: number[]): number => {
-    let expected = 0
-    for (let i = 0; i < n; i += 1) expected += expectedReturns[i] * x[i]
-    let risk = 0
-    for (let i = 0; i < n; i += 1) for (let j = 0; j < n; j += 1) risk += x[i] * covariance[i][j] * x[j]
-    const gross = x.reduce((s, v) => s + Math.abs(v), 0)
-    return -(expected - 0.5 * riskAversion * risk) + penaltyWeight * (gross - maxLeverage) ** 2
+    let turnoverCost = 0
+    for (let i = 0; i < n; i += 1) turnoverCost += costPerTurnover * Math.abs(x[i] - previousWeights[i])
+    return utility(x) + turnoverCost + penaltyWeight * Math.max(0, grossExposure(x) - maxLeverage) ** 2
   }
   return differentialEvolution(objective, lower, upper, { seed }).point
+}
+
+export const ALLOCATORS: Record<string, (covariance: Matrix, params?: Record<string, number>) => number[]> = {
+  riskParity: (covariance) => riskParity(covariance),
+  hrp: (covariance) => hierarchicalRiskParity(covariance),
+  minVariance: (covariance) => minVariance(covariance),
 }

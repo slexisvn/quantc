@@ -1,5 +1,8 @@
 import type { Signal, SignalFactory } from './types'
 import { perColumn, rollingMeanStd, mapMatrix } from './util'
+import { pipe, toReturnsOperator } from './operators'
+import { tsSum, tsZscore, decayLinear } from './ts-operators'
+import { csRank, csDemean, csScale } from './cs-operators'
 
 export function momentum(lookback = 20): Signal {
   return (prices) =>
@@ -24,8 +27,18 @@ export function zscore(window = 20): Signal {
     })
 }
 
+export function rankMomentum(lookback = 20): Signal {
+  return pipe(toReturnsOperator(), tsSum(lookback), csRank(), csDemean(), csScale())
+}
+
+export function decayedZscore(window = 20, decay = 10): Signal {
+  return pipe(tsZscore(window), decayLinear(decay))
+}
+
 export const SIGNALS: Record<string, SignalFactory> = {
   momentum: (params = {}) => momentum(params.lookback),
   meanReversion: (params = {}) => meanReversion(params.lookback),
   zscore: (params = {}) => zscore(params.window),
+  rankMomentum: (params = {}) => rankMomentum(params.lookback),
+  decayedZscore: (params = {}) => decayedZscore(params.window, params.decay),
 }

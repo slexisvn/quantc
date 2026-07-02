@@ -1,5 +1,6 @@
 import { normalCdf } from '../numerics/analytic/black-scholes'
 import { inverseNormalCdf } from '../numerics/rng/inverse-normal-cdf'
+import { combinations } from './combinatorics'
 import { moments } from './stats'
 import type { Matrix } from './types'
 import { rows, cols } from './util'
@@ -46,24 +47,6 @@ export function minTrackRecordLength(returns: number[], targetSharpe = 0, confid
   if (Math.abs(sharpe - targetSharpe) < 1e-12) return Infinity
   const z = inverseNormalCdf(confidence)
   return 1 + (1 - skew * sharpe + ((kurt - 1) / 4) * sharpe * sharpe) * (z / (sharpe - targetSharpe)) ** 2
-}
-
-function combinations(n: number, k: number): number[][] {
-  const result: number[][] = []
-  const chosen: number[] = []
-  const recurse = (start: number): void => {
-    if (chosen.length === k) {
-      result.push(chosen.slice())
-      return
-    }
-    for (let i = start; i < n; i += 1) {
-      chosen.push(i)
-      recurse(i + 1)
-      chosen.pop()
-    }
-  }
-  recurse(0)
-  return result
 }
 
 function sharpeOverRows(returns: Matrix, rowIndices: number[], column: number): number {

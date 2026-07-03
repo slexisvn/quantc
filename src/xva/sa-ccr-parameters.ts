@@ -1,3 +1,5 @@
+import { createRegistry } from '../registry'
+
 export interface SaccrAssetClassParameters {
   readonly supervisoryFactor: number
   readonly supervisoryCorrelation: number
@@ -34,15 +36,12 @@ function buildBaselParameters(): SaccrParameters {
 
 export const SACCR_PARAMETERS_BASEL: SaccrParameters = buildBaselParameters()
 
-const registry = new Map<string, SaccrParameters>([['basel', SACCR_PARAMETERS_BASEL]])
+const registry = createRegistry<SaccrParameters>('SA-CCR parameters', [['basel', SACCR_PARAMETERS_BASEL]])
 
 export function registerSaccrParameters(name: string, params: SaccrParameters): void {
-  if (registry.has(name)) throw new Error(`duplicate SA-CCR parameters ${name}`)
-  registry.set(name, params)
+  registry.register(name, params)
 }
 
 export function getSaccrParameters(name: string): SaccrParameters {
-  const params = registry.get(name)
-  if (params === undefined) throw new Error(`unknown SA-CCR parameters ${name}`)
-  return params
+  return registry.get(name)
 }

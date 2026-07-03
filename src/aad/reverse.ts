@@ -2,12 +2,7 @@ import type { Graph } from '../ir/graph'
 import { topoSort } from '../ir/topo'
 import { registry } from '../ir/op-registry'
 import { GradAccumulator } from './grad-accumulator'
-
-function require(values: Map<number, Float64Array>, id: number): Float64Array {
-  const value = values.get(id)
-  if (value === undefined) throw new Error(`missing forward value ${id}`)
-  return value
-}
+import { requireValue } from './values'
 
 function reduceToLength(grad: Float64Array, target: number): Float64Array {
   if (grad.length === target) return grad
@@ -29,8 +24,8 @@ export function reverse(graph: Graph, forward: Map<number, Float64Array>, seeds:
     if (node.operands.length === 0) continue
     const adjOut = accumulator.get(node.result.id)
     if (adjOut === null) continue
-    const operands = node.operands.map((operand) => require(forward, operand.id))
-    const result = require(forward, node.result.id)
+    const operands = node.operands.map((operand) => requireValue(forward, operand.id))
+    const result = requireValue(forward, node.result.id)
     const raw = registry.get(node.op).adjointFn(operands, result, adjOut, node.attrs)
     for (let i = 0; i < node.operands.length; i += 1) {
       accumulator.add(node.operands[i].id, reduceToLength(raw[i], operands[i].length))

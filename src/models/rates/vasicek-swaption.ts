@@ -1,6 +1,7 @@
 import { normalCdf } from '../../numerics/analytic/black-scholes'
 import { MersenneTwister } from '../../numerics/rng/mersenne-twister'
 import { inverseNormalCdf } from '../../numerics/rng/inverse-normal-cdf'
+import { affineBFactor, affineCouponFlows } from './common'
 
 export interface VasicekModel {
   readonly shortRate: number
@@ -9,21 +10,17 @@ export interface VasicekModel {
   readonly vol: number
 }
 
-function bFactor(a: number, tenor: number): number {
-  return (1 - Math.exp(-a * tenor)) / a
-}
-
 export function discountBond(model: VasicekModel, rate: number, t: number, maturity: number): number {
   const a = model.meanReversion
   const tenor = maturity - t
-  const b = bFactor(a, tenor)
+  const b = affineBFactor(a, tenor)
   const logA = (b - tenor) * (a * a * model.longRate - 0.5 * model.vol * model.vol) / (a * a) - (model.vol * model.vol * b * b) / (4 * a)
   return Math.exp(logA - b * rate)
 }
 
 function bondOptionVol(model: VasicekModel, expiry: number, bondMaturity: number): number {
   const a = model.meanReversion
-  return model.vol * Math.sqrt((1 - Math.exp(-2 * a * expiry)) / (2 * a)) * bFactor(a, bondMaturity - expiry)
+  return model.vol * Math.sqrt((1 - Math.exp(-2 * a * expiry)) / (2 * a)) * affineBFactor(a, bondMaturity - expiry)
 }
 
 export function zeroBondPut(model: VasicekModel, expiry: number, bondMaturity: number, strike: number): number {
@@ -41,10 +38,6 @@ export interface Swaption {
   readonly fixedRate: number
 }
 
-function couponFlows(swaption: Swaption): number[] {
-  return swaption.accruals.map((accrual, i) => (i === swaption.accruals.length - 1 ? 1 + swaption.fixedRate * accrual : swaption.fixedRate * accrual))
-}
-
 function couponBond(model: VasicekModel, rate: number, swaption: Swaption, flows: number[]): number {
   let value = 0
   for (let i = 0; i < swaption.times.length; i += 1) value += flows[i] * discountBond(model, rate, swaption.expiry, swaption.times[i])
@@ -52,7 +45,7 @@ function couponBond(model: VasicekModel, rate: number, swaption: Swaption, flows
 }
 
 export function jamshidianPayerSwaption(model: VasicekModel, swaption: Swaption): number {
-  const flows = couponFlows(swaption)
+  const flows = affineCouponFlows(swaption.accruals, swaption.fixedRate)
   let low = -1
   let high = 1
   for (let iteration = 0; iteration < 200; iteration += 1) {
@@ -73,7 +66,7 @@ export function jamshidianPayerSwaption(model: VasicekModel, swaption: Swaption)
 export function monteCarloPayerSwaption(model: VasicekModel, swaption: Swaption, steps: number, paths: number, seed: number): number {
   const dt = swaption.expiry / steps
   const a = model.meanReversion
-  const flows = couponFlows(swaption)
+  const flows = affineCouponFlows(swaption.accruals, swaption.fixedRate)
   const generator = new MersenneTwister(seed)
 
   let total = 0

@@ -2,33 +2,7 @@ import type { Graph } from '../ir/graph'
 import type { Value } from '../ir/value'
 import { topoSort } from '../ir/topo'
 import { registerSymbolicVjps, getSymbolicVjp } from './vjp-symbolic'
-
-class SymbolicAccumulator {
-  private readonly pending = new Map<number, Value[]>()
-
-  constructor(private readonly graph: Graph) {}
-
-  add(id: number, value: Value): void {
-    const existing = this.pending.get(id)
-    if (existing !== undefined) existing.push(value)
-    else this.pending.set(id, [value])
-  }
-
-  get(id: number): Value | null {
-    const values = this.pending.get(id)
-    if (values === undefined || values.length === 0) return null
-    let level = values
-    while (level.length > 1) {
-      const next: Value[] = []
-      for (let i = 0; i < level.length; i += 2) {
-        if (i + 1 < level.length) next.push(this.graph.add(level[i], level[i + 1]))
-        else next.push(level[i])
-      }
-      level = next
-    }
-    return level[0]
-  }
-}
+import { Accumulator } from './accumulator'
 
 export interface BackwardGraph {
   readonly graph: Graph
@@ -39,7 +13,7 @@ export interface BackwardGraph {
 export function buildBackwardGraph(graph: Graph, output: Value, inputs: readonly Value[]): BackwardGraph {
   registerSymbolicVjps()
   const batchSize = graph.input('scalar', 'batchSize')
-  const accumulator = new SymbolicAccumulator(graph)
+  const accumulator = new Accumulator<Value>((a, b) => graph.add(a, b))
   accumulator.add(output.id, graph.constant(1))
 
   const order = topoSort(graph)

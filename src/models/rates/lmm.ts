@@ -1,7 +1,8 @@
-import { normalCdf } from '../../numerics/analytic/black-scholes'
 import { MersenneTwister } from '../../numerics/rng/mersenne-twister'
 import { inverseNormalCdf } from '../../numerics/rng/inverse-normal-cdf'
 import { Welford } from '../../numerics/stats/welford'
+
+export { blackCaplet } from './common'
 
 export interface LmmSpec {
   readonly rateCount: number
@@ -17,13 +18,6 @@ export interface LmmSpec {
 export interface LmmResult {
   readonly price: number
   readonly standardError: number
-}
-
-export function blackCaplet(initialForward: number, strike: number, vol: number, fixingTime: number, accrual: number, discount: number): number {
-  const sqrtT = Math.sqrt(fixingTime)
-  const d1 = (Math.log(initialForward / strike) + 0.5 * vol * vol * fixingTime) / (vol * sqrtT)
-  const d2 = d1 - vol * sqrtT
-  return discount * accrual * (initialForward * normalCdf(d1) - strike * normalCdf(d2))
 }
 
 export function priceLmmCaplet(spec: LmmSpec): LmmResult {

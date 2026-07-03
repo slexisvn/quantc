@@ -1,7 +1,8 @@
 import type { DiscountCurve } from '../../marketdata/curve'
+import { affineBFactor } from './common'
 
 export function hwBFactor(a: number, tenor: number): number {
-  return (1 - Math.exp(-a * tenor)) / a
+  return affineBFactor(a, tenor)
 }
 
 export function hwInstantaneousForward(curve: DiscountCurve, t: number): number {

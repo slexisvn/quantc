@@ -1,4 +1,5 @@
 import { solveTridiagonal } from './pde/thomas'
+import { logSpaceGrid } from './pde/grid'
 
 export interface PdeSpec {
   readonly spot: number
@@ -35,13 +36,8 @@ function boundary(logSpot: number, spec: PdeSpec, tau: number): number {
 
 export function pricePde(spec: PdeSpec): PdeResult {
   const m = spec.spaceSteps
-  const center = Math.log(spec.spot)
-  const halfWidth = spec.widthStdDev * spec.vol * Math.sqrt(spec.maturity)
-  const dx = (2 * halfWidth) / (m - 1)
+  const { nodes: x, dx, centerIndex: j } = logSpaceGrid(spec.spot, spec.vol, spec.maturity, spec.widthStdDev, m)
   const dt = spec.maturity / spec.timeSteps
-
-  const x = new Float64Array(m)
-  for (let i = 0; i < m; i += 1) x[i] = center - halfWidth + i * dx
 
   let values = new Float64Array(m)
   for (let i = 0; i < m; i += 1) values[i] = payoffAt(x[i], spec.strike, spec.isCall)
@@ -94,7 +90,6 @@ export function pricePde(spec: PdeSpec): PdeResult {
     values = next
   }
 
-  const j = Math.round((center - (center - halfWidth)) / dx)
   const delta = (values[j + 1] - values[j - 1]) / (2 * dx) / spec.spot
   const valueXX = (values[j + 1] - 2 * values[j] + values[j - 1]) / (dx * dx)
   const valueX = (values[j + 1] - values[j - 1]) / (2 * dx)

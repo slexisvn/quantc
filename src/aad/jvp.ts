@@ -2,12 +2,7 @@ import type { Graph } from '../ir/graph'
 import { topoSort } from '../ir/topo'
 import { registry } from '../ir/op-registry'
 import { evaluate } from '../eval/interpreter'
-
-function requireValue(values: Map<number, Float64Array>, id: number): Float64Array {
-  const value = values.get(id)
-  if (value === undefined) throw new Error(`missing value ${id}`)
-  return value
-}
+import { requireValue } from './values'
 
 export interface ForwardModeResult {
   readonly primals: Map<number, Float64Array>

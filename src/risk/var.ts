@@ -14,19 +14,20 @@ export function historicalExpectedShortfall(pnl: Float64Array, confidence: numbe
   return -total / cutoff
 }
 
-export function parametricVar(sensitivities: number[], covariance: number[][], confidence: number): number {
+function quadraticForm(sensitivities: number[], covariance: number[][]): number {
   let variance = 0
   for (let i = 0; i < sensitivities.length; i += 1) {
     for (let j = 0; j < sensitivities.length; j += 1) variance += sensitivities[i] * covariance[i][j] * sensitivities[j]
   }
-  return inverseNormalCdf(confidence) * Math.sqrt(variance)
+  return variance
+}
+
+export function parametricVar(sensitivities: number[], covariance: number[][], confidence: number): number {
+  return inverseNormalCdf(confidence) * Math.sqrt(quadraticForm(sensitivities, covariance))
 }
 
 export function parametricExpectedShortfall(sensitivities: number[], covariance: number[][], confidence: number): number {
-  let variance = 0
-  for (let i = 0; i < sensitivities.length; i += 1) {
-    for (let j = 0; j < sensitivities.length; j += 1) variance += sensitivities[i] * covariance[i][j] * sensitivities[j]
-  }
+  const variance = quadraticForm(sensitivities, covariance)
   const z = inverseNormalCdf(confidence)
   const density = Math.exp(-0.5 * z * z) / Math.sqrt(2 * Math.PI)
   return (density / (1 - confidence)) * Math.sqrt(variance)

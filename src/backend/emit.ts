@@ -1,4 +1,6 @@
 import type { Node } from '../ir/node'
+import type { Value } from '../ir/value'
+import type { Graph } from '../ir/graph'
 
 const REDUCTIONS = new Set(['mean', 'sum'])
 
@@ -73,6 +75,20 @@ export function cudaExpression(op: string, refs: readonly string[], attrs: Reado
       return `((${refs[0]}) >= (${refs[1]}) ? 1.0 : 0.0)`
     default:
       throw new Error(`no cuda emitter for op ${op}`)
+  }
+}
+
+export function cudaReference(value: Value): string {
+  if (value.producer === null) {
+    return value.kind === 'batch' ? `x${value.id}[i]` : `s${value.id}`
+  }
+  return value.kind === 'batch' ? `b${value.id}` : `v${value.id}`
+}
+
+export function graphInputIds(graph: Graph): { scalarInputs: number[]; batchInputs: number[] } {
+  return {
+    scalarInputs: graph.inputs.filter((value) => value.kind === 'scalar').map((value) => value.id),
+    batchInputs: graph.inputs.filter((value) => value.kind === 'batch').map((value) => value.id),
   }
 }
 

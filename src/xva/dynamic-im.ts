@@ -1,5 +1,5 @@
 import { ridgeRegression } from '../alpha/regression'
-import type { Basis } from '../numerics/basis'
+import { evaluateBasis, type Basis } from '../numerics/basis'
 import { simmMargin, type SimmSensitivity } from './simm'
 import type { SimmParameters } from './simm-parameters'
 
@@ -19,13 +19,6 @@ export function simmImAtNode(state: number, time: number, params: SimmParameters
   return simmMargin(sensitivities(state, time), params)
 }
 
-function evaluateFit(basis: Basis, coefficients: readonly number[], state: number): number {
-  const features = basis.evaluate(state)
-  let value = 0
-  for (let i = 0; i < features.length; i += 1) value += features[i] * coefficients[i]
-  return value
-}
-
 export function expectedImProfile(config: DynamicImConfig): number[] {
   const steps = config.times.length
   const expected: number[] = new Array(steps)
@@ -41,7 +34,7 @@ export function expectedImProfile(config: DynamicImConfig): number[] {
     }
     const coefficients = ridgeRegression(design, response, config.ridgeLambda)
     let sum = 0
-    for (let p = 0; p < totalPaths; p += 1) sum += evaluateFit(config.basis, coefficients, states[p])
+    for (let p = 0; p < totalPaths; p += 1) sum += evaluateBasis(config.basis, coefficients, states[p])
     expected[k] = Math.max(sum / totalPaths, 0)
   }
   return expected

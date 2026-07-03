@@ -1,3 +1,5 @@
+import { createRegistry } from '../registry'
+
 export interface Basis {
   readonly size: number
   evaluate(x: number | readonly number[]): number[]
@@ -5,6 +7,13 @@ export interface Basis {
 }
 
 export type BasisFactory = (degree: number, dimension?: number) => Basis
+
+export function evaluateBasis(basis: Basis, coefficients: readonly number[], x: number): number {
+  const features = basis.evaluate(x)
+  let value = 0
+  for (let i = 0; i < features.length; i += 1) value += features[i] * coefficients[i]
+  return value
+}
 
 function monomialExponents(dimension: number, degree: number): number[][] {
   const result: number[][] = []
@@ -62,18 +71,15 @@ export function laguerreBasis(degree: number): Basis {
   }
 }
 
-const factories = new Map<string, BasisFactory>([
+const factories = createRegistry<BasisFactory>('basis', [
   ['polynomial', polynomialBasis],
   ['laguerre', (degree, dimension) => laguerreBasis(dimension === undefined ? degree : degree)],
 ])
 
 export function registerBasis(name: string, factory: BasisFactory): void {
-  if (factories.has(name)) throw new Error(`duplicate basis ${name}`)
-  factories.set(name, factory)
+  factories.register(name, factory)
 }
 
 export function getBasis(name: string, degree: number, dimension?: number): Basis {
-  const factory = factories.get(name)
-  if (factory === undefined) throw new Error(`unknown basis ${name}`)
-  return factory(degree, dimension)
+  return factories.get(name)(degree, dimension)
 }

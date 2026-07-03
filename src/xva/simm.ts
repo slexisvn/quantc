@@ -1,5 +1,6 @@
 import { nestedAggregate, constantCorrelation, type AggregationCell } from '../risk/aggregation'
 import { simmDeltaRiskWeight, type SimmParameters, type SimmRiskClassParameters } from './simm-parameters'
+import { groupBy } from './group'
 
 export type SimmKind = 'delta' | 'vega'
 
@@ -22,26 +23,17 @@ function bucketMargin(weighted: readonly number[], intraCorrelation: number): Ag
 }
 
 function classMargin(sensitivities: readonly SimmSensitivity[], classParams: SimmRiskClassParameters): AggregationCell {
-  const byBucket = new Map<string, number[]>()
-  for (const sensitivity of sensitivities) {
-    const ws = weightedSensitivity(sensitivity, classParams)
-    const existing = byBucket.get(sensitivity.bucket)
-    if (existing !== undefined) existing.push(ws)
-    else byBucket.set(sensitivity.bucket, [ws])
-  }
+  const byBucket = groupBy(sensitivities, (sensitivity) => sensitivity.bucket)
   const buckets: AggregationCell[] = []
-  for (const weighted of byBucket.values()) buckets.push(bucketMargin(weighted, classParams.intraBucketCorrelation))
+  for (const group of byBucket.values()) {
+    const weighted = group.map((sensitivity) => weightedSensitivity(sensitivity, classParams))
+    buckets.push(bucketMargin(weighted, classParams.intraBucketCorrelation))
+  }
   return nestedAggregate(buckets, constantCorrelation(classParams.interBucketCorrelation))
 }
 
 function kindMargin(sensitivities: readonly SimmSensitivity[], params: SimmParameters, kind: SimmKind): number {
-  const byClass = new Map<string, SimmSensitivity[]>()
-  for (const sensitivity of sensitivities) {
-    if (sensitivity.kind !== kind) continue
-    const existing = byClass.get(sensitivity.riskClass)
-    if (existing !== undefined) existing.push(sensitivity)
-    else byClass.set(sensitivity.riskClass, [sensitivity])
-  }
+  const byClass = groupBy(sensitivities.filter((sensitivity) => sensitivity.kind === kind), (sensitivity) => sensitivity.riskClass)
   const classes: AggregationCell[] = []
   for (const [riskClass, group] of byClass) {
     const classParams = params.riskClasses.get(riskClass)

@@ -87,19 +87,25 @@ class Parser {
     const name = this.expect('ident').value
     this.expectKeyword('model')
     const model = this.expect('ident').value
-    const modelParams: ModelParam[] = []
+    let modelParams: ModelParam[] = []
     if (this.peek().type === 'lparen') {
       this.advance()
-      if (this.peek().type !== 'rparen') {
-        modelParams.push(this.parseModelParam())
-        while (this.peek().type === 'comma') {
-          this.advance()
-          modelParams.push(this.parseModelParam())
-        }
-      }
-      this.expect('rparen')
+      modelParams = this.parseCommaSeparated(() => this.parseModelParam())
     }
     return { name, model, modelParams, pos }
+  }
+
+  private parseCommaSeparated<T>(parseItem: () => T): T[] {
+    const items: T[] = []
+    if (this.peek().type !== 'rparen') {
+      items.push(parseItem())
+      while (this.peek().type === 'comma') {
+        this.advance()
+        items.push(parseItem())
+      }
+    }
+    this.expect('rparen')
+    return items
   }
 
   private parseModelParam(): ModelParam {
@@ -281,15 +287,7 @@ class Parser {
       this.advance()
       if (this.peek().type === 'lparen') {
         this.advance()
-        const args: Expr[] = []
-        if (this.peek().type !== 'rparen') {
-          args.push(this.parseExpression())
-          while (this.peek().type === 'comma') {
-            this.advance()
-            args.push(this.parseExpression())
-          }
-        }
-        this.expect('rparen')
+        const args = this.parseCommaSeparated(() => this.parseExpression())
         return { kind: 'call', callee: token.value, args, pos }
       }
       return { kind: 'ident', name: token.value, pos }

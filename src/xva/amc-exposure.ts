@@ -1,7 +1,7 @@
 import { MersenneTwister } from '../numerics/rng/mersenne-twister'
 import { inverseNormalCdf } from '../numerics/rng/inverse-normal-cdf'
 import { ridgeRegression } from '../alpha/regression'
-import type { Basis } from '../numerics/basis'
+import { evaluateBasis, type Basis } from '../numerics/basis'
 import type { Trade } from '../risk/exposure'
 
 export interface AmcSpec {
@@ -45,13 +45,6 @@ function simulate(spec: AmcSpec): { times: number[]; levels: Float64Array[] } {
   return { times, levels }
 }
 
-function evaluateFit(basis: Basis, coefficients: readonly number[], moneyness: number): number {
-  const features = basis.evaluate(moneyness)
-  let value = 0
-  for (let i = 0; i < features.length; i += 1) value += features[i] * coefficients[i]
-  return value
-}
-
 function regressNode(spec: AmcSpec, level: Float64Array, value: Float64Array): number[] {
   const design: number[][] = new Array(spec.paths)
   const response: number[] = new Array(spec.paths)
@@ -91,7 +84,7 @@ export function buildAmcPricer(spec: AmcSpec): AmcPricer {
       for (let p = 0; p < spec.paths; p += 1) {
         const exercise = intrinsic(level[p], spec.strike, spec.isCall)
         if (exercise <= 0) continue
-        const continuation = evaluateFit(spec.basis, coefficient, level[p] / spec.strike)
+        const continuation = evaluateBasis(spec.basis, coefficient, level[p] / spec.strike)
         if (exercise > continuation) value[p] = exercise
       }
     }
@@ -113,7 +106,7 @@ export function buildAmcPricer(spec: AmcSpec): AmcPricer {
         node = k
       }
     }
-    const continuation = evaluateFit(spec.basis, coefficients[node], spot / spec.strike)
+    const continuation = evaluateBasis(spec.basis, coefficients[node], spot / spec.strike)
     const holding = spec.bermudan ? Math.max(intrinsic(spot, spec.strike, spec.isCall), continuation) : continuation
     return spec.quantity * holding
   }

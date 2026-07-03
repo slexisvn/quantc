@@ -1,3 +1,5 @@
+import { createRegistry } from '../registry'
+
 export interface SimmRiskClassParameters {
   readonly buckets: string[]
   readonly deltaRiskWeights: Map<string, number>
@@ -65,15 +67,12 @@ function buildIllustrativeParameters(): SimmParameters {
 
 export const SIMM_PARAMETERS_ILLUSTRATIVE: SimmParameters = buildIllustrativeParameters()
 
-const registry = new Map<string, SimmParameters>([['illustrative', SIMM_PARAMETERS_ILLUSTRATIVE]])
+const registry = createRegistry<SimmParameters>('SIMM parameters', [['illustrative', SIMM_PARAMETERS_ILLUSTRATIVE]])
 
 export function registerSimmParameters(name: string, params: SimmParameters): void {
-  if (registry.has(name)) throw new Error(`duplicate SIMM parameters ${name}`)
-  registry.set(name, params)
+  registry.register(name, params)
 }
 
 export function getSimmParameters(name: string): SimmParameters {
-  const params = registry.get(name)
-  if (params === undefined) throw new Error(`unknown SIMM parameters ${name}`)
-  return params
+  return registry.get(name)
 }

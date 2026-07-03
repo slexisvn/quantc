@@ -1,5 +1,6 @@
 import { quadraticAggregate } from '../risk/aggregation'
 import type { SaccrParameters, SaccrAssetClassParameters } from './sa-ccr-parameters'
+import { groupBy } from './group'
 
 export type MarginType = 'unmargined' | 'margined'
 
@@ -56,12 +57,7 @@ function assetClassAddOn(trades: readonly SaccrTrade[], classParams: SaccrAssetC
 }
 
 export function aggregateAddOn(trades: readonly SaccrTrade[], params: SaccrParameters, marginType: MarginType, marginPeriodOfRisk: number): number {
-  const byClass = new Map<string, SaccrTrade[]>()
-  for (const trade of trades) {
-    const existing = byClass.get(trade.assetClass)
-    if (existing !== undefined) existing.push(trade)
-    else byClass.set(trade.assetClass, [trade])
-  }
+  const byClass = groupBy(trades, (trade) => trade.assetClass)
   let total = 0
   for (const [assetClass, group] of byClass) {
     const classParams = params.assetClasses.get(assetClass)

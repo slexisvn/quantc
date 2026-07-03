@@ -1,7 +1,6 @@
 import type { Graph } from '../../ir/graph'
-import type { Value } from '../../ir/value'
 import { topoSort } from '../../ir/topo'
-import { cudaExpression, isReduction } from '../emit'
+import { cudaExpression, cudaReference, graphInputIds, isReduction } from '../emit'
 
 export interface CompiledCudaAadKernel {
   readonly source: string
@@ -11,17 +10,9 @@ export interface CompiledCudaAadKernel {
   readonly reductionIds: number[]
 }
 
-function reference(value: Value): string {
-  if (value.producer === null) {
-    return value.kind === 'batch' ? `x${value.id}[i]` : `s${value.id}`
-  }
-  return value.kind === 'batch' ? `b${value.id}` : `v${value.id}`
-}
-
 export function compileCudaAadKernel(graph: Graph, name = 'aad_kernel'): CompiledCudaAadKernel {
   const order = topoSort(graph)
-  const scalarInputs = graph.inputs.filter((value) => value.kind === 'scalar').map((value) => value.id)
-  const batchInputs = graph.inputs.filter((value) => value.kind === 'batch').map((value) => value.id)
+  const { scalarInputs, batchInputs } = graphInputIds(graph)
 
   const postSet = new Set<number>()
   const scalarPre: typeof order = []
@@ -52,9 +43,9 @@ export function compileCudaAadKernel(graph: Graph, name = 'aad_kernel'): Compile
     `extern "C" __global__ void ${name}(${signature.join(', ')}) {`,
     '  const int i = blockIdx.x * blockDim.x + threadIdx.x;',
     '  if (i >= N) return;',
-    ...scalarPre.map((node) => `  const double v${node.result.id} = ${cudaExpression(node.op, node.operands.map(reference), node.attrs)};`),
-    ...batch.map((node) => `  const double b${node.result.id} = ${cudaExpression(node.op, node.operands.map(reference), node.attrs)};`),
-    ...reductions.map((node, k) => `  atomicAdd(r${k}, ${reference(node.operands[0])}${node.op === 'mean' ? ' / (double) N' : ''});`),
+    ...scalarPre.map((node) => `  const double v${node.result.id} = ${cudaExpression(node.op, node.operands.map(cudaReference), node.attrs)};`),
+    ...batch.map((node) => `  const double b${node.result.id} = ${cudaExpression(node.op, node.operands.map(cudaReference), node.attrs)};`),
+    ...reductions.map((node, k) => `  atomicAdd(r${k}, ${cudaReference(node.operands[0])}${node.op === 'mean' ? ' / (double) N' : ''});`),
     '}',
   ]
 

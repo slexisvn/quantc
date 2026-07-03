@@ -1,4 +1,5 @@
 import { solveTridiagonal } from './pde/thomas'
+import { logSpaceGrid } from './pde/grid'
 
 export interface MertonPideSpec {
   readonly spot: number
@@ -18,12 +19,8 @@ export interface MertonPideSpec {
 export function mertonPideCall(spec: MertonPideSpec): number {
   const m = spec.spaceSteps
   const dt = spec.maturity / spec.timeSteps
-  const center = Math.log(spec.spot)
   const effectiveVol = Math.sqrt(spec.vol * spec.vol + spec.jumpIntensity * (spec.jumpMean * spec.jumpMean + spec.jumpVol * spec.jumpVol))
-  const halfWidth = spec.widthStdDev * effectiveVol * Math.sqrt(spec.maturity)
-  const dx = (2 * halfWidth) / (m - 1)
-  const x = new Float64Array(m)
-  for (let i = 0; i < m; i += 1) x[i] = center - halfWidth + i * dx
+  const { nodes: x, dx, centerIndex: j } = logSpaceGrid(spec.spot, effectiveVol, spec.maturity, spec.widthStdDev, m)
 
   const kappa = Math.exp(spec.jumpMean + 0.5 * spec.jumpVol * spec.jumpVol) - 1
   const drift = spec.rate - 0.5 * spec.vol * spec.vol - spec.jumpIntensity * kappa
@@ -93,6 +90,5 @@ export function mertonPideCall(spec: MertonPideSpec): number {
     values = next
   }
 
-  const j = Math.round((center - (center - halfWidth)) / dx)
   return values[j]
 }

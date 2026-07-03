@@ -1,6 +1,7 @@
 import { MersenneTwister } from '../../numerics/rng/mersenne-twister'
 import { inverseNormalCdf } from '../../numerics/rng/inverse-normal-cdf'
 import { normalCdf } from '../../numerics/analytic/black-scholes'
+import { affineBFactor, affineCouponFlows } from './common'
 
 export interface G2ppSpec {
   readonly flatRate: number
@@ -9,10 +10,6 @@ export interface G2ppSpec {
   readonly volA: number
   readonly volB: number
   readonly correlation: number
-}
-
-function bFactor(rate: number, tenor: number): number {
-  return (1 - Math.exp(-rate * tenor)) / rate
 }
 
 export function g2ppVariance(spec: G2ppSpec, tenor: number): number {
@@ -31,7 +28,7 @@ function g2ppBond(spec: G2ppSpec, t: number, maturity: number, x: number, y: num
   const tenor = maturity - t
   const marketRatio = Math.exp(-spec.flatRate * maturity) / Math.exp(-spec.flatRate * t)
   const adjustment = 0.5 * (g2ppVariance(spec, tenor) - g2ppVariance(spec, maturity) + g2ppVariance(spec, t))
-  return marketRatio * Math.exp(adjustment - bFactor(spec.meanReversionA, tenor) * x - bFactor(spec.meanReversionB, tenor) * y)
+  return marketRatio * Math.exp(adjustment - affineBFactor(spec.meanReversionA, tenor) * x - affineBFactor(spec.meanReversionB, tenor) * y)
 }
 
 export interface SwaptionTerms {
@@ -39,10 +36,6 @@ export interface SwaptionTerms {
   readonly times: number[]
   readonly accruals: number[]
   readonly fixedRate: number
-}
-
-function couponFlows(terms: SwaptionTerms): number[] {
-  return terms.accruals.map((accrual, i) => (i === terms.accruals.length - 1 ? 1 + terms.fixedRate * accrual : terms.fixedRate * accrual))
 }
 
 function forwardMean(primaryVol: number, primaryRev: number, secondaryVol: number, secondaryRev: number, rho: number, expiry: number): number {
@@ -59,9 +52,9 @@ function forwardMean(primaryVol: number, primaryRev: number, secondaryVol: numbe
 export function g2ppPayerSwaption(spec: G2ppSpec, terms: SwaptionTerms, integrationPoints: number): number {
   const { meanReversionA: a, meanReversionB: b, volA: sigma, volB: eta, correlation: rho } = spec
   const expiry = terms.expiry
-  const flows = couponFlows(terms)
-  const factorA = terms.times.map((t) => bFactor(a, t - expiry))
-  const factorB = terms.times.map((t) => bFactor(b, t - expiry))
+  const flows = affineCouponFlows(terms.accruals, terms.fixedRate)
+  const factorA = terms.times.map((t) => affineBFactor(a, t - expiry))
+  const factorB = terms.times.map((t) => affineBFactor(b, t - expiry))
   const amplitude = terms.times.map((t) => g2ppBond(spec, expiry, t, 0, 0))
 
   const sigmaX = sigma * Math.sqrt((1 - Math.exp(-2 * a * expiry)) / (2 * a))
@@ -116,7 +109,7 @@ export function g2ppPayerSwaptionMc(spec: G2ppSpec, terms: SwaptionTerms, steps:
   const dt = terms.expiry / steps
   const sqrtDt = Math.sqrt(dt)
   const rhoComplement = Math.sqrt(1 - spec.correlation * spec.correlation)
-  const flows = couponFlows(terms)
+  const flows = affineCouponFlows(terms.accruals, terms.fixedRate)
   const generator = new MersenneTwister(seed)
 
   let total = 0

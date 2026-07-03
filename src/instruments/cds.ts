@@ -14,26 +14,23 @@ function schedule(spec: CdsSpec): number[] {
   return dates
 }
 
-export function premiumAnnuity(curve: HazardCurve, spec: CdsSpec): number {
-  let annuity = 0
+function integrateSchedule(spec: CdsSpec, term: (previous: number, date: number, discount: number) => number): number {
+  let total = 0
   let previous = 0
   for (const date of schedule(spec)) {
     const discount = Math.exp(-spec.discountRate * date)
-    annuity += (date - previous) * discount * 0.5 * (curve.survival(previous) + curve.survival(date))
+    total += term(previous, date, discount)
     previous = date
   }
-  return annuity
+  return total
+}
+
+export function premiumAnnuity(curve: HazardCurve, spec: CdsSpec): number {
+  return integrateSchedule(spec, (previous, date, discount) => (date - previous) * discount * 0.5 * (curve.survival(previous) + curve.survival(date)))
 }
 
 export function protectionLeg(curve: HazardCurve, spec: CdsSpec): number {
-  let protection = 0
-  let previous = 0
-  for (const date of schedule(spec)) {
-    const discount = Math.exp(-spec.discountRate * date)
-    protection += (1 - spec.recovery) * discount * (curve.survival(previous) - curve.survival(date))
-    previous = date
-  }
-  return protection
+  return integrateSchedule(spec, (previous, date, discount) => (1 - spec.recovery) * discount * (curve.survival(previous) - curve.survival(date)))
 }
 
 export function cdsParSpread(curve: HazardCurve, spec: CdsSpec): number {

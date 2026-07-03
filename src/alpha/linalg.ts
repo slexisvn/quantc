@@ -38,6 +38,10 @@ export function scaleMatrix(m: Matrix, factor: number): Matrix {
   return m.map((row) => row.map((x) => x * factor))
 }
 
+export function symmetrize(m: Matrix): Matrix {
+  return m.map((row, a) => row.map((x, b) => 0.5 * (x + m[b][a])))
+}
+
 export function addMatrices(a: Matrix, b: Matrix): Matrix {
   return a.map((row, i) => row.map((x, j) => x + b[i][j]))
 }

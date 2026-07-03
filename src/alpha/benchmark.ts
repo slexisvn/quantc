@@ -1,4 +1,5 @@
 import { ols, withIntercept } from './regression'
+import { sharpe } from './metrics'
 import { meanStd } from './util'
 
 export interface AlphaBeta {
@@ -19,7 +20,5 @@ export function trackingError(strategy: number[], benchmark: number[], periodsPe
 }
 
 export function informationRatio(strategy: number[], benchmark: number[], periodsPerYear = 252): number {
-  const active = strategy.map((s, i) => s - benchmark[i])
-  const { mean, std } = meanStd(active)
-  return std < 1e-12 ? 0 : (mean / std) * Math.sqrt(periodsPerYear)
+  return sharpe(strategy.map((s, i) => s - benchmark[i]), periodsPerYear)
 }

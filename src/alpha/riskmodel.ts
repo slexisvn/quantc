@@ -1,7 +1,7 @@
 import type { Matrix } from './types'
 import { ols, withIntercept, type Regression } from './regression'
 import { sampleCovariance } from './covariance'
-import { rows, cols, meanStd } from './util'
+import { rows, cols, meanStd, standardize } from './util'
 
 export function standardizeExposures(exposures: Matrix): Matrix {
   const n = rows(exposures)
@@ -9,7 +9,7 @@ export function standardizeExposures(exposures: Matrix): Matrix {
   const out = Array.from({ length: n }, () => new Array<number>(k).fill(0))
   for (let f = 0; f < k; f += 1) {
     const { mean, std } = meanStd(exposures.map((row) => row[f]))
-    for (let i = 0; i < n; i += 1) out[i][f] = std < 1e-12 ? 0 : (exposures[i][f] - mean) / std
+    for (let i = 0; i < n; i += 1) out[i][f] = standardize(exposures[i][f], mean, std)
   }
   return out
 }

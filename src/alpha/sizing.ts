@@ -15,19 +15,26 @@ export function ewmaVolatility(returns: readonly number[], lambda = 0.94): numbe
   return out
 }
 
-export function ewmaVolTarget(weights: Matrix, returns: Matrix, target: number, lambda = 0.94, periodsPerYear = 252, maxScale = 3): Matrix {
+export function portfolioReturns(weights: Matrix, returns: Matrix): number[] {
   const t = rows(weights)
   const n = cols(weights)
-  const portReturns = new Array<number>(t).fill(0)
+  const out = new Array<number>(t).fill(0)
   for (let i = 1; i < t; i += 1) {
-    for (let j = 0; j < n; j += 1) portReturns[i] += weights[i - 1][j] * returns[i][j]
+    for (let j = 0; j < n; j += 1) out[i] += weights[i - 1][j] * returns[i][j]
   }
-  const vol = ewmaVolatility(portReturns, lambda)
+  return out
+}
+
+export function scaleWeightsToVol(weights: Matrix, vol: readonly number[], target: number, periodsPerYear = 252, maxScale = 3): Matrix {
   return weights.map((row, i) => {
     const annualized = vol[i] * Math.sqrt(periodsPerYear)
     const scale = annualized < 1e-12 ? 1 : Math.min(target / annualized, maxScale)
     return row.map((w) => w * scale)
   })
+}
+
+export function ewmaVolTarget(weights: Matrix, returns: Matrix, target: number, lambda = 0.94, periodsPerYear = 252, maxScale = 3): Matrix {
+  return scaleWeightsToVol(weights, ewmaVolatility(portfolioReturns(weights, returns), lambda), target, periodsPerYear, maxScale)
 }
 
 export function drawdownControl(portReturns: readonly number[], maxDrawdown = 0.2, minScale = 0.25): number[] {

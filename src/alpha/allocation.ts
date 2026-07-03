@@ -4,6 +4,7 @@ import { solveLinearSystem } from '../numerics/linalg/solve'
 import { correlationFromCovariance } from './covariance'
 import { matVec, dot, matMul, transpose, invert, scaleMatrix, addMatrices } from './linalg'
 import { singleLinkage, orderFromLinkage, clusterVariance, correlationDistance } from './cluster'
+import { grossExposure } from './util'
 
 export function riskContributions(covariance: Matrix, weights: number[]): number[] {
   const sigmaW = matVec(covariance, weights)
@@ -84,7 +85,7 @@ export function blackLitterman(priorCovariance: Matrix, marketWeights: number[],
   const adjustment = matVec(matMul(tauSigma, pickTransposed), matVec(middle, surprise))
   const expectedReturns = equilibrium.map((x, i) => x + adjustment[i])
   const raw = matVec(invert(scaleMatrix(priorCovariance, riskAversion)), expectedReturns)
-  const gross = raw.reduce((s, x) => s + Math.abs(x), 0)
+  const gross = grossExposure(raw)
   const weights = gross < 1e-12 ? raw : raw.map((x) => x / gross)
   return { expectedReturns, weights }
 }
@@ -107,10 +108,6 @@ function negativeQuadraticUtility(expectedReturns: readonly number[], covariance
     for (let i = 0; i < n; i += 1) for (let j = 0; j < n; j += 1) risk += x[i] * covariance[i][j] * x[j]
     return -(expected - 0.5 * riskAversion * risk)
   }
-}
-
-function grossExposure(x: readonly number[]): number {
-  return x.reduce((s, v) => s + Math.abs(v), 0)
 }
 
 export function constrainedMeanVariance(expectedReturns: number[], covariance: Matrix, constraints: MeanVarianceConstraints = {}): number[] {

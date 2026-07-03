@@ -1,6 +1,6 @@
 import type { Matrix } from './types'
 import { pearson, spearman } from './stats'
-import { meanStd } from './util'
+import { meanStd, standardize } from './util'
 
 export function informationCoefficient(signal: number[], forwardReturns: number[]): number {
   return pearson(signal, forwardReturns)
@@ -41,7 +41,7 @@ export function blendZscored(signals: readonly Matrix[], weightAt: (t: number, s
     for (let i = 0; i < t; i += 1) {
       const row = signals[s][i]
       const { mean, std } = meanStd(row)
-      for (let j = 0; j < n; j += 1) out[i][j] += weightAt(i, s) * (std < 1e-12 ? 0 : (row[j] - mean) / std)
+      for (let j = 0; j < n; j += 1) out[i][j] += weightAt(i, s) * standardize(row[j], mean, std)
     }
   }
   return out

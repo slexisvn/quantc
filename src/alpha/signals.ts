@@ -1,5 +1,5 @@
 import type { Signal, SignalFactory } from './types'
-import { perColumn, rollingMeanStd, mapMatrix } from './util'
+import { perColumn, rollingMeanStd, mapMatrix, standardize } from './util'
 import { pipe, toReturnsOperator } from './operators'
 import { tsSum, tsZscore, decayLinear } from './ts-operators'
 import { csRank, csDemean, csScale } from './cs-operators'
@@ -23,7 +23,7 @@ export function zscore(window = 20): Signal {
   return (prices) =>
     perColumn(prices, (series) => {
       const { mean, std } = rollingMeanStd(series, window)
-      return series.map((x, i) => (std[i] > 1e-12 ? (x - mean[i]) / std[i] : 0))
+      return series.map((x, i) => standardize(x, mean[i], std[i]))
     })
 }
 

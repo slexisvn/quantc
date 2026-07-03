@@ -1,5 +1,5 @@
 import type { Matrix, Operator } from './types'
-import { perColumn, column, rollingMeanStd } from './util'
+import { perColumn, column, rollingMeanStd, standardize } from './util'
 
 function prefixSums(series: number[]): Float64Array {
   const prefix = new Float64Array(series.length + 1)
@@ -23,7 +23,7 @@ export function tsZscore(window = 20): Operator {
   return (m) =>
     perColumn(m, (series) => {
       const { mean, std } = rollingMeanStd(series, window)
-      return afterWarmup(series.map((x, i) => (std[i] > 1e-12 ? (x - mean[i]) / std[i] : 0)), window)
+      return afterWarmup(series.map((x, i) => standardize(x, mean[i], std[i])), window)
     })
 }
 

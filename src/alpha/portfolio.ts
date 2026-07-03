@@ -1,6 +1,7 @@
 import type { Matrix, Portfolio, PortfolioFactory } from './types'
 import { solveLinearSystem } from '../numerics/linalg/solve'
-import { rows, cols, meanStd } from './util'
+import { meanStd, grossExposure } from './util'
+import { portfolioReturns } from './sizing'
 
 export function equalWeight(): Portfolio {
   return (score) =>
@@ -16,7 +17,7 @@ export function crossSectional(): Portfolio {
       const n = row.length
       const mean = n === 0 ? 0 : row.reduce((sum, x) => sum + x, 0) / n
       const centered = row.map((x) => x - mean)
-      const gross = centered.reduce((sum, x) => sum + Math.abs(x), 0)
+      const gross = grossExposure(centered)
       return gross < 1e-12 ? row.map(() => 0) : centered.map((x) => x / gross)
     })
 }
@@ -39,20 +40,12 @@ export function longShortRank(fraction = 0.2): Portfolio {
 
 export function meanVariance(expectedReturns: number[], covariance: Matrix): number[] {
   const raw = solveLinearSystem(covariance, expectedReturns)
-  const gross = raw.reduce((sum, x) => sum + Math.abs(x), 0)
+  const gross = grossExposure(raw)
   return gross < 1e-12 ? raw.map(() => 0) : raw.map((x) => x / gross)
 }
 
 export function volTarget(weights: Matrix, returns: Matrix, target: number, periodsPerYear = 252): Matrix {
-  const t = rows(weights)
-  const n = cols(weights)
-  const port: number[] = []
-  for (let i = 1; i < t; i += 1) {
-    let r = 0
-    for (let j = 0; j < n; j += 1) r += weights[i - 1][j] * returns[i][j]
-    port.push(r)
-  }
-  const realized = meanStd(port).std * Math.sqrt(periodsPerYear)
+  const realized = meanStd(portfolioReturns(weights, returns).slice(1)).std * Math.sqrt(periodsPerYear)
   const scale = realized < 1e-12 ? 1 : target / realized
   return weights.map((row) => row.map((w) => w * scale))
 }

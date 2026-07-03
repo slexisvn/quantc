@@ -1,5 +1,5 @@
 import type { Operator } from './types'
-import { meanStd } from './util'
+import { meanStd, standardize, grossExposure } from './util'
 import { ranks, percentile } from './stats'
 
 function perRow(transform: (row: number[]) => number[]): Operator {
@@ -20,7 +20,7 @@ export function csDemean(): Operator {
 export function csZscore(): Operator {
   return perRow((row) => {
     const { mean, std } = meanStd(row)
-    return row.map((x) => (std < 1e-12 ? 0 : (x - mean) / std))
+    return row.map((x) => standardize(x, mean, std))
   })
 }
 
@@ -34,14 +34,14 @@ export function csWinsorize(lower = 0.01, upper = 0.99): Operator {
 
 export function csTruncate(maxFraction = 0.1): Operator {
   return perRow((row) => {
-    const cap = maxFraction * row.reduce((sum, x) => sum + Math.abs(x), 0)
+    const cap = maxFraction * grossExposure(row)
     return row.map((x) => Math.min(Math.max(x, -cap), cap))
   })
 }
 
 export function csScale(gross = 1): Operator {
   return perRow((row) => {
-    const current = row.reduce((sum, x) => sum + Math.abs(x), 0)
+    const current = grossExposure(row)
     return current < 1e-12 ? row.map(() => 0) : row.map((x) => (x * gross) / current)
   })
 }

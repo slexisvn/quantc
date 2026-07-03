@@ -33,6 +33,14 @@ export function meanStd(xs: number[]): { mean: number; std: number } {
   return { mean: accumulator.mean, std: Math.sqrt(accumulator.variance) }
 }
 
+export function standardize(value: number, mean: number, std: number): number {
+  return std < 1e-12 ? 0 : (value - mean) / std
+}
+
+export function grossExposure(v: readonly number[]): number {
+  return v.reduce((sum, x) => sum + Math.abs(x), 0)
+}
+
 export function toReturns(prices: Matrix): Matrix {
   const t = rows(prices)
   const n = cols(prices)
@@ -46,7 +54,7 @@ export function toReturns(prices: Matrix): Matrix {
 export function capLeverage(weights: Matrix, maxLeverage: number): Matrix {
   if (!Number.isFinite(maxLeverage)) return weights
   return weights.map((row) => {
-    const gross = row.reduce((sum, w) => sum + Math.abs(w), 0)
+    const gross = grossExposure(row)
     const scale = gross > maxLeverage ? maxLeverage / gross : 1
     return row.map((w) => w * scale)
   })

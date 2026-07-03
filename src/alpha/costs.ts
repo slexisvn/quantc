@@ -1,3 +1,5 @@
+import { grossExposure } from './util'
+
 export interface CostContext {
   readonly price?: number[]
 }
@@ -5,7 +7,7 @@ export interface CostContext {
 export type CostModel = (trade: number[], weights: number[], context?: CostContext) => number
 
 export function linearCost(rate = 0.0005): CostModel {
-  return (trade) => rate * trade.reduce((sum, x) => sum + Math.abs(x), 0)
+  return (trade) => rate * grossExposure(trade)
 }
 
 export function squareRootImpact(coefficient = 0.1): CostModel {

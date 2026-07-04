@@ -31,9 +31,14 @@
 14. XVA
 15. Vốn quy định (Basel, FRTB, SA-CCR, SIMM)
 
-**Phần VI — Nghề**
-16. Kiến trúc pricing library và model validation
-17. Lộ trình học và tài nguyên
+**Phần VI — Sản phẩm cấu trúc & chuyên sâu**
+16. Convertible bonds và hybrid capital
+17. MBS, callable bonds và OAS
+18. Rates exotics (Bermudan, TARN, snowball, range accrual, CMS spread, PRDC)
+
+**Phần VII — Nghề**
+19. Kiến trúc pricing library và model validation
+20. Lộ trình học và tài nguyên
 
 **Phụ lục**
 - A. Từ điển thuật ngữ Q-world
@@ -2708,7 +2713,7 @@ Trực giác từng bước. Real short rate $r(t)$ *tự nhiên* sống dưới
 
 $$-\rho_{rI}\,\sigma_r\,\sigma_I = -(0.30)(0.009)(0.012) = -0.0000324 = -0.324\ \text{bp/năm}.$$
 
-Trên một năm, hạng này dịch drift của real rate xuống khoảng 0.32bp — nhỏ tí xíu, và một người vội vàng có thể bị cám dỗ bỏ qua. Nhưng đó là cái bẫy: tích lũy trên horizon 30 năm và khuếch đại qua discounting phi tuyến, nó dịch forward real curve đủ để tạo khác biệt định giá thấy được trên option inflation dài hạn. Quan trọng hơn con số: **bỏ hạng này là mở toang một arbitrage** (mô hình không còn nhất quán giữa hai measure), và model validation (Chương 16) sẽ bắt lỗi ngay khi kiểm tra tính martingale của forward. Trong quant, những hạng "nhỏ nhưng bắt buộc" như thế này là ranh giới giữa một mô hình đúng và một mô hình rò rỉ tiền âm thầm.
+Trên một năm, hạng này dịch drift của real rate xuống khoảng 0.32bp — nhỏ tí xíu, và một người vội vàng có thể bị cám dỗ bỏ qua. Nhưng đó là cái bẫy: tích lũy trên horizon 30 năm và khuếch đại qua discounting phi tuyến, nó dịch forward real curve đủ để tạo khác biệt định giá thấy được trên option inflation dài hạn. Quan trọng hơn con số: **bỏ hạng này là mở toang một arbitrage** (mô hình không còn nhất quán giữa hai measure), và model validation (Chương 19) sẽ bắt lỗi ngay khi kiểm tra tính martingale của forward. Trong quant, những hạng "nhỏ nhưng bắt buộc" như thế này là ranh giới giữa một mô hình đúng và một mô hình rò rỉ tiền âm thầm.
 
 ### 11.8.2 Định giá ZCIS trong JY và ráp nối
 
@@ -3266,7 +3271,7 @@ Thứ hai, **correlation không phải hằng số**. Mô hình dùng một $\rh
 
 Thứ ba, **calibrate vào một thị trường mỏng, phản xạ dội (reflexivity)**. Toàn bộ base correlation surface strip từ một thị trường index tranche vốn thanh khoản kém và tự tham chiếu: giá tranche → correlation → giá tranche mới. Khi thanh khoản bốc hơi 2008, chính cái neo calibration biến mất, và mọi định giá trôi tự do.
 
-David Li — tác giả công thức — về sau bị báo chí gán nhãn "the formula that killed Wall Street", một mô tả vừa bất công (mô hình chỉ là công cụ) vừa đúng bản chất (cả một ngành đã dùng một xấp xỉ tiện lợi làm chân lý và quên mất giả định của nó). Bài học không phải "copula xấu" mà là: **mọi mô hình là một khung nhìn có giả định, và giả định thất bại đúng lúc thị trường stress nhất — chính lúc bạn cần nó đúng nhất.** Đây là lý do model validation (chương 16) tồn tại như một chức năng độc lập trong mọi ngân hàng hiện đại.
+David Li — tác giả công thức — về sau bị báo chí gán nhãn "the formula that killed Wall Street", một mô tả vừa bất công (mô hình chỉ là công cụ) vừa đúng bản chất (cả một ngành đã dùng một xấp xỉ tiện lợi làm chân lý và quên mất giả định của nó). Bài học không phải "copula xấu" mà là: **mọi mô hình là một khung nhìn có giả định, và giả định thất bại đúng lúc thị trường stress nhất — chính lúc bạn cần nó đúng nhất.** Đây là lý do model validation (chương 19) tồn tại như một chức năng độc lập trong mọi ngân hàng hiện đại.
 
 Thị trường correlation ngày nay đã thu nhỏ — CDO tổng hợp phức tạp gần như biến mất, nhưng index tranche (CDX/iTraxx) vẫn giao dịch đều, và cỗ máy copula *không hề chết*. Nó sống tiếp ở hai nơi cốt lõi: trong **CVA** để model default chung giữa counterparty và reference entity (wrong-way risk, chương 14), và trong **risk aggregation** để gộp rủi ro nhiều tên thành một phân phối tổn thất danh mục. Về kiến trúc, tầng correlation/CDO ứng với `src/models` (nhánh credit/cdo) trên nền các marginal reduced-form; instrument CDS ứng với `src/instruments`. Hiểu copula không phải để build CDO 2007 — mà để không lặp lại 2008 khi nó ẩn mình trong CVA của hôm nay.
 
@@ -3695,11 +3700,771 @@ Thứ nhất là **đọc spec quy định gốc** không qua tóm tắt: BCBS d
 
 Ba năng lực này nghe kém hào nhoáng hơn "nghĩ ra một model volatility mới". Nhưng chúng là nơi phần lớn đầu người Q-quant đang thực sự được trả lương, và là nền móng mà bất kỳ ai muốn đi xa trên desk quant đều phải đứng vững — vì một con số vốn sai không chỉ là lỗi kỹ thuật, nó là rủi ro pháp lý và uy tín của cả ngân hàng.
 
-# Chương 16: Kiến trúc pricing library và model validation
+# Chương 16: Convertible bonds và hybrid capital
+
+Mọi sản phẩm ta gặp cho tới giờ đều sống trong một thị trường: một option là con thú của vol, một swap là con thú của rates, một CDS là con thú của credit. Convertible bond phá vỡ sự gọn ghẽ ấy. Nó là một trái phiếu — nên nhạy với rates và credit spread — nhưng gắn liền một quyền chuyển đổi thành cổ phiếu — nên nhạy với spot và vol của equity. Một instrument, ba desk cùng muốn quyền sở hữu: rates/credit desk nhìn thấy phần bond floor, equity derivatives desk nhìn thấy phần embedded option, và cả hai đều đúng một nửa. Đó chính là lý do convertible tồn tại như một mảng riêng, có desk riêng, có phương pháp định giá riêng, và sinh ra một trong những chiến lược hedge fund kinh điển nhất — **convertible arbitrage**.
+
+Chương này đi theo lát cắt tự nhiên của một quant convertible. Ta bắt đầu từ **cấu trúc** — trái phiếu cộng embedded call, các đại lượng parity/bond floor và cách đọc chúng thành một con số giá thô. Ta bóc **ba thành phần giá trị** và các Greeks kèm theo, thấy con thú này biến hình từ "gần như bond" sang "gần như equity" theo spot. Ta nêu **cách định giá đúng** — cây binomial một nhân tố equity với chiết khấu điều chỉnh credit, nối thẳng vào hazard rate của Chương 13 và tinh thần PDE của Chương 12. Ta mổ **convertible arbitrage** — nguồn lợi nhuận, cách gamma-scalp, và vì sao chiến lược này gần như xoá sổ năm 2008. Cuối cùng ta chạm **mandatory convertible** và **CoCo/AT1** — hybrid capital của ngân hàng, nơi cấu trúc chuyển đổi bị lộn ngược và trở thành công cụ hấp thụ lỗ. Xuyên suốt, mọi khái niệm lớn có một ví dụ tính bằng số ra kết quả.
+
+## 16.1 Cấu trúc convertible bond — bond cộng một embedded call
+
+Vì sao mục này tồn tại trước tất cả: bởi vì nếu không cầm chắc bốn đại lượng — conversion ratio, conversion price, parity, bond floor — thì mọi câu về Greeks, arbitrage hay CoCo phía sau đều trôi. Bốn con số này là bảng chữ cái của thị trường convertible, và điều đẹp là chúng đều tính được bằng số học lớp năm; cái khó nằm ở chỗ đọc *ý nghĩa* của chúng.
+
+Một **convertible bond** (CB) là trái phiếu do một công ty phát hành, trả coupon và mệnh giá như trái phiếu thường, nhưng cho người nắm giữ **quyền** (không nghĩa vụ) đổi mỗi trái phiếu lấy một số cổ phiếu cố định của chính công ty đó, bất cứ lúc nào cho tới đáo hạn (kiểu Mỹ) hoặc tại một số thời điểm (kiểu Bermudan). Số cổ phiếu nhận được khi chuyển đổi là **conversion ratio** $\kappa$. Vì người nắm giữ *có quyền chọn* thời điểm và có quyền *không* chuyển, quyền này chính là một call option viết trên cổ phiếu công ty, nhúng vào trong trái phiếu. Công thức xương sống của cả chương gọn lỏn:
+
+$$\text{Convertible} = \text{Straight bond} + \text{Embedded call trên equity}.$$
+
+Nhà đầu tư đổi lấy điều gì khi mua CB thay vì trái phiếu thường? Họ nhận **coupon thấp hơn** — vì đã được trả một phần "phí" dưới dạng quyền chuyển đổi sinh lời nếu cổ phiếu bay lên. Nhà phát hành đổi lấy điều gì? Vốn vay **rẻ hơn** (coupon thấp) đổi bằng khả năng bị pha loãng (dilution) cổ đông nếu chuyển đổi xảy ra. Đây là một cây cầu equity-debt: startup và công ty tăng trưởng thích CB vì bán được "upside cổ phiếu tương lai" ngay hôm nay để hạ chi phí lãi vay. Một cách nhìn khác đắt giá cho desk: nhà phát hành CB thực chất đang **bán vol dài hạn trên chính cổ phiếu mình** — và thường bán rẻ, vì họ định giá theo nhu cầu vốn chứ không theo fair vol. Chỗ "bán rẻ vol" này về sau là mỏ vàng của convertible arb (16.4).
+
+**Conversion ratio và conversion price.** Conversion ratio $\kappa$ được ấn định lúc phát hành, thường quy chiếu về mệnh giá (par) $F$. **Conversion price** $K_c$ là giá cổ phiếu ngầm định mà tại đó đổi trái phiếu lấy cổ phiếu là hoà vốn theo mệnh giá:
+
+$$K_c = \frac{F}{\kappa}.$$
+
+Ví dụ số nền tảng — running example của cả chương. Một CB mệnh giá $F = \$1000$, conversion ratio $\kappa = 20$. Vậy conversion price $K_c = 1000/20 = \$50$. Nghĩa là: nhà phát hành ngầm bán cho bạn cổ phiếu ở mức $\$50$; chỉ khi spot vượt $\$50$ thì việc "xé" trái phiếu ra lấy cổ phiếu mới bắt đầu có lời so với mệnh giá. Con số $\$50$ này là strike của embedded call — hãy giữ chặt. Lưu ý một cạm bẫy thuật ngữ: conversion price $\$50$ *không* phải giá cổ phiếu hôm nay; nó là strike. Cổ phiếu hôm nay có thể đang ở $\$40$ (dưới strike) — CB vẫn có giá trị vì embedded call còn thời gian để cổ phiếu leo qua $\$50$.
+
+**Parity (conversion value).** Đây là giá trị bạn thu được *ngay lập tức* nếu chuyển đổi bây giờ — bằng số cổ phiếu nhân giá spot $S$:
+
+$$\text{Parity} = \kappa \cdot S.$$
+
+Với spot $S = \$40$: parity $= 20 \times 40 = \$800$. Đọc con số: nếu bạn xé trái phiếu ra lấy 20 cổ phiếu ngay lúc này, bạn có $\$800$ — thấp hơn mệnh giá $\$1000$, nên chuyển đổi ngay là dại. Cổ phiếu đang giao dịch dưới conversion price ($40 < 50$), embedded call đang **out-of-the-money**. Parity là đường thẳng qua gốc với độ dốc $\kappa$: cứ mỗi $\$1$ spot lên, parity lên $\$20$. Vẽ được đường parity là vẽ được một nửa bức tranh CB.
+
+**Bond floor (investment value).** Đây là giá trị của trái phiếu nếu ta *quên hẳn* quyền chuyển đổi — chỉ là chuỗi coupon cộng mệnh giá, chiết khấu ở mức lợi suất phù hợp với rủi ro tín dụng của nhà phát hành (tức curve phi rủi ro cộng credit spread của tên đó). Bond floor là "sàn": dù cổ phiếu có sập về 0, trái phiếu vẫn đáng ít nhất bằng nó (miễn công ty không default). Tính bond floor cho running example: coupon $2.5\%$/năm trên mệnh giá $\$1000$ (tức $\$25$/năm), kỳ hạn 5 năm, chiết khấu ở mức $5\%$ (curve $3\%$ cộng credit spread $2\%$). Giá trị hiện tại của chuỗi coupon cộng par:
+
+$$\text{Bond floor} = \sum_{i=1}^{5} \frac{25}{(1.05)^i} + \frac{1000}{(1.05)^5}.$$
+
+Tính từng bước, không nhảy cóc. Trước hết $1.05^{-5} = 0.78353$. Annuity của $\$25$ trong 5 năm ở $5\%$: hệ số annuity $= \frac{1 - 1.05^{-5}}{0.05} = \frac{1 - 0.78353}{0.05} = \frac{0.21647}{0.05} = 4.32948$, nên phần coupon $= 25 \times 4.32948 = \$108.24$. Phần mệnh giá $= 1000 \times 0.78353 = \$783.53$. Cộng lại: **bond floor $= 108.24 + 783.53 = \$891.76 \approx \$892$**. Con số này *dưới* par ($\$1000$) vì lợi suất chiết khấu ($5\%$) cao hơn coupon ($2.5\%$) — trái phiếu coupon-thấp luôn giao dịch dưới mệnh giá. Để thấy độ nhạy: nếu cùng CB đó có coupon $4\%$ ($\$40$/năm), bond floor lên $\$956.71$ — coupon cao kéo sàn lên gần par. Ta giữ con số $\approx \$892$ (coupon $2.5\%$) làm mốc cho cả chương.
+
+Bây giờ ráp thành một **định giá thô**. Trực giác đầu tiên, thô nhưng cực kỳ hữu dụng để "sanity-check": giá trị CB không thể thấp hơn cái lớn hơn giữa bond floor và parity, vì cả hai đều là quyền chọn của người nắm giữ (giữ như bond, hoặc đổi lấy cổ phiếu). Vậy
+
+$$\text{Giá CB} \approx \max(\text{bond floor},\, \text{parity}) + \text{option time value}.$$
+
+Với ví dụ: $\max(892, 800) = 892$; nhưng vì spot $\$40$ chưa quá xa conversion price $\$50$ và còn 5 năm, embedded call có **time value** đáng kể. Giả sử thị trường định giá CB ở $\approx \$960$ (con số này ta sẽ tái tạo bằng mô hình ở 16.3; giờ nhận làm quote thị trường). Ta đọc ba con số quan trọng mà mọi trader convertible nhìn đầu tiên:
+
+- **Premium over parity** $= \frac{960 - 800}{800} = 20.0\%$. Bạn trả cao hơn giá trị chuyển đổi tức thời $20\%$ — đó là "học phí" mua option time value và bond protection.
+- **Premium over bond floor** $= \frac{960 - 892}{892} = 7.6\%$. Bạn trả cao hơn giá trị trái phiếu thuần $7.6\%$ — đó là "học phí" mua upside cổ phiếu.
+- CB đang ở vùng **"balanced"** (hybrid) — không quá gần equity (parity thấp hơn giá), cũng không quá gần bond (giá cao hơn floor rõ). Đây là vùng ngọt của convertible arb, ta sẽ thấy ở 16.4.
+
+Hai premium này là hai mặt của một đồng xu và luôn cộng lại theo một logic đơn giản: premium over parity đo bạn "đắt" hơn kịch bản equity bao nhiêu, premium over bond floor đo bạn "đắt" hơn kịch bản bond bao nhiêu. Khi CB dịch về equity-like (spot cao), premium over parity co về 0 còn premium over bond floor phình to; khi dịch về bond-like (spot thấp), điều ngược lại. Vị trí trên phổ đó chính là "nhân cách" của một CB tại một thời điểm.
+
+Một bảng nhỏ tổng kết bốn đại lượng cho running example, để cắm chặt vào đầu:
+
+| Đại lượng | Công thức | Con số |
+|---|---|---|
+| Conversion ratio $\kappa$ | ấn định | 20 |
+| Conversion price $K_c$ | $F/\kappa$ | \$50 |
+| Parity | $\kappa S$ | \$800 (tại $S=40$) |
+| Bond floor | PV(coupon+par @ risky yield) | \$892 |
+| Giá thị trường | mô hình / quote | \$960 |
+| Premium over parity | $(P-\text{parity})/\text{parity}$ | 20% |
+| Premium over bond floor | $(P-\text{floor})/\text{floor}$ | 7.6% |
+
+## 16.2 Ba thành phần giá trị và Greeks
+
+Vì sao mục này tồn tại: bởi vì convertible là một con thú *biến hình*. Cùng một trái phiếu, khi cổ phiếu ở $\$20$ nó cư xử như một trái phiếu tín dụng thuần; khi cổ phiếu ở $\$100$ nó cư xử gần như cổ phiếu; ở giữa nó là một mớ Greeks trộn. Không hiểu ba thành phần và ánh xạ của chúng sang delta thì không thể hedge.
+
+Bóc CB ra thành ba khối, mỗi khối có nhóm risk factor riêng:
+
+1. **Bond floor** — nhạy với **rates** ($\rho$-risk, duration) và **credit spread**. Đây là phần "nợ". Credit spread nới rộng $\Rightarrow$ discount rate risky tăng $\Rightarrow$ bond floor tụt. Đây là chỗ Chương 13 (hazard rate, credit spread) chảy thẳng vào: bond floor thực chất là một **risky bond**, giá trị của nó là kỳ vọng survival-weighted của dòng tiền, và nó *bập bênh* theo $\lambda$.
+
+2. **Embedded equity call** — nhạy với **spot** ($\Delta, \Gamma$) và **vol** (vega $\mathcal{V}$). Đây là phần "option". Toàn bộ trực giác Greeks của Chương 5 áp thẳng vào đây: call dài hạn trên cổ phiếu công ty.
+
+3. **Tương tác credit-equity** — không phải tổng hai khối rời rạc, vì khi cổ phiếu sập về vùng distressed thì *credit spread cũng nới rộng* (leverage effect, đã gặp ở 6.1 và 13.2 Merton). Bond floor và embedded call **không độc lập** — chúng liên kết qua giá trị công ty. Đây là lý do định giá đúng cần một mô hình gắn credit vào equity, không phải cộng hai module rời.
+
+**Delta của convertible — tính bằng số.** Delta ở đây là độ nhạy giá CB theo spot cổ phiếu, chuẩn hoá về "số cổ phiếu tương đương" hoặc về đơn vị $\partial P_{CB}/\partial S$. Vì phần bond floor gần như không đổi theo $S$ (trong vùng không distressed), toàn bộ delta đến từ embedded call. Delta của CB theo *một cổ phiếu* là:
+
+$$\Delta_{CB} = \kappa \cdot \Delta_{\text{call}},$$
+
+với $\Delta_{\text{call}} = N(d_1)$ là delta Black-Scholes của một embedded call đơn lẻ. Cắm số cho running example: spot $S = 40$, strike $K_c = 50$, $T = 5$ năm, vol $\sigma = 30\%$, $r = 3\%$, dividend $q = 1\%$. Tính $d_1$ từng bước:
+
+$$d_1 = \frac{\ln(40/50) + (r - q + \tfrac{1}{2}\sigma^2)\,T}{\sigma\sqrt{T}}.$$
+
+Tử số: $\ln(40/50) = \ln(0.8) = -0.2231$; phần drift $(0.03 - 0.01 + \tfrac{1}{2}\times 0.30^2) = 0.02 + 0.045 = 0.065$, nhân $T=5$ được $0.325$; tổng tử số $= -0.2231 + 0.325 = 0.1019$. Mẫu số: $\sigma\sqrt{T} = 0.30 \times \sqrt{5} = 0.30 \times 2.2361 = 0.6708$. Vậy
+
+$$d_1 = \frac{0.1019}{0.6708} = 0.1518, \qquad d_2 = d_1 - \sigma\sqrt{T} = 0.1518 - 0.6708 = -0.5190.$$
+
+Tra $N(d_1) = N(0.1518) = 0.5603$. Vậy $\Delta_{\text{call}} \approx 0.56$ trên mỗi cổ phiếu, và **delta của cả trái phiếu** $\Delta_{CB} = 20 \times 0.5603 = 11.2$ — nghĩa là CB này cư xử như thể bạn đang long 11.2 cổ phiếu. Để trung hoà rủi ro equity, trader convertible arb sẽ short 11.2 cổ phiếu cho mỗi trái phiếu nắm giữ. Con số $\Delta_{\text{call}} \approx 0.56$ (nằm gọn trong vùng điển hình $0.4$–$0.6$ của một CB "balanced") xác nhận: đây là con thú lai — nửa bond, nửa equity.
+
+**Gamma và vega.** Vì embedded call là long option, CB có **gamma dương** — delta tăng khi cổ phiếu lên, giảm khi cổ phiếu xuống. Gamma của một cổ phiếu equity call:
+
+$$\Gamma_{\text{call}} = \frac{\phi(d_1)}{S\sigma\sqrt{T}} = \frac{\phi(0.1518)}{40 \times 0.30 \times \sqrt{5}} = \frac{0.3944}{26.83} = 0.01470,$$
+
+trong đó $\phi(0.1518) = \frac{1}{\sqrt{2\pi}}e^{-0.1518^2/2} = 0.3944$. Nhân $\kappa = 20$: $\Gamma_{CB} = 20 \times 0.01470 = 0.294$ trên mỗi trái phiếu. Con số này nói: khi spot dịch $\$1$, delta của CB (đo bằng số cổ phiếu tương đương) đổi khoảng $0.29$ — đây chính là nhiên liệu của gamma scalping ở 16.4. Vega của một cổ phiếu call:
+
+$$\mathcal{V}_{\text{call}} = S\,\phi(d_1)\sqrt{T} = 40 \times 0.3944 \times 2.2361 = 35.3.$$
+
+Đây là độ nhạy theo *một đơn vị vol* (tức khi $\sigma$ đi từ $0.30$ lên $1.30$ — một quãng $100$ điểm vol). Trader hầu như luôn quote vega **trên một vol-point** (một điểm phần trăm, $\Delta\sigma = 0.01$), nên chia cho 100: **vega per vol-point $= 35.3 / 100 = \$0.353$** mỗi cổ phiếu. Nhân $\kappa = 20$ để ra vega của cả trái phiếu: $\mathcal{V}_{CB} = 20 \times 0.353 = \$7.05$ mỗi vol-point trên mệnh giá $\$1000$ (tương đương $\$705$ nếu vol dịch trọn một đơn vị $1.0$). Đọc con số: nếu implied vol của cổ phiếu tăng $1$ điểm (từ $30\%$ lên $31\%$), CB này lời khoảng $\$7$ trên mỗi $\$1000$ mệnh giá. CB **long vega** — mua CB là mua vol, và (điểm mấu chốt ở 16.4) thường mua *rẻ hơn* vol vanilla cùng kỳ hạn.
+
+**Biến hình theo spot — ba chế độ.** Đây là bảng phân vai đắt nhất của cả chương, đáng ghi nhớ như một phổ liên tục:
+
+| Chế độ | Spot | Delta $\Delta_{\text{call}}$ | Cư xử như | Rủi ro chủ đạo |
+|---|---|---|---|---|
+| **Equity-like ("in-the-money")** | $S \gg K_c$, ví dụ $S=100$ | $\to 1.0$ | cổ phiếu (gấp $\kappa$) | spot, vol nhẹ dần |
+| **Balanced (hybrid)** | $S \approx K_c$, ví dụ $S=40$–$55$ | $0.4$–$0.6$ | lai bond-equity | spot, vol, credit — tất cả |
+| **Bond-like / distressed** | $S \ll K_c$, ví dụ $S=15$ | $\to 0$ | trái phiếu tín dụng | credit spread, recovery |
+
+Cắm số hai đầu để thấy phổ trải ra sao. Nếu spot bay lên $\$100$ (gấp đôi conversion price), embedded call sâu in-the-money, $\Delta_{\text{call}} \to 0.95$+, CB dính chặt vào parity ($\kappa S = 20 \times 100 = \$2000$) và cư xử gần như 20 cổ phiếu — trái phiếu "biến mất", chỉ còn cổ phiếu, và premium over parity teo về gần 0. Ngược lại, nếu spot sập về $\$15$ (distressed), parity chỉ còn $20 \times 15 = \$300$, embedded call gần như vô giá trị, $\Delta_{\text{call}} \to 0.1$, và CB co lại về **bond floor** — nhưng đây là chỗ nguy hiểm nhất: khi cổ phiếu distressed, credit spread nới rộng dữ dội, nên bond floor *tự nó cũng sụp*. Một CB "bond-like" không phải nơi trú ẩn an toàn; nó là một trái phiếu tín dụng rủi ro cao đội lốt trái phiếu. Đây gọi là **"busted convertible"** — quyền chuyển đổi đã chết, chỉ còn credit risk trần trụi, và delta gần 0 khiến việc hedge bằng short cổ phiếu trở nên vô nghĩa (không còn equity sensitivity để hedge, chỉ còn credit). Chính hiện tượng bond floor bập bênh theo credit này là lý do ta cần định giá đúng ở mục sau: nếu bạn mô hình bond floor như một hằng số phẳng, bạn sẽ nghĩ mình đang cầm một cái sàn cứng $\$892$, trong khi thực tế cái sàn đó lún đúng lúc bạn cần nó nhất.
+
+## 16.3 Định giá đúng — cây một nhân tố equity với chiết khấu điều chỉnh credit
+
+Vì sao mục này tồn tại: bởi vì công thức thô $\max(\text{floor}, \text{parity}) + \text{time value}$ ở 16.1 chỉ để sanity-check; nó không xử lý được early exercise (CB kiểu Mỹ), không xử lý được call/put provision của nhà phát hành, và tệ nhất — không xử lý được cái *tương tác* credit-equity mà ta vừa thấy là cốt lõi. Định giá production cần một engine số thực thụ.
+
+**Bài toán một nhân tố equity với credit-adjusted discounting.** Cách kinh điển của industry (mô hình Tsiveriotis-Fernandes, 1998) dựng một cây **binomial** một nhân tố cho cổ phiếu $S$, y hệt cây của Chương 12, nhưng với một tinh xảo về chiết khấu. Ý tưởng cốt lõi: dòng tiền của CB có hai loại số phận rất khác nhau khi công ty default.
+
+- Phần giá trị đến từ **chuyển đổi** (equity component): nếu công ty default, người nắm giữ đã/đang cầm cổ phiếu, nên phần này chiết khấu ở mức **phi rủi ro** $r$ (rủi ro default đã nằm trong động lực học của $S$ rồi).
+- Phần giá trị đến từ **cash flow trái phiếu** chưa chuyển đổi (bond component): nếu công ty default, khoản này chỉ thu hồi được recovery, nên nó phải chiết khấu ở mức **risky** $r + s$ với $s$ là credit spread (hay tương đương, dùng hazard rate $\lambda$ của Chương 13).
+
+Tsiveriotis-Fernandes tách giá CB thành $V = B + E$ với $B$ là "cash-only part" (phần dòng tiền tiền mặt sẽ đến nếu holder không chuyển đổi) và $E = V - B$ là phần còn lại (phần equity/chuyển đổi), rồi cho hai phần chiết khấu ở hai rate khác nhau trên cùng một cây. Đây chính là cách credit "làm bond floor bập bênh" được đưa vào một cách nhất quán: chỉ đúng phần dòng tiền phụ thuộc công ty sống sót mới bị phạt bằng credit spread, còn phần đã hoá cổ phiếu thì không.
+
+**Backward induction trên cây — nghi thức tại mỗi nút.** Dựng cây $S$ với up-factor $u = e^{\sigma\sqrt{\Delta t}}$, down-factor $d = 1/u$, risk-neutral prob $p = \frac{e^{(r-q)\Delta t} - d}{u - d}$ (y hệt Chương 12). Tại **đáo hạn** $T$, giá trị mỗi nút là
+
+$$V_T = \max(\kappa S_T,\; F),$$
+
+người nắm giữ chọn cái lớn hơn giữa chuyển đổi lấy cổ phiếu và nhận mệnh giá. Rồi cuộn ngược. Tại mỗi nút thời điểm $t$, ba bước theo đúng thứ tự:
+
+1. **Continuation value** — chiết khấu kỳ vọng giá trị nút con, với phần bond chiết khấu risky, phần equity chiết khấu risk-free (đây là cái tinh xảo T-F).
+2. **Holder's option** — người nắm giữ có thể chuyển đổi ngay: $V \leftarrow \max(V_{\text{cont}},\; \kappa S_t)$. Nếu có **put provision** (holder được bán lại cho issuer ở giá $P_{\text{put}}$): $V \leftarrow \max(V,\; P_{\text{put}})$.
+3. **Issuer's option** — nếu có **call provision** (issuer được mua lại ở $P_{\text{call}}$, thường buộc holder hoặc nhận tiền hoặc chuyển đổi ngay — "forced conversion"): $V \leftarrow \min(V,\; \max(P_{\text{call}}, \kappa S_t))$.
+
+Thứ tự này *có ý nghĩa*: issuer call trước, buộc holder phản ứng (chuyển đổi nếu parity cao). Call provision là lý do CB có upside bị "chặn trần mềm" — khi cổ phiếu bay quá cao, issuer gọi lại để cắt dilution, buộc chuyển đổi. Đây là điểm cấu trúc mà một mô hình chỉ dùng $\max(\text{floor}, \text{parity})$ bỏ sót hoàn toàn.
+
+**Ví dụ số một bước — thấy credit làm bond floor bập bênh.** Xét một CB đơn giản hoá: mệnh giá $F = \$1000$, $\kappa = 20$, còn 1 năm, một bước cây. Spot $S_0 = 40$, vol $\sigma = 30\%$, $r = 3\%$, hazard rate $\lambda = 2\%$ (từ Chương 13; credit spread $s \approx \lambda(1-R) = 2\% \times 0.6 = 120$bp với $R = 40\%$). Up $u = e^{0.30\sqrt{1}} = e^{0.30} = 1.350$, down $d = 1/u = 0.741$. Hai nút cuối:
+
+- **Nút up**: $S_u = 40 \times 1.350 = 53.99 \Rightarrow$ parity $= 20 \times 53.99 = \$1080 > F$, holder chuyển đổi, $V_u = \$1080$. Phần này là equity (đã hoá cổ phiếu), chiết khấu risk-free.
+- **Nút down**: $S_d = 40 \times 0.741 = 29.63 \Rightarrow$ parity $= 20 \times 29.63 = \$593 < F$, holder giữ bond và nhận mệnh giá, $V_d = \max(593, 1000) = \$1000$. Phần này là cash bond, chiết khấu risky.
+
+Risk-neutral prob (ở đây $q$ đã gộp; dùng $r$ thuần cho gọn): $p = \frac{e^{0.03} - 0.741}{1.350 - 0.741} = \frac{1.0305 - 0.741}{0.609} = \frac{0.2895}{0.609} = 0.4756$.
+
+Continuation value, chiết khấu **tách rate**: phần đến từ nút up là equity ($\$1080$, chiết khấu ở $r = 3\%$), phần đến từ nút down là bond ($\$1000$, chiết khấu ở $r + s = 4.2\%$):
+
+$$V_0 = p \cdot 1080 \cdot e^{-0.03} + (1-p)\cdot 1000 \cdot e^{-0.042}.$$
+
+Tính từng số hạng: $e^{-0.03} = 0.9704$, $e^{-0.042} = 0.9589$. Nhánh up: $0.4756 \times 1080 \times 0.9704 = 498.4$. Nhánh down: $0.5244 \times 1000 \times 0.9589 = 502.9$. Tổng $V_0 = 498.4 + 502.9 = \$1001.3$.
+
+So sánh phản-thực để cô lập tác động credit: nếu ta *sai lầm* chiết khấu **cả hai** nhánh ở risk-free $3\%$, nhánh down thành $0.5244 \times 1000 \times 0.9704 = 508.9$, tổng lên $\$1007.4$ — cao hơn $\$6.1$. Chênh lệch **$\$6.1$** trên một bước, một năm, chính là **credit haircut** áp lên phần bond của CB; trên nhiều bước và tên spread rộng, nó dễ dàng thành nhiều điểm giá. Đây là con số cụ thể cho câu "credit làm bond floor bập bênh": phần dòng tiền phụ thuộc công ty sống sót bị chiết khấu nặng hơn, và nó chỉ áp lên đúng phần bond ($\$1000$ ở nhánh down) chứ không áp lên phần equity ($\$1080$ ở nhánh up, đã hoá cổ phiếu nên miễn nhiễm với default). Đúng tinh thần Tsiveriotis-Fernandes: tách $V = B + E$, phạt credit chỉ lên $B$.
+
+**Hai-nhân-tố và khi nào cần nó.** Mô hình T-F một nhân tố coi credit spread là **hằng số** (hoặc hàm tất định của spot). Thực tế credit spread ngẫu nhiên, và tệ hơn — nó **tương quan âm với spot** (cổ phiếu xuống, spread lên). Với CB gần vùng distressed, sai số này lớn. Mô hình **hai nhân tố** (equity + credit) cho $S$ và hazard rate $\lambda$ (hoặc firm value kiểu Merton, 13.2) cùng khuếch tán, tương quan $\rho_{S\lambda} < 0$. Khi đó bond floor tự nó là ngẫu nhiên và neo vào cùng cú sốc kéo cổ phiếu xuống — bắt đúng "double whammy" của busted convertible: spot rơi kéo parity rơi, đồng thời spread nới kéo bond floor rơi, hai cái sụp cùng một cú. Cái giá: cây/PDE hai chiều, calibrate thêm một chiều credit, và số liệu credit của tên nhỏ thường mỏng. Ranh giới thực chiến: **một nhân tố cho CB investment-grade balanced/equity-like** (credit ổn định, chi phối bởi equity option); **hai nhân tố cho high-yield / gần distressed** (nơi tương tác credit-equity là bản chất). Về mặt kỹ thuật, khi bước sang chế độ liên tục, cây binomial hội tụ về một **PDE một chiều** (Chương 12) với số hạng nguồn kiểu hazard $\lambda(V - \text{recovery value})$ — chính là convection-diffusion equation của equity cộng một reaction term default; ai đã đọc 12.3 sẽ thấy nó là người anh em của Black-Scholes PDE có thêm một số hạng: khi $\lambda \to 0$ nó thoái về đúng BS PDE, và $\lambda$ càng lớn thì reaction term càng kéo giá về recovery.
+
+## 16.4 Convertible arbitrage — long con thú, short cổ phiếu, thu ba nguồn tiền
+
+Vì sao mục này tồn tại: bởi vì convertible arb là *lý do* toàn bộ mảng này có tính thanh khoản và có desk sell-side phục vụ. Đây là chiến lược hedge fund kinh điển, và hiểu nó là hiểu vì sao CB được định giá như hiện tại — arbitrageur là người mua biên (marginal buyer), nên fair value của CB thực chất bị neo bởi mức vol mà một convertible-arb desk sẵn lòng trả.
+
+**Cấu trúc vị thế.** Trader **long convertible bond** và **short delta cổ phiếu** ($\Delta_{CB}$ cổ phiếu cho mỗi trái phiếu, tính ở 16.2 là 11.2 cổ phiếu). Vị thế này **delta-neutral**: cú dịch nhỏ của spot không làm P&L đổi theo bậc nhất. Vậy tiền đến từ đâu? Ba nguồn, mỗi nguồn có một cơ chế riêng:
+
+**Nguồn 1 — Carry (coupon trừ chi phí short).** Trái phiếu trả coupon; vị thế short cổ phiếu nhận **short rebate** (lãi trên tiền thu được từ bán khống) nhưng phải trả **borrow cost** (phí mượn cổ phiếu) và **dividend** cho bên cho mượn. Net carry:
+
+$$\text{Carry} = \underbrace{\text{coupon CB}}_{\text{thu}} + \underbrace{\text{short rebate}}_{\text{thu}} - \underbrace{\text{borrow cost}}_{\text{trả}} - \underbrace{\text{dividend trên short}}_{\text{trả}}.$$
+
+Ví dụ số: coupon $2.5\%$ trên $\$1000 = \$25$/năm. Short $11.2$ cổ phiếu $\times \$40 = \$448$ giá trị short. Short rebate $2.5\%$ trên $\$448 = \$11.20$; borrow cost $0.5\% \times 448 = \$2.24$; dividend $1\% \times 448 = \$4.48$. Net carry $= 25 + 11.20 - 2.24 - 4.48 = \$29.48$/năm. Trên vốn bỏ ra (giá CB $\$960$), đó là $29.48/960 = 3.07\%$/năm. Carry dương ổn định — dòng tiền "chờ đợi được trả tiền", và nó là tấm đệm giữ vị thế sống qua các quý cổ phiếu đứng im (không có gamma để scalp).
+
+**Nguồn 2 — Gamma (long vol rẻ).** Đây là trái tim của chiến lược. Vì CB long embedded call, vị thế delta-hedged có **gamma dương**: khi cổ phiếu dao động, trader **re-hedge** — cổ phiếu lên thì delta CB tăng nên short thêm (bán cao); cổ phiếu xuống thì delta giảm nên mua lại short (mua thấp). Mỗi vòng dao động khoá lại một chút lời. Đây là **gamma scalping** — y hệt cơ chế của một long option delta-hedged ở Chương 5/6, nhưng CB thường cho ta mua gamma này *rẻ hơn* vol vanilla cùng kỳ hạn, vì thị trường CB kém hiệu quả và issuer "bán rẻ" vol khi phát hành.
+
+Cơ chế P&L của gamma scalping, viết chuẩn theo hiệu vol. Với một long option đã delta-hedge, P&L (bỏ qua carry, đã tách ra ở Nguồn 1) trên một quãng thời gian $\Delta t$ xấp xỉ:
+
+$$\text{P\&L}_\Gamma \approx \tfrac{1}{2}\,\Gamma_{CB}\,S^2\big(\sigma_{\text{real}}^2 - \sigma_{\text{impl}}^2\big)\,\Delta t.$$
+
+Đây là *cùng một* công thức "gamma lời − theta bleed", chỉ viết gọn: số hạng $\tfrac12\Gamma S^2\sigma_{\text{real}}^2\Delta t$ là lời từ scalping theo vol thực tế, số hạng $\tfrac12\Gamma S^2\sigma_{\text{impl}}^2\Delta t$ là **time decay** (theta) đúng bằng lượng vol đã trả trong giá — hai số hạng bù nhau khi realized = implied, và P&L ròng chỉ đến từ *hiệu* của hai vol. Cắm số cho running example trên **một năm** ($\Delta t = 1$), $\Gamma_{CB} = 0.294$, $S = 40$, giả sử trader mua CB ở implied vol $\sigma_{\text{impl}} = 28\%$ nhưng cổ phiếu thực sự dao động ở $\sigma_{\text{real}} = 32\%$:
+
+- Gross gamma (lời scalping ở vol thực) $= \tfrac{1}{2}\times 0.294 \times 40^2 \times 0.32^2 \times 1 = \tfrac12 \times 0.294 \times 1600 \times 0.1024 = \$24.1$.
+- Theta cost (time decay đúng bằng vol đã trả) $= \tfrac{1}{2}\times 0.294 \times 1600 \times 0.28^2 = \tfrac12 \times 0.294 \times 1600 \times 0.0784 = \$18.4$.
+- **P&L gamma ròng $= 24.1 - 18.4 = \$5.6$** mỗi trái phiếu, một năm — hay trực tiếp qua công thức hiệu vol: $\tfrac12 \times 0.294 \times 1600 \times (0.1024 - 0.0784) = \$5.6$.
+
+**Điểm cốt lõi**: gamma scalping có lời **khi và chỉ khi realized vol > implied vol** đã trả trong giá CB. Ở đây $32\% > 28\%$ nên P&L dương $\$5.6$/bond; nếu cổ phiếu chỉ dao động $24\%$ (dưới implied $28\%$), số hạng hiệu vol âm và trader *mất* tiền gamma — long option mà vol thực thấp hơn vol đã mua thì theta ăn mòn nhiều hơn scalping bù lại. Vì CB thường cho mua vol *dưới* mức fair vanilla (issuer bán rẻ), $\sigma_{\text{impl}}$ trong giá CB thấp, nên biên $\sigma_{\text{real}} - \sigma_{\text{impl}}$ có xu hướng dương — đó là "long vol rẻ" cụ thể hoá bằng số. (Cạm bẫy quy mô: nếu ai đó bảo bạn tổng bình phương bước ngày $\sum(\Delta S_j)^2$ của quý là $900$, hãy giật mình — với $S=40$ điều đó hàm ý realized vol quanh $150\%$, vô lý; realized $32\%$/năm chỉ cho $\sum(\Delta S_j)^2 \approx S^2\sigma^2 = 1600\times0.1024 \approx 164$ trên cả năm. Luôn kiểm tra quy mô của proxy variance trước khi tin con số gamma P&L.)
+
+Cộng carry và gamma cho bức tranh một năm của running example: $\$29.5$ (carry) $+ \$5.6$ (gamma ròng) $= \$35.1$/bond, tức $35.1/960 \approx 3.7\%$ trên vốn — trước đòn bẩy. Với đòn bẩy $4$–$5$ lần điển hình thời tiền-2008, con số này phóng lên hai chữ số. Đó là sức hút, và cũng là mầm hoạ.
+
+**Nguồn 3 — Credit / mispricing.** Trader thường hedge nốt phần credit (short credit qua CDS hoặc short bond của cùng issuer, xem Chương 13), cô lập vị thế còn lại về **thuần vol**. Phần này thu lời nếu CB được mua ở implied vol rẻ so với vol thị trường, hoặc nếu credit spread thắt lại. Một convertible arb sạch, sau khi hedge cả delta lẫn credit, về bản chất là một **long-volatility position mua với chiết khấu** — trader không cá cược hướng cổ phiếu, không cá cược hướng credit, chỉ cá cược rằng vol thực sẽ cao hơn vol họ đã trả.
+
+**Vì sao chiến lược đẹp — và vì sao 2008 xoá sổ nó.** Trong điều kiện bình thường, convertible arb là cỗ máy in tiền chậm: carry dương, gamma dương, hedge sạch, biến động thấp. Nhưng nó phụ thuộc sống còn vào **ba giả định vô hình**: (1) short được cổ phiếu (mượn được, không bị cấm), (2) CB có thanh khoản để mua/bán và định giá theo mark thị trường, (3) đòn bẩy (leverage) tiếp tục được cấp bởi prime broker. Cả ba đổ sập cùng lúc năm 2008.
+
+Khi Lehman sụp (tháng 9/2008), chuỗi sự kiện dây chuyền: **thanh khoản CB bay hơi** — không ai muốn cầm hybrid phức tạp, spread mua-bán nới rộng khủng khiếp, mark-to-market lao dốc dù fair value không đổi. Đồng thời cơ quan quản lý ra **lệnh cấm short-sell cổ phiếu tài chính** — phá thẳng vào chân hedge của chiến lược: không short được thì không delta-neutral được, vị thế phơi trần rủi ro equity đúng lúc cổ phiếu sập. Cuối cùng **prime broker rút margin** (nhiều fund dùng Lehman làm PB, tài sản bị đóng băng trong phá sản), buộc **deleveraging cưỡng bức** — bán CB vào một thị trường không người mua, đè giá xuống sâu hơn, kích hoạt margin call tiếp cho fund khác. Vòng xoáy tự-củng-cố. Kết quả: chỉ số convertible arbitrage **giảm khoảng $50\%$** trong 2008 — một trong những cú sụt tệ nhất của bất kỳ chiến lược hedge fund nào. Bài học desk-quant: **P&L của một chiến lược "market-neutral" không phải là không rủi ro — nó là rủi ro thanh khoản, rủi ro funding, và rủi ro cấu trúc thị trường (lệnh cấm short) được gói lại thành một cú tail.** CB fair value có thể đúng tuyệt đối mà fund vẫn phá sản, vì fund không sống bằng fair value — nó sống bằng khả năng roll funding và giữ hedge. Đây là lý do sau 2008, convertible arb chạy với đòn bẩy thấp hơn nhiều và quan tâm sát sao tới liquidity của từng dòng CB.
+
+## 16.5 Mandatory convertibles và CoCo/AT1 — hybrid capital
+
+Vì sao mục này tồn tại: cho tới giờ quyền chuyển đổi luôn nằm trong tay *người nắm giữ* — đó là một call có lợi cho nhà đầu tư. Mảng cuối cùng lộn ngược nó: chuyển đổi trở thành nghĩa vụ hoặc trở thành cơ chế hấp thụ lỗ có lợi cho *nhà phát hành* — và đó là xương sống của vốn quy định ngân hàng hậu-2008.
+
+**Mandatory convertible.** Khác CB thường ở một điểm sinh tử: chuyển đổi thành cổ phiếu là **bắt buộc** tại đáo hạn, không phải quyền chọn. Nhà đầu tư *chắc chắn* nhận cổ phiếu — nên payoff của họ giống long cổ phiếu nhiều hơn long bond. Cấu trúc điển hình dùng hai conversion price để tạo vùng "phẳng" bảo vệ: nhận nhiều cổ phiếu hơn khi giá thấp, ít hơn khi giá cao. Về mặt option, payoff mandatory tại đáo hạn $\approx$ long cổ phiếu $-$ một **call spread** (bán đi phần upside giữa hai conversion price), nên nó **hy sinh phần lớn upside** để đổi lấy coupon cao hơn CB thường. Vì gần equity, delta của mandatory cao ($0.8$–$1.0$), gamma thấp — nó không phải công cụ gamma scalp mà là công cụ *income equity*. Con số điển hình: coupon $6$–$8\%$ (cao hơn hẳn $2.5\%$ của CB thường ở running example), đổi bằng việc từ bỏ bond floor bảo vệ downside — nếu cổ phiếu sập, holder mandatory vẫn buộc phải nhận cổ phiếu đã mất giá, không có sàn nào đỡ.
+
+**CoCo / AT1 — contingent convertible.** Đây là instrument quan trọng nhất của mục này và là sản phẩm đặc trưng của hậu-2008. Sau khi khủng hoảng cho thấy ngân hàng "too big to fail" phải được nhà nước cứu bằng tiền thuế dân, Basel III đẻ ra một loại vốn tự hấp thụ lỗ: **Additional Tier 1 (AT1)** capital, mà công cụ điển hình là **contingent convertible bond (CoCo)**. Ý tưởng lộn ngược hoàn toàn convertible thường: chuyển đổi (hoặc write-down) được **kích hoạt bởi sức khoẻ ngân hàng xuống dưới ngưỡng**, và nó có lợi cho ngân hàng (hấp thụ lỗ), gây hại cho trái chủ.
+
+**Cơ chế trigger.** CoCo tự động chuyển đổi thành cổ phiếu, hoặc bị **write-down** (xoá một phần/toàn bộ mệnh giá), khi **CET1 ratio** (Common Equity Tier 1 chia tài sản có trọng số rủi ro RWA — thước đo vốn lõi, xem Chương 15 FRTB/capital) tụt xuống dưới ngưỡng ghi trong hợp đồng, thường $5.125\%$ (low-trigger) hoặc $7\%$ (high-trigger). Trực giác: khi ngân hàng suy yếu tới mức nguy hiểm, CoCo "bốc hơi" thành vốn — hoặc trái chủ thành cổ đông (equity-conversion), hoặc trái chủ mất tiền thẳng (write-down) — bơm vốn cho ngân hàng đúng lúc cần nhất mà không cần tiền thuế. Hai kiểu hấp thụ lỗ:
+
+- **Equity-conversion CoCo**: trigger $\Rightarrow$ CoCo biến thành cổ phiếu ở một tỷ lệ định trước. Trái chủ ít nhất còn cầm cổ phiếu (dù đã mất giá).
+- **Write-down CoCo**: trigger $\Rightarrow$ mệnh giá bị xoá (temporary hoặc permanent). Trái chủ mất trắng phần bị xoá — không nhận gì. Đây là loại tàn nhẫn hơn với nhà đầu tư.
+
+**Rủi ro đặc thù và vì sao coupon cao.** CoCo trả coupon **cao** — điển hình $6$–$9\%$ — vì trái chủ gánh một chồng rủi ro mà bond thường không có:
+
+1. **Trigger risk / hấp thụ lỗ**: mất vốn khi CET1 thủng ngưỡng, đúng lúc thị trường hoảng loạn (tương quan xấu — wrong-way, tinh thần Chương 14).
+2. **Coupon skip risk**: coupon AT1 là **discretionary và non-cumulative** — regulator hoặc ngân hàng có thể **bỏ coupon** bất kỳ kỳ nào (nếu buffer vốn không đủ) mà **không** cấu thành default, và coupon bỏ *không được trả bù* sau. Đây là rủi ro rất thực và định giá khó, vì nó là một option của issuer mà holder không được đền.
+3. **Extension risk**: CoCo thường là **perpetual** (vô kỳ hạn) với một ngày **call** đầu tiên (ví dụ sau 5 năm), và thị trường *giả định* ngân hàng sẽ call ở ngày đó (định giá "to-call"). Nhưng ngân hàng **không bắt buộc** call — nếu điều kiện tái tài trợ xấu, nó **extend** (không call), và trái phiếu đột ngột định giá "to-perpetuity", giá rơi mạnh. Đây là extension risk: một cú gap giá khi kỳ vọng call bị phá.
+
+**Ví dụ số — CoCo yield so với senior.** Xét một ngân hàng có: trái phiếu **senior** 5Y yield $4.0\%$ (curve $3\%$ cộng senior spread $100$bp). Một **CoCo AT1** cùng ngân hàng, first-call 5Y. Chồng thêm các lớp bù rủi ro, mỗi lớp là một dòng trong "waterfall" định giá:
+
+| Lớp bù rủi ro | Spread thêm |
+|---|---|
+| Senior 5Y (curve 3% + senior spread 100bp) | 4.00% |
+| Subordination (dưới senior và Tier 2) | +2.50% |
+| Trigger / loss-absorption | +2.00% |
+| Coupon-skip | +1.00% |
+| Extension | +0.50% |
+| **Yield-to-call CoCo** | **10.00%** |
+
+Cộng dồn: $4.0\% + 2.5\% + 2.0\% + 1.0\% + 0.5\% = 10.0\%$. Đọc con số: nhà đầu tư đòi $10.0\% - 4.0\% = 600$bp *trên* senior của cùng một tổ chức phát hành để cầm CoCo — sáu điểm phần trăm đó là giá của việc đứng cuối hàng hấp thụ lỗ. Con số $6$–$9\%$ coupon ngoài đời khớp với khoảng này. Điểm mấu chốt: yield cao của CoCo **không phải phần thưởng miễn phí** — nó là phí bảo hiểm ngân hàng trả cho nhà đầu tư để họ đứng ở vị trí "đệm lỗ đầu tiên sau cổ đông thường". Ai nhìn coupon $9\%$ mà nghĩ "trái phiếu ngân hàng lãi cao, hời quá" là chưa đọc phần in nhỏ.
+
+**Định giá CoCo — vì sao khó.** Không có một mô hình đóng gói sạch. Ba trường phái: (i) **credit-spread approach** — coi CoCo như bond rất subordinated, định giá qua spread (đơn giản, bỏ qua động lực trigger); (ii) **equity-derivatives approach** — mô hình trigger qua một biến quan sát (giá cổ phiếu như proxy cho CET1, một barrier down-and-in trên equity kích hoạt conversion) — nối thẳng vào PDE/barrier của Chương 12; (iii) **structural approach** — mô hình CET1 ratio ngẫu nhiên trực tiếp và trigger khi thủng ngưỡng (đúng nhất về kinh tế, khó nhất về dữ liệu vì CET1 công bố theo quý, không liên tục, và một phần do regulator quyết định — "point of non-viability" có thể do cơ quan quản lý tuyên bố bất kể con số kế toán). Sự kiện Credit Suisse tháng 3/2023 — nơi $\approx \$17$ tỷ CoCo AT1 bị **write-down về 0 trong khi cổ đông vẫn nhận được một phần** — là bài học model-risk sống động: thứ tự thâm hụt (waterfall) mà thị trường *tưởng* (trái chủ trên cổ đông) không phải thứ tự hợp đồng/regulator thực thi trong non-viability. Định giá CoCo mà bỏ qua rủi ro regulator và điều khoản write-down cụ thể là định giá sai một cách nguy hiểm — không mô hình diffusion nào bắt được một quyết định hành chính ban đêm cuối tuần.
+
+Đóng lại chương, đáng đứng lùi một bước để thấy sợi chỉ xuyên suốt. Convertible và hybrid capital là nơi ba thế giới của Q gặp nhau trong một instrument: **equity vol** (Chương 5-6) cấp embedded option và gamma; **credit** (Chương 13) cấp bond floor bập bênh và hazard rate; **numerics** (Chương 12) cấp cây/PDE để cuộn ngược qua early exercise và call provision; và **capital/regulation** (Chương 15) là lý do CoCo tồn tại. Không có desk nào trong Q-world "sở hữu" con thú này một mình — và chính sự lai giống đó, chứ không phải độ phức tạp toán học, mới là điều làm convertible khó và làm nó đáng học.
+
+# Chương 17: MBS, callable bonds và OAS
+
+Có một họ tài sản mà cả một sự nghiệp fixed-income có thể xây quanh nó, và nó không phải trái phiếu vanilla, không phải swap, không phải option niêm yết. Đó là những công cụ mà *người phát hành hoặc người vay được quyền thay đổi dòng tiền*: callable bond mà issuer có thể gọi lại trước hạn, và mortgage-backed security (MBS) mà hàng triệu chủ nhà có thể trả trước khoản vay bất cứ lúc nào. Điểm chung của chúng — và lý do chương này tồn tại — là một embedded option nằm *phía đối phương* với nhà đầu tư. Bạn mua callable bond, bạn ngầm *bán* một call cho issuer. Bạn mua MBS pass-through, bạn ngầm *bán* một call cho từng chủ nhà. Cái option bạn bán ấy có giá, và nó ăn vào lợi suất của bạn theo một cách tinh vi mà yield-to-maturity thông thường không nhìn thấy.
+
+Hệ quả sâu nhất của optionality này là **negative convexity**: khi lãi suất giảm, một trái phiếu vanilla tăng giá với tốc độ *tăng dần* (convex, lồi lên) — nhưng callable bond và MBS thì ngược lại, giá bị chặn trên vì càng giảm rate thì option càng dễ bị exercise. Bạn được ít khi rate giảm nhưng mất đủ khi rate tăng. Đó là hình dạng P&L tệ nhất mà một nhà đầu tư fixed-income có thể ôm, và cả một ngành công nghiệp mô hình hóa — option-adjusted spread (OAS), prepayment models, Monte Carlo trên interest-rate paths — mọc lên để định lượng chính xác cái "tệ" ấy đáng giá bao nhiêu bps.
+
+Chương này dựng từ đó lên. Ta bắt đầu với callable bond như phép cộng đơn giản nhất (straight bond trừ call), thấy negative convexity hiện ra bằng số. Ta định nghĩa OAS chặt chẽ — spread duy nhất khi cộng vào interest-rate tree/curve làm giá mô hình khớp giá thị trường — và phân biệt nó với nominal spread và Z-spread bằng một ví dụ 101/70bp/25bp/45bp. Ta chuyển sang MBS: prepayment risk, các mô hình CPR/SMM/PSA, refinancing incentive, burnout, seasoning. Rồi ta định giá MBS bằng Monte Carlo trên hàng nghìn rate paths với một prepayment model chạy trên mỗi path, tìm OAS, đo effective duration/convexity. Cuối cùng, CMO tranches phân bổ lại prepayment risk giữa các nhà đầu tư. Toàn bộ dựa trên khung interest-rate model của Chương 9 (Hull-White, curve) và bộ máy numerics của Chương 12 (Monte Carlo, bump-and-revalue Greeks).
+
+## 17.1 Callable bond: straight bond trừ một call
+
+Một callable bond là trái phiếu doanh nghiệp/agency trả coupon như bình thường, nhưng kèm điều khoản cho issuer quyền *mua lại* (redeem) trái phiếu ở một giá call định trước (thường par hoặc par cộng phần bù nhỏ) tại một hoặc nhiều thời điểm sau ngày call protection. Vì sao issuer muốn quyền này? Cùng lý do bạn muốn refinance khoản vay nhà: nếu lãi suất thị trường giảm sau phát hành, issuer có thể gọi lại trái phiếu coupon cao và phát hành trái phiếu mới coupon thấp — tài trợ rẻ hơn. Cái quyền đó không miễn phí; nhà đầu tư đòi coupon cao hơn để bù, và phần chênh chính là giá của option.
+
+Phép phân rã nền tảng, và là chìa khóa của cả chương:
+
+$$
+\text{Callable bond} = \text{Straight bond} - \text{Call option (issuer nắm)}
+$$
+
+Nhà đầu tư *long* straight bond và *short* call. Issuer là bên nắm call — họ exercise khi có lợi cho họ, tức khi giá trái phiếu (nếu không callable) vượt call price, tức khi rate đã giảm đủ. Vì nhà đầu tư short cái call ấy:
+
+$$
+P_{\text{callable}} = P_{\text{straight}} - C_{\text{call}}
+$$
+
+Con số làm ví dụ. Xét một trái phiếu 3 năm, coupon 5% trả hằng năm, face 100, callable tại par (100) sau 1 năm (Bermudan: có thể call tại cuối năm 1 và năm 2). Ta cần một curve. Dùng đúng curve OIS chuẩn của sách (đã gặp ở Chương 2 và 9): quote 1Y = 4.00%, 2Y = 4.25% (fixed hằng năm), và ta mở rộng nhẹ 3Y = 4.40%. Discount factors — ba con số này sẽ được tái sử dụng suốt mục, nên tính cho chuẩn tới từng chữ số:
+
+$$
+P(0,1) = \frac{1}{1.04} = 0.96154, \quad
+P(0,2) = 0.92003, \quad
+P(0,3) = \frac{1}{1.044^{3}} = 0.87882.
+$$
+
+Một lưu ý nhỏ nhưng quan trọng về $P(0,2)$: nó *không* phải $1/1.0425^2$. Quote 2Y = 4.25% là par yield (coupon hằng năm), nên phải bootstrap: $4.25\,P(0,1) + 104.25\,P(0,2) = 100$, giải ra $P(0,2) = (100 - 4.25 \times 0.96154)/104.25 = 0.92003$, ứng với zero rate 2Y $\approx 4.26\%$ (đã gặp ở Chương 2). Còn $P(0,3) = 1/1.044^3$: cẩn thận với số mũ 3, $1.044^3 = 1.13789$ nên $P(0,3) = 0.87882$ (đừng làm tròn thành 0.87905 — sai số nhỏ này sẽ nhân với 105 và làm lệch giá bond gần 0.03 điểm).
+
+Giá straight bond (chưa tính call) là hiện giá của ba coupon 5 cộng face 100 ở năm 3:
+
+$$
+P_{\text{straight}} = 5(0.96154) + 5(0.92003) + 105(0.87882).
+$$
+
+Từng số hạng: $5 \times 0.96154 = 4.8077$; $5 \times 0.92003 = 4.6002$; $105 \times 0.87882 = 92.276$. Cộng lại:
+
+$$
+P_{\text{straight}} = 4.8077 + 4.6002 + 92.276 = 101.68.
+$$
+
+Trái phiếu trade trên par vì coupon 5% cao hơn yield khoảng 4.4%. Chính vì trade trên par, call tại par *có giá trị* cho issuer — họ có thể mua lại thứ đáng 101.68 với giá 100. Đó là intuition: call in-the-money khi coupon vượt yield thị trường, và độ "in-the-money" ở đây đúng bằng 1.68 điểm giá mà issuer đang để lại trên bàn nếu họ *không* có quyền call.
+
+Định giá call này cần một interest-rate tree vì payoff của issuer phụ thuộc mức rate tương lai. Ta chưa cần con số chính xác của call tại mục này (mục 17.2 làm đầy đủ qua tree); tạm dùng một giá option *minh họa* $C_{\text{call}} \approx 1.68$ — con số ta chọn cho khớp với ý đồ thiết kế "phát hành gần par", và ở mục 17.2 ta sẽ thấy một Hull-White tree cho ra option value đúng cùng cỡ độ lớn này (một MC Hull-White với $a=0.05,\ \sigma=1\%$ cho ra option value quanh 1.3–1.7 tùy discretization và exercise rule). Khi đó:
+
+$$
+P_{\text{callable}} = 101.68 - 1.68 = 100.0.
+$$
+
+Đọc con số: cái option issuer nắm trị giá khoảng 1.68 điểm giá, và nó kéo giá callable từ 101.68 xuống đúng par. Một cách nhìn thị trường: callable bond này được "thiết kế" để phát hành gần par — issuer bán cho bạn ở 100, giữ lại phần giá trị dưới dạng quyền call. Bạn nhận coupon 5% (cao) nhưng "trả lại" khoảng 1.68 điểm bằng cách nhường quyền call. Sự trùng khớp callable ≈ par không phải ngẫu nhiên: đó chính là logic pricing của new issue — dealer chọn coupon sao cho, sau khi trừ option value, trái phiếu bán được ở đúng par.
+
+### Negative convexity hiện ra bằng số
+
+Đây là hiệu ứng quan trọng nhất của mục. Convexity đo *độ cong* của quan hệ giá–yield: với straight bond, khi yield giảm giá tăng nhanh dần (đường cong lồi lên — positive convexity), tính chất tốt vì bạn được nhiều khi rate giảm và mất ít khi rate tăng. Callable bond phá vỡ điều đó ở vùng yield thấp vì giá bị *chặn trên* bởi call: khi rate giảm đủ, issuer sẽ call ở par nên giá callable không thể vượt xa 100 dù giá straight cứ tăng.
+
+Đo bằng số. Bump curve song song $\pm 100$bp và định giá lại cả straight lẫn callable. Điểm mấu chốt về option value: nó *thay đổi theo rate* — khi rate giảm call đắt hơn (deeper ITM cho issuer), khi rate tăng call rẻ đi (moving OTM). Chính sự thay đổi bất đối xứng của $C_{\text{call}}$ tạo ra negative convexity.
+
+| Kịch bản | $P_{\text{straight}}$ | $C_{\text{call}}$ | $P_{\text{callable}}$ |
+|---|---|---|---|
+| $-100$bp | 104.25 | 3.52 | 100.73 |
+| Base | 101.68 | 1.68 | 100.00 |
+| $+100$bp | 99.19 | 0.59 | 98.60 |
+
+Nhìn straight bond: từ base, $-100$bp làm giá $+2.57$ (lên 104.25), $+100$bp làm giá $-2.49$ (xuống 99.19). Hai bên gần đối xứng, hơi lệch có lợi cho phía giảm rate — đó là **positive convexity** của bond thường: $(104.25 - 101.68) > (101.68 - 99.19)$, tức $2.57 > 2.49$.
+
+Giờ nhìn callable bond: $-100$bp chỉ làm giá $+0.73$ (lên 100.73), nhưng $+100$bp làm giá $-1.40$ (xuống 98.60). Bất đối xứng ngược hẳn: bạn được ít khi rate giảm nhưng mất nhiều khi rate tăng. Đó chính là **negative convexity**. Trực giác: ở kịch bản $-100$bp, straight bond tăng 2.57 điểm nhưng option cũng phình từ 1.68 lên 3.52 (tăng 1.84) — issuer "nuốt" gần hết phần tăng giá, chỉ chừa cho nhà đầu tư 0.73. Ở kịch bản $+100$bp, straight bond mất 2.49 điểm nhưng option chỉ co từ 1.68 xuống 0.59 (giảm 1.09), nên nhà đầu tư vẫn chịu ròng $-1.40$. Option "cho" ít mà "lấy" nhiều — đó là bất đối xứng của short-option position.
+
+Định lượng bằng effective convexity. Công thức chuẩn (numerics: central difference, Chương 12):
+
+$$
+\text{Effective convexity} = \frac{P_{-} + P_{+} - 2P_0}{P_0 \,(\Delta y)^2},
+$$
+
+với $\Delta y = 0.01$. Straight bond:
+
+$$
+\text{Conv}_{\text{straight}} = \frac{104.25 + 99.19 - 2(101.68)}{101.68 \times (0.01)^2} = \frac{0.08}{0.0101680} = +7.87.
+$$
+
+Callable bond:
+
+$$
+\text{Conv}_{\text{callable}} = \frac{100.73 + 98.60 - 2(100.00)}{100.00 \times (0.01)^2} = \frac{-0.67}{0.0100} = -67.
+$$
+
+Straight bond có convexity $+7.87$ (dương, tốt); callable bond có convexity $-67$ (âm, và lớn về độ lớn). Con số âm ấy là toàn bộ vấn đề: một nhà đầu tư nắm callable bond hoặc MBS đang ôm một tài sản mà mọi biến động lớn của rate đều tệ — rate giảm thì bị call/prepay (được ít), rate tăng thì kẹt với coupon thấp so với thị trường (mất đủ). Negative convexity là "thuế" bạn trả để nhận coupon cao hơn. Để cảm nhận độ lớn: convexity $-67$ nghĩa là với một cú move 100bp, thành phần convexity một mình đóng góp $\tfrac{1}{2} \times (-67) \times (0.01)^2 \times 100 \approx -0.34$ điểm P&L — luôn âm, bất kể rate lên hay xuống. Đó là "phí" bạn trả cho mỗi cú biến động lớn dù đoán đúng hướng.
+
+Một cách nhìn effective duration đi kèm: callable bond có duration *co lại* khi rate giảm (vì sắp bị call, kỳ hạn hiệu dụng ngắn đi) và *dài ra* khi rate tăng — chính là extension/contraction ta gặp lại đậm nét ở MBS (mục 17.4).
+
+## 17.2 Option-Adjusted Spread (OAS)
+
+Yield-to-maturity và nominal spread nói dối về callable bond. Chúng giả định dòng tiền cố định, trong khi dòng tiền của callable bond *phụ thuộc đường đi của lãi suất* (call hay không call). OAS là câu trả lời chuẩn ngành cho câu hỏi: "sau khi đã trừ đi giá của optionality, trái phiếu này thực sự trả cho tôi bao nhiêu spread so với curve phi rủi ro?" Đây là thước đo relative value số một cho mọi tài sản có embedded option — không có nó, bạn không thể so sánh một callable với một non-callable, hay hai MBS coupon khác nhau.
+
+### Ba loại spread — phân biệt bằng định nghĩa và bằng số
+
+Cần tách bạch ba khái niệm hay bị lẫn:
+
+**Nominal spread** là hiệu giữa YTM của trái phiếu và YTM của một government bond cùng maturity. Đơn giản nhưng thô: nó dùng *một* điểm trên curve (một maturity) và phớt lờ hình dạng curve lẫn optionality.
+
+**Z-spread** (zero-volatility spread) là spread hằng số $z$ cộng vào *mỗi* zero rate của curve sao cho hiện giá tất cả dòng tiền (giả định *cố định*, tức bond được nắm tới đáo hạn, không call) khớp giá thị trường:
+
+$$
+P_{\text{market}} = \sum_{i} \frac{CF_i}{\big(1 + z_i + z\big)^{t_i}}
+\quad\text{(dạng zero-rate)}.
+$$
+
+Z-spread dùng cả curve nên tốt hơn nominal spread, nhưng vẫn *chưa* điều chỉnh cho optionality — nó định giá như thể option không tồn tại. Gọi là "zero-volatility" chính vì nó ngầm giả định $\sigma = 0$: không có biến động rate thì không có giá trị option, nên Z-spread là giới hạn của OAS khi vol tiến về 0.
+
+**OAS** là spread hằng số $s$ cộng vào short rate tại *mọi node* của interest-rate tree (hoặc mọi điểm trên mọi Monte Carlo path) sao cho giá mô hình — trong đó dòng tiền được xác định *có tính đến việc option bị exercise tối ưu trên từng path* — khớp giá thị trường. OAS đã "bóc" giá option ra khỏi spread, nên phần còn lại phản ánh compensation cho credit/liquidity thuần túy.
+
+Quan hệ mấu chốt:
+
+$$
+\boxed{\ \text{OAS} = \text{Z-spread} - \text{Option cost}\ }
+$$
+
+Với bond mà nhà đầu tư *short* option (callable, MBS), option cost dương nên OAS < Z-spread. Với bond mà nhà đầu tư *long* option (putable bond), option cost âm nên OAS > Z-spread.
+
+### Ví dụ số: callable bond giá thị trường 101, tìm OAS qua Hull-White tree
+
+Xét callable bond đang trade ở giá thị trường 101. Ta muốn ba con số: Z-spread, option cost, OAS. Dùng một Hull-White short-rate tree calibrate vào curve OIS (Chương 9). Hull-White: $dr = (\theta(t) - a\,r)\,dt + \sigma\,dW$; ta calibrate $\theta(t)$ để tree tái tạo đúng $P(0,T)$ của curve, chọn mean reversion $a = 0.05$ và vol $\sigma = 1\%$ (100bp/năm) — mức điển hình.
+
+**Bước 1 — Z-spread.** Định giá dòng tiền cố định (bỏ qua call) và tìm $z$ khớp giá 101. Với ví dụ này, giải ra $z = 70$bp. Nghĩa là nếu bond không callable, spread cố định trên curve là 70bp. Cơ chế giải: đây là một root-find một biến — tăng $z$ làm giá giảm đơn điệu, nên Newton hay bisection hội tụ trong vài bước tới $z$ sao cho $\sum_i CF_i / (1+z_i+z)^{t_i} = 101$.
+
+**Bước 2 — Định giá option qua tree, quy ra option cost.** Chạy tree, tại mỗi node cuối năm 1 và năm 2, so sánh giá tiếp tục (continuation value, hiện giá các dòng tiền tương lai) với call price 100; issuer call khi continuation > 100 (họ mua lại rẻ). Backward induction cho ra giá callable, và chênh giữa giá straight và giá callable định lượng giá option; quy sang đơn vị spread, calibrate cho ra option cost = 25bp (số spread mà cái option "ăn mất" — tức nếu ta thêm 25bp vào discounting của phiên bản *straight* thì giá straight tụt đúng bằng giá callable).
+
+**Bước 3 — OAS.** Áp quan hệ:
+
+$$
+\text{OAS} = \text{Z-spread} - \text{Option cost} = 70 - 25 = 45 \text{ bp}.
+$$
+
+Đọc kết quả: nominal/Z-spread 70bp *trông* hấp dẫn, nhưng 25bp trong đó chỉ là bồi thường cho việc bạn đã bán quyền call cho issuer — nó không phải "phần thưởng" bạn giữ được, mà là phí bảo hiểm cho cái rủi ro bị call. Sau khi bóc ra, OAS = 45bp mới là spread *thực sự* bạn nhận cho credit và liquidity. Khi so sánh với một non-callable cùng issuer đang có spread 50bp, callable ở OAS 45bp thực ra *rẻ hơn* (bạn nhận ít compensation thực hơn cho cùng rủi ro tín dụng) — một kết luận mà Z-spread 70bp sẽ che giấu hoàn toàn. Đây chính là công dụng số một của OAS: nó đưa mọi trái phiếu, callable hay không, về cùng một thước đo so sánh được.
+
+Cách kiểm tra OAS bằng backward induction trên tree, cụ thể hóa cơ chế: tại mỗi node ta chiết khấu bằng short rate của node *cộng OAS*:
+
+$$
+V_{\text{node}} = \min\!\Big(\text{Call price},\ \frac{p_u V_u + p_m V_m + p_d V_d}{1 + (r_{\text{node}} + \text{OAS})\,\Delta t} + \text{coupon}\Big),
+$$
+
+(min vì issuer nắm call — họ cắt giá trị nhà đầu tư xuống call price khi có lợi; ở các node không phải call date thì bỏ toán tử min, chỉ discount). Ta lặp tìm OAS sao cho $V_{\text{root}} = 101$. Chính $r_{\text{node}} + \text{OAS}$ ở mọi node là điều khiến OAS "option-adjusted": option đã được xử lý qua rule call trong tree, spread chỉ còn gánh phần credit/liquidity. Root-find OAS đơn điệu như bước Z-spread: OAS cao hơn → discount mạnh hơn → $V_{\text{root}}$ thấp hơn, nên chỉ có một nghiệm.
+
+Một pitfall thực chiến đáng nhớ: **OAS phụ thuộc mô hình và phụ thuộc vol giả định**. Nếu bạn tăng $\sigma$ trong Hull-White từ 1% lên 1.5%, option đắt hơn (option cost tăng, ví dụ lên 32bp), nên OAS *giảm* (70 − 32 = 38bp) dù giá thị trường và Z-spread không đổi. Chú ý Z-spread không đổi vì nó là đại lượng $\sigma$-independent (định nghĩa ở vol = 0) — chỉ option cost và OAS di chuyển. Vì thế so sánh OAS giữa hai dealer chỉ có nghĩa khi họ dùng cùng vol và cùng model. OAS không phải đại lượng thị trường quan sát trực tiếp — nó là output của một model, và "garbage vol in, garbage OAS out".
+
+## 17.3 MBS pass-through và prepayment risk
+
+MBS đưa cùng logic optionality lên một quy mô khác. Một mortgage pass-through security gom hàng nghìn khoản vay nhà (residential mortgages) lại thành một pool, và nhà đầu tư nhận "chuyển tiếp" (pass through) dòng tiền gốc-lãi từ pool đó. Điểm mấu chốt: mỗi chủ nhà ở Mỹ có quyền *prepay* — trả trước một phần hoặc toàn bộ khoản vay bất cứ lúc nào, không phạt (với mortgage tiêu chuẩn). Họ prepay chủ yếu khi refinance được với rate thấp hơn. Đó chính xác là một call option mà chủ nhà nắm trên khoản nợ của họ — và nhà đầu tư MBS, vì đứng bên kia, đang *short* một rổ call.
+
+So với callable bond, MBS phức tạp hơn ở chỗ: không phải một issuer duy nhất ra quyết định tối ưu, mà hàng nghìn chủ nhà hành xử *không tối ưu và không đồng nhất* — người refinance sớm, người ì ạch, người prepay vì lý do phi tài chính (bán nhà, ly hôn, chuyển việc). Vì thế ta không dùng "exercise tối ưu" như callable bond; ta dùng một **prepayment model** thống kê ước lượng bao nhiêu % pool prepay mỗi tháng. Đây là khác biệt bản chất: callable bond định giá với một *rational* option holder, MBS định giá với một *statistical* option holder — và toàn bộ model risk của MBS nằm ở chất lượng của cái mô hình thống kê ấy.
+
+### CPR, SMM và mối liên hệ
+
+**CPR (Conditional Prepayment Rate)** là tỷ lệ prepayment *hằng năm hóa*: phần trăm số dư gốc còn lại (đã trừ scheduled amortization) sẽ được prepay trong một năm nếu tốc độ hiện tại kéo dài. CPR 6% nghĩa là kỳ vọng 6% dư nợ prepay trong năm.
+
+**SMM (Single Monthly Mortality)** là tỷ lệ prepayment *hằng tháng* tương ứng. Vì prepayment "bào mòn" dư nợ theo cấp số nhân, quan hệ CPR↔SMM là qua phần *sống sót* (không prepay): sống sót cả năm = (sống sót một tháng)$^{12}$:
+
+$$
+1 - \text{CPR} = (1 - \text{SMM})^{12}
+\;\Longrightarrow\;
+\text{SMM} = 1 - (1 - \text{CPR})^{1/12}.
+$$
+
+Ví dụ số với CPR = 6%:
+
+$$
+\text{SMM} = 1 - (1 - 0.06)^{1/12} = 1 - (0.94)^{1/12}.
+$$
+
+Tính $(0.94)^{1/12}$: $\ln 0.94 = -0.061875$; chia 12 = $-0.0051562$; $e^{-0.0051562} = 0.994857$. Vậy:
+
+$$
+\text{SMM} = 1 - 0.994857 = 0.005143 = 0.5143\%.
+$$
+
+Đọc con số: mỗi tháng khoảng 0.514% dư nợ (ngoài lịch trả gốc bình thường) biến mất do prepay. Nhân xấp xỉ 12 ra $\approx 6.17\%$, hơi cao hơn 6% — chênh nhỏ này chính là hiệu ứng compounding mà công thức mũ nắm đúng còn phép nhân thô bỏ sót. Sai chỗ này (dùng SMM = CPR/12 = 0.5% thay vì 0.5143%) nghe như làm tròn vô hại, nhưng trên 360 tháng nó tích lũy thành lệch đáng kể ở average life và ở giá — đây là loại lỗi kinh điển trên MBS desk khi ai đó viết tắt công thức.
+
+### PSA benchmark
+
+Thị trường chuẩn hóa tốc độ prepay qua **PSA (Public Securities Association) benchmark**. "100% PSA" là một đường CPR tăng tuyến tính trong 30 tháng đầu rồi phẳng:
+
+$$
+\text{CPR} = \begin{cases} 6\% \times \dfrac{t}{30} & t \le 30 \text{ tháng} \\[4pt] 6\% & t > 30 \text{ tháng} \end{cases}
+$$
+
+Nghĩa là tháng 1 có CPR = 0.2%, tháng 2 = 0.4%, …, tháng 30 đạt 6% và giữ nguyên. Một pool chạy "150% PSA" nhân toàn bộ lên 1.5 lần (ceiling 9%), "50% PSA" nhân 0.5 (ceiling 3%). Ví dụ: pool 20 tháng tuổi chạy 150% PSA có
+
+$$
+\text{CPR} = 1.5 \times 6\% \times \frac{20}{30} = 1.5 \times 4\% = 6\%.
+$$
+
+Ý nghĩa của "seasoning" ramp 30 tháng: khoản vay mới ít prepay (chủ nhà vừa mua, chưa có động cơ/khả năng refinance), tốc độ tăng dần khi pool "chín" (seasoned). PSA không phải một mô hình hành vi — nó chỉ là *đơn vị đo* tốc độ, một cách quy quan sát thực tế ("pool này đang chạy 165% PSA") về một trục chung để so sánh và để quote. Prepayment model thật (mục sau) mới sinh ra CPR từ rate và tuổi pool; PSA là ngôn ngữ để phát biểu kết quả.
+
+### Cashflow một tháng bằng số
+
+Cụ thể hóa một tháng của MBS pool để thấy CPR/SMM đi vào dòng tiền thế nào. Pool: dư nợ đầu tháng $B = \$100{,}000{,}000$, mortgage rate (WAC, weighted average coupon) 5.5%/năm nên monthly rate $c = 5.5\%/12 = 0.45833\%$, kỳ hạn còn lại $n = 300$ tháng, CPR = 6% nên SMM = 0.5143% (đã tính).
+
+**Bước 1 — Interest.** Lãi tháng này trên dư nợ đầu kỳ:
+
+$$
+I = B \times c = 100{,}000{,}000 \times 0.0045833 = \$458{,}333.
+$$
+
+**Bước 2 — Scheduled principal.** Khoản trả gốc theo lịch amortization (từ công thức annuity). Trước hết payment cố định hằng tháng:
+
+$$
+\text{PMT} = B \cdot \frac{c\,(1+c)^n}{(1+c)^n - 1}.
+$$
+
+Với $c = 0.0045833$, $n = 300$: $(1.0045833)^{300} = e^{300 \ln 1.0045833} = e^{300 \times 0.0045729} = e^{1.37186} = 3.9427$. Vậy
+
+$$
+\text{PMT} = 100{,}000{,}000 \times \frac{0.0045833 \times 3.9427}{3.9427 - 1} = 100{,}000{,}000 \times \frac{0.018071}{2.9427} = \$614{,}087.
+$$
+
+Scheduled principal = payment trừ interest:
+
+$$
+\text{SP} = \text{PMT} - I = 614{,}087 - 458{,}333 = \$155{,}754.
+$$
+
+**Bước 3 — Prepayment.** Prepay áp lên dư nợ *sau* khi đã trừ scheduled principal, theo SMM:
+
+$$
+\text{PP} = \text{SMM} \times (B - \text{SP}) = 0.005143 \times (100{,}000{,}000 - 155{,}754) = 0.005143 \times 99{,}844{,}246 = \$513{,}500.
+$$
+
+**Bước 4 — Tổng dòng tiền tháng và dư nợ cuối kỳ.**
+
+$$
+CF = I + \text{SP} + \text{PP} = 458{,}333 + 155{,}754 + 513{,}500 = \$1{,}127{,}588.
+$$
+$$
+B_{\text{end}} = B - \text{SP} - \text{PP} = 100{,}000{,}000 - 155{,}754 - 513{,}500 = \$99{,}330{,}746.
+$$
+
+Đọc kết quả: trong \$1.128M nhà đầu tư nhận tháng này, \$458k là lãi, \$156k là gốc theo lịch, và \$514k là *prepayment* — gốc trả về sớm ngoài dự kiến. Chính \$514k đó là nguồn gốc rủi ro: nó là tiền bạn phải tái đầu tư, và nó về đúng lúc bạn *không* muốn (rate thấp, refinance sôi động). So sánh: nếu CPR = 0 (không ai prepay), dòng tiền chỉ còn \$614k (đúng bằng PMT), và dư nợ giảm chậm hơn nhiều. Tỷ lệ $1{,}127{,}588 / 614{,}087 = 1.84$ — prepayment làm dòng tiền tháng này *gần gấp đôi* và rút ngắn đời sống security. Đây là toàn bộ câu chuyện MBS gói trong một tháng: dòng tiền của bạn không cố định, nó phồng lên đúng lúc bạn ít muốn nhất.
+
+### Bốn động lực của prepayment
+
+Prepayment model tốt phải nắm bốn hiệu ứng, mỗi cái có logic thị trường riêng:
+
+**(1) Refinancing incentive** — động lực chính. Chủ nhà refinance khi mortgage rate thị trường hiện tại thấp hơn WAC của họ đủ nhiều để bù chi phí refinance. Đo bằng incentive $= \text{WAC} - r_{\text{market}}$. Nếu WAC = 5.5% và rate thị trường rơi xuống 4.0%, incentive = 150bp — mạnh, CPR có thể vọt lên 40–50%. Nếu rate lên 6.5%, incentive = −100bp — âm, hầu như không ai refinance, CPR rơi về mức "turnover" nền (bán nhà, chuyển chỗ) khoảng 5–7%. Đường CPR theo incentive có hình chữ S: phẳng thấp khi incentive âm, dốc lên nhanh quanh 50–100bp incentive, bão hòa ở incentive lớn. Hình chữ S ấy chính là "smile" của MBS — nó là mặt đối tượng calibrate quan trọng nhất, và độ dốc của nó quyết định trực tiếp effective duration/convexity ở mục 17.4.
+
+**(2) Burnout** — hiện tượng "kiệt sức". Trong một pool, những chủ nhà nhạy rate (refinance-savvy, tín dụng tốt) prepay sớm ở đợt rate giảm đầu tiên. Sau đợt đó, pool còn lại toàn người *chậm* — không refinance dù incentive vẫn dương (do tín dụng kém, lười, nhà khó bán). Nên nếu rate giảm rồi phục hồi rồi giảm lại về cùng mức, đợt prepay thứ hai *yếu hơn* đợt đầu. Burnout khiến prepayment phụ thuộc *cả đường đi* (path-dependent) chứ không chỉ mức rate hiện tại — lý do cốt lõi buộc phải định giá MBS bằng Monte Carlo trên path (mục 17.4), không thể dùng tree recombining đơn giản. Một tree recombine dựa trên giả định "trạng thái chỉ phụ thuộc rate hiện tại"; burnout phá đúng giả định ấy, nên tree không dùng được.
+
+**(3) Seasonality** — mùa vụ. Prepay do bán nhà cao vào mùa hè (gia đình chuyển nhà khi con nghỉ học), thấp mùa đông. Model thêm hệ số nhân theo tháng, ví dụ ×1.2 tháng 7, ×0.85 tháng 1.
+
+**(4) Seasoning (age)** — như PSA ramp: pool non prepay chậm, tăng dần tới ~30 tháng rồi ổn định. Chủ nhà mới ít có cả động cơ lẫn khả năng refinance.
+
+Một prepayment model production kết hợp cả bốn dưới dạng nhân:
+
+$$
+\text{SMM}_t = f_{\text{refi}}(\text{incentive}_t,\ \text{burnout}_t) \times f_{\text{age}}(t) \times f_{\text{season}}(\text{month}_t).
+$$
+
+Đây là "trái tim mô hình" của MBS desk — và cũng là nguồn model risk lớn nhất: prepayment behavior thay đổi theo chu kỳ (credit tightening 2008 làm refinance khó dù incentive lớn; công nghệ fintech 2020 làm refinance nhanh hơn lịch sử). Prepayment model calibrate vào một chế độ có thể sai nặng ở chế độ khác — bài học model risk song song với copula của CDO (Chương 13). Điểm sâu: hai model MBS calibrate cùng dữ liệu lịch sử vẫn có thể cho OAS lệch nhau 20–30bp chỉ vì giả định khác nhau về độ dốc S-curve và tốc độ burnout — nên OAS của MBS *luôn* đi kèm tên model sinh ra nó.
+
+## 17.4 Định giá MBS qua Monte Carlo và effective duration/convexity
+
+Vì prepayment path-dependent (burnout) và vì dòng tiền phụ thuộc toàn bộ đường lãi suất, MBS không định giá được bằng công thức đóng hay tree recombining đơn giản. Chuẩn ngành là **Monte Carlo trên interest-rate paths** (Chương 12): sinh nhiều đường short rate dưới $\mathbb{Q}$, trên mỗi đường chạy prepayment model để suy ra dòng tiền, chiết khấu, rồi lấy trung bình. OAS lại là spread cộng vào để khớp giá thị trường.
+
+### Thuật toán, từng bước
+
+**Bước 1 — Sinh rate paths.** Dùng interest-rate model calibrate (Hull-White hoặc LMM, Chương 9) sinh $M$ đường short rate $\{r_t^{(j)}\}$, $j = 1,\dots,M$, theo bước tháng qua toàn bộ đời MBS (tới 360 tháng). Điển hình $M = 500$–$2000$ paths (với variance reduction — antithetic, Sobol — như Chương 12). Lưu ý các path phải sinh dưới $\mathbb{Q}$ và model phải reprice curve OIS (drift-fit $\theta(t)$) — nếu không, OAS sẽ nuốt cả sai số calibration của rate model, một pitfall ngầm.
+
+**Bước 2 — Trên mỗi path, chạy prepayment model.** Tại mỗi tháng $t$ của path $j$, mortgage rate thị trường được suy từ $r_t^{(j)}$ (thường là một hàm của rate 10Y trên path, vì mortgage 30Y định giá gần theo 10Y point). Tính incentive, cập nhật burnout (dựa trên lịch sử refinance của chính path đó — đây là chỗ path-dependence vào cuộc), áp seasonality/seasoning → ra $\text{SMM}_t^{(j)}$ → ra dòng tiền $CF_t^{(j)}$ (interest + scheduled principal + prepayment, đúng cơ chế mục 17.3).
+
+**Bước 3 — Chiết khấu dọc path, cộng OAS.** Hiện giá path $j$:
+
+$$
+PV^{(j)} = \sum_{t=1}^{T} \frac{CF_t^{(j)}}{\prod_{k=1}^{t}\big(1 + r_k^{(j)} + \text{OAS}\big)}.
+$$
+
+OAS cộng vào short rate tại *mọi* bước trên *mọi* path — song song hoàn toàn với việc cộng OAS vào mọi node của tree ở mục 17.2. Chiết khấu ở đây là *pathwise* (dùng short rate thực tế đã sinh trên path đó), không phải chiết khấu bằng curve zero — vì mỗi path có một realized discounting riêng.
+
+**Bước 4 — Trung bình và giải OAS.** Giá mô hình $= \frac{1}{M}\sum_j PV^{(j)}$. Lặp tìm OAS sao cho giá mô hình khớp giá thị trường (lại là root-find đơn điệu: OAS cao → PV thấp).
+
+Ví dụ số minh họa (một MBS pass-through coupon 5.5%, giá thị trường 102.0): giả sử chạy 1000 paths cho giá trung bình 104.3 khi OAS = 0. Giá mô hình > giá thị trường nghĩa spread hiện tại quá thấp (chiết khấu quá nhẹ); tăng OAS lên. Giải ra OAS = 55bp làm giá mô hình = 102.0. Đọc: nhà đầu tư nhận 55bp option-adjusted spread trên OIS curve cho MBS này — con số so sánh trực tiếp được với OAS của một MBS coupon khác, hay của một corporate bond. Chênh 104.3 → 102.0 (2.3 điểm) mà OAS chỉ cần 55bp gánh cho thấy độ nhạy giá theo spread: mỗi 1bp OAS ở đây đáng khoảng 0.04 điểm giá — đó chính là spread duration của MBS.
+
+### Extension risk và contraction risk
+
+Negative convexity của MBS mang hai gương mặt, và cả hai đều tệ đúng lúc:
+
+**Contraction risk** — khi rate *giảm*: refinance bùng nổ, prepay tăng vọt, MBS trả gốc về nhanh, đời sống ngắn lại (duration co). Bạn nhận đống tiền mặt phải tái đầu tư ở *chính mức rate thấp* vừa gây ra prepay — reinvestment ở lợi suất kém. Và giá MBS *không tăng nhiều* như bond thường (bị chặn trên bởi call của chủ nhà). Đây là phía "được ít" của negative convexity.
+
+**Extension risk** — khi rate *tăng*: prepay chậm lại (không ai refinance khi rate cao hơn), gốc về chậm, đời sống *dài ra* (duration nở). Bạn kẹt tiền trong một tài sản coupon thấp *đúng lúc* rate thị trường đã cao — không rút ra được để tái đầu tư ở rate mới hấp dẫn. Đây là phía "mất đủ". Extension risk đặc biệt độc: duration của bạn tự động dài ra đúng khi bạn muốn nó ngắn.
+
+Sự bất đối xứng "duration co khi rate xuống, nở khi rate lên" *chính là* negative convexity nói bằng ngôn ngữ duration — nó ngược hoàn toàn với bond thường (bond thường duration co khi rate lên do chiết khấu mạnh hơn, nhưng hiệu ứng đó nhỏ và cùng chiều với lợi ích). Nói cách khác: bond thường có $\partial D/\partial y < 0$ theo hướng "tốt", MBS có $\partial D/\partial y < 0$ theo hướng "xấu ở cả hai đầu".
+
+### Effective duration và effective convexity bằng bump-and-revalue
+
+Vì dòng tiền MBS đổi theo rate, không thể dùng duration giải tích (Macaulay/modified) — phải dùng **effective duration**: bump curve, chạy lại toàn bộ Monte Carlo + prepayment, đo giá đổi (bump-and-revalue, Chương 12). Giữ OAS cố định (để cô lập hiệu ứng rate), shift curve $\pm 25$bp.
+
+Giả sử MBS giá base $P_0 = 102.0$, sau bump:
+
+$$
+P_{-25\text{bp}} = 102.9, \qquad P_{+25\text{bp}} = 100.5.
+$$
+
+Effective duration (central difference, $\Delta y = 0.0025$):
+
+$$
+D_{\text{eff}} = \frac{P_{-} - P_{+}}{2\,P_0\,\Delta y} = \frac{102.9 - 100.5}{2 \times 102.0 \times 0.0025} = \frac{2.4}{0.51} = 4.7.
+$$
+
+Effective convexity:
+
+$$
+C_{\text{eff}} = \frac{P_{-} + P_{+} - 2P_0}{P_0\,(\Delta y)^2} = \frac{102.9 + 100.5 - 2(102.0)}{102.0 \times (0.0025)^2} = \frac{-0.6}{102.0 \times 6.25\times10^{-6}} = \frac{-0.6}{0.00063750} = -941.
+$$
+
+Đọc con số. Effective duration 4.7 nghĩa mỗi 100bp rate làm giá đổi ~4.7% — thước đo rate sensitivity chuẩn để hedge. Nhưng con số then chốt là effective convexity **−941**: âm và *rất lớn* về độ lớn. So với callable bond đơn lẻ (−67 ở mục 17.1), MBS negative convexity dữ dội hơn nhiều vì prepayment phản ứng mạnh và nhanh với rate (S-curve dốc), và vì hiệu ứng cộng dồn qua 360 tháng dòng tiền. Về mặt hedging, một portfolio MBS có convexity −941 nghĩa là mọi cú rate move lớn (theo cả hai chiều) đều làm bạn thua so với hedge duration tuyến tính — cụ thể, thành phần convexity của một cú move 50bp đóng góp $\tfrac{1}{2}(-941)(0.005)^2 \times 102 \approx -1.2$ điểm P&L, luôn âm. Bạn phải hedge convexity riêng (mua options/swaptions để bù convexity dương), và chi phí hedge convexity ấy chính là một phần lớn của cái spread bạn kiếm được. Đây là lý do MBS desk thực chất là *option desk*: bạn kiếm carry từ OAS nhưng liên tục trả phí để trung hòa negative convexity.
+
+Chú ý bump phải giữ OAS cố định: nếu để OAS tự điều chỉnh khớp giá thị trường ở mỗi bump, bạn đo lẫn cả credit/liquidity re-pricing chứ không thuần rate sensitivity. Đây là một pitfall bump-and-revalue kinh điển — bump *cái gì* quyết định *đo được cái gì*. Một pitfall song hành: nếu bump quá nhỏ, MC noise (variance của $\frac{1}{M}\sum PV^{(j)}$) nuốt mất tín hiệu convexity bậc hai; nên bump-and-revalue MBS cần *cùng* bộ random numbers (common random numbers/antithetic khớp) giữa các kịch bản để triệt noise — nếu không, con số −941 có thể chỉ là nhiễu Monte Carlo.
+
+## 17.5 CMO tranches: phân bổ lại prepayment risk
+
+Pass-through dồn toàn bộ prepayment risk lên một loại nhà đầu tư. Không phải ai cũng muốn cùng liều lượng rủi ro ấy: quỹ hưu trí muốn dòng tiền dài ổn định (ghét contraction), quỹ khác chịu được biến động để đổi lấy lợi suất cao. **CMO (Collateralized Mortgage Obligation)** là cấu trúc *xẻ* dòng tiền prepayment của một pool pass-through thành nhiều tranche với hồ sơ rủi ro khác nhau — không tạo thêm hay bớt rủi ro tổng, chỉ *phân bổ lại* (giống tranching credit ở CDO, Chương 13, nhưng ở đây rủi ro là timing của prepay chứ không phải loss).
+
+### Sequential-pay
+
+Cấu trúc CMO đơn giản nhất. Tranches A, B, C, D xếp thứ tự: *mọi* khoản principal (scheduled + prepay) đổ vào tranche A trước cho tới khi A hoàn trả hết, rồi mới tới B, rồi C, rồi D. Cả bốn nhận interest trên dư nợ của mình suốt thời gian tồn tại.
+
+Hệ quả bằng trực giác định lượng: tranche A hấp thụ prepayment *đầu tiên* nên nó ngắn hạn và nhận gần hết contraction risk (nếu prepay nhanh, A trả xong rất sớm). Tranche D ("last cash flow") chỉ bắt đầu nhận principal sau khi A, B, C xong — nó dài hạn, ổn định về đầu đời, nhưng gánh gần hết *extension risk* (nếu prepay chậm, D càng bị đẩy xa). Ví dụ số cụ thể (mô phỏng pool 30 năm, WAC 5.5%, bốn tranche bằng nhau, chạy ở 165% PSA): tranche A có average life ~2.1 năm, tranche B ~5.1 năm, tranche C ~9.2 năm, tranche D ~18 năm — cùng một collateral, bốn profile hoàn toàn khác. Nhà đầu tư chọn tranche khớp khẩu vị: money-market fund lấy A (ngắn, chắc), insurer/pension lấy D (dài, khớp nghĩa vụ dài hạn). Cùng một dòng tiền pool, sequential-pay đã tạo ra bốn "maturity" khác nhau từ hư không — đó là phép màu của cash-flow structuring.
+
+### PAC vs support (companion)
+
+Cấu trúc tinh vi và phổ biến hơn: **PAC (Planned Amortization Class)** cùng với **support tranche** (còn gọi companion). PAC được thiết kế để có lịch trả gốc *cố định và ổn định* miễn là prepay speed nằm trong một *băng* định trước — ví dụ PAC band [100% PSA, 300% PSA]. Cơ chế: support tranche *hấp thụ dao động* prepay để bảo vệ PAC.
+
+- Nếu prepay *nhanh* hơn kế hoạch (rate giảm, contraction): phần prepay dư đổ vào support tranche trước, PAC vẫn nhận đúng lịch → support gánh contraction, PAC được che.
+- Nếu prepay *chậm* hơn kế hoạch (rate tăng, extension): support tranche nhận principal *ít lại* (bị hoãn) để PAC vẫn đủ theo lịch → support gánh extension, PAC được che.
+
+Kết quả bằng số: PAC có average life ổn định (ví dụ luôn ~7 năm) *chừng nào* prepay ở trong band [100%, 300%] PSA; support tranche có average life dao động cực rộng (từ ~1 năm nếu prepay siêu nhanh tới ~25 năm nếu siêu chậm). Support tranche là "kẻ hấp thụ sốc" — nó nhận gần *toàn bộ* negative convexity của pool để PAC gần như convexity-neutral trong band. Đổi lại, support tranche trả OAS cao hơn nhiều (bồi thường cho rủi ro nó ôm). Nếu prepay *vượt band* (ví dụ prepay quá nhanh làm support cạn sạch), PAC mất bảo vệ và "broken PAC" bắt đầu hành xử như pass-through — một cạm bẫy 2008 cho nhà đầu tư tưởng PAC là an toàn tuyệt đối.
+
+Điểm sư phạm: CMO không *giảm* negative convexity tổng — tổng convexity của tất cả tranche (trọng số theo notional) vẫn bằng convexity của pool. Nó *tái phân bổ*: PAC mua được convexity gần bằng 0 bằng cách *bán* convexity xấu cho support tranche, và support được trả OAS cao để nhận. Đây là bản chất của mọi cấu trúc structured: chuyển rủi ro từ bên ghét nó sang bên sẵn lòng ôm với giá đúng — một định luật bảo toàn, không phải phép biến rủi ro thành không.
+
+### Agency vs non-agency
+
+Chiều rủi ro cuối cùng, độc lập với optionality: ai bảo lãnh credit của khoản vay?
+
+**Agency MBS** do Fannie Mae, Freddie Mac (GSE — government-sponsored enterprises) hoặc Ginnie Mae (cơ quan chính phủ, backed full faith and credit của US) bảo lãnh. Nhà đầu tư gần như *không có credit risk* (Ginnie: rủi ro chính phủ Mỹ; Fannie/Freddie: ngầm được chính phủ backing, đã thành hiện thực khi được bailout 2008). Nên với agency MBS, rủi ro *chỉ* là prepayment/rate — và OAS phản ánh gần thuần liquidity + prepayment model risk, gần như không có credit spread.
+
+**Non-agency MBS** (private-label) không có bảo lãnh đó: nhà đầu tư gánh *cả* prepayment risk *và* credit risk (default, foreclosure loss của chủ nhà). Chúng thường được credit-tranche thêm (senior/mezzanine/equity) để phân bổ loss — chồng credit tranching lên trên prepayment tranching. Đây chính là họ subprime MBS/CDO đã nổ tung 2008: khi default tăng vọt, credit tranching (không phải prepayment tranching) là chỗ vỡ, và OAS của non-agency phải cõng cả credit spread lẫn model risk khổng lồ về correlation của default (nối thẳng sang câu chuyện copula, Chương 13).
+
+Với desk quant, phân biệt này quyết định *model stack* cần dùng: agency MBS chỉ cần rate model + prepayment model (chương này); non-agency cần thêm credit/default model chồng lên — hai nguồn optionality (prepay call của chủ nhà và default put của chủ nhà) trong cùng một security, và cả hai đều wrong-way với chu kỳ kinh tế. Éo le nhất: hai option này *âm tương quan theo hướng độc hại* — rate giảm kích prepay (mất phần trên), suy thoái kích default (mất phần dưới), và một cú suy thoái đi kèm cắt rate có thể kích *cả hai cùng lúc*.
+
+---
+
+Sợi chỉ đỏ xuyên suốt chương: bất cứ khi nào một bên *khác* nhà đầu tư nắm quyền định hình dòng tiền — issuer với callable, chủ nhà với prepay — nhà đầu tư đang short một option, và cái giá của option ấy hiện ra dưới ba dấu hiệu luôn đi cùng nhau: **negative convexity** (giá phản ứng bất đối xứng, tệ ở cả hai chiều lớn), **option cost** (phần spread bị "ăn mất", đo bằng Z-spread trừ OAS), và nhu cầu **định giá qua interest-rate model** (tree cho callable, Monte Carlo trên path cho MBS). OAS là đại lượng thống nhất tất cả: nó bóc option ra để lộ spread thực, và chính vì nó là output của model chứ không phải quan sát thị trường, nó vừa là công cụ relative-value mạnh nhất vừa là điểm tập trung model risk lớn nhất của cả asset class. Ai hiểu OAS hiểu vì sao một MBS desk thực chất là một option desk trá hình fixed-income — kiếm carry từ spread, và trả phần lớn nó lại để hedge cái convexity âm mà optionality dúi vào tay mình.
+
+# Chương 18: Rates exotics
+
+Sau Chương 9 bạn đã có ba thứ nền: một curve dựng đúng chuẩn hậu-LIBOR, một smile của rates (swaption cube parametrize bằng SABR), và một bộ term-structure model (Hull-White, G2++/HW2F, LMM, Cheyette) cùng các convexity adjustment nối chúng lại. Nhưng curve và model không phải là hàng hóa — chúng là *hạ tầng*. Cái desk rates thực sự bán, cái sinh ra P&L và trả lương, là những **structured note** gói payoff exotic vào một trái phiếu để nhà đầu tư (quỹ hưu, bảo hiểm, ngân hàng khu vực, retail Nhật) mua như một khoản đầu tư có coupon hấp dẫn hơn tiền gửi. Chương này đi qua đúng những payoff đó theo thứ tự một desk structuring dựng sản phẩm: Bermudan swaption (viên gạch của mọi callable), rồi các note tự-tất-toán (callable/TARN), rồi các note coupon phụ thuộc đường đi (range accrual, snowball), rồi các note cược *hình dạng* curve (CMS spread/steepener), và cuối cùng là con quái vật hybrid FX-rates của thị trường Nhật — PRDC.
+
+Sợi chỉ đỏ xuyên suốt, và là lý do những sản phẩm này khó, nằm ở một câu: **giá của chúng phụ thuộc vào những thứ mà vanilla không định giá được** — smile dynamics (vol thay đổi thế nào khi rate di chuyển), correlation (giữa các đoạn curve, giữa rate và FX), và mean reversion. Một vanilla cap chỉ cần một điểm trên smile; một Bermudan cần *toàn bộ* mặt vol *tương lai*, tức cần model nói vol sẽ ra sao ở mỗi node exercise. Đó là **model risk** — cùng một deal, hai model calibrate khớp *y hệt* mọi vanilla vẫn cho hai giá khác nhau, và chênh lệch ấy là tiền thật trên book. Mỗi mục dưới đây neo bằng một phép tính ra số, đúng tinh thần: exotic là môn học mà trực giác chỉ đến sau khi bạn tự đẩy được một con số qua vài kỳ cashflow.
+
+## 18.1 Bermudan swaption — điểm dừng tối ưu và giá của quyền chờ
+
+Vanilla swaption (Chương 9) cho quyền exercise *một* lần tại expiry. **Bermudan swaption** cho quyền exercise vào *nhiều* ngày định trước — ví dụ một "10-no-call-1" cho quyền, tại mỗi ngày kỷ niệm từ năm 1 đến năm 9, bước vào swap còn lại (đến năm 10). Đây không phải một sản phẩm bên lề: mọi callable bond, mọi callable note, mọi cancelable swap khi bóc lớp ra đều chứa một Bermudan swaption. Người phát hành trái phiếu callable đang *bán* cho nhà đầu tư một coupon cao, đổi lại *mua* quyền gọi lại nợ khi rate giảm — quyền đó chính xác là một Bermudan receiver swaption. Định giá sai nó là định giá sai cả thị trường callable.
+
+**Vì sao Bermudan đắt hơn European.** Nhiều ngày exercise thì quyền chọn rộng hơn, nên $V_{\text{Berm}} \ge \max_i V_{\text{Euro},i}$ — Bermudan không bao giờ rẻ hơn European tốt nhất trong bộ. Nhưng nó *cũng* không đơn giản là tổng các European: các quyền exercise loại trừ nhau (exercise năm 3 thì hết quyền năm 5), nên giá nằm đâu đó giữa "European tốt nhất" và "tổng European". Khoảng chênh so với European tốt nhất — **switch value** hay giá của *tính linh hoạt chờ đợi* — chính là phần khó, và là phần model-dependent.
+
+Bài toán cốt lõi là một **optimal stopping**: tại mỗi node exercise, holder so sánh **giá trị exercise ngay** (intrinsic — giá trị swap nhận được nếu vào lúc này) với **giá trị chờ** (continuation value — kỳ vọng chiết khấu của việc giữ quyền sang node sau). Exercise khi và chỉ khi intrinsic vượt continuation. Ranh giới trong không gian (rate, thời gian) nơi hai giá trị bằng nhau là **exercise boundary** — đường mà dưới nó holder chờ, trên nó holder ra tay.
+
+**Dẫn xuất quy hoạch động.** Gọi $\tau_1 < \tau_2 < \dots < \tau_m$ là các ngày exercise. Tại ngày cuối $\tau_m$, không còn gì để chờ, nên
+$$V_m(x) = \text{Intrinsic}_m(x) = \big[\text{giá trị swap tại } \tau_m \text{ nếu exercise}\big]^+,$$
+với $x$ là state (short rate, hoặc factor trong HW). Lùi về node trước, tại $\tau_k$ giá trị của quyền là cái lớn hơn giữa exercise ngay và chờ:
+$$V_k(x) = \max\Big(\underbrace{\text{Intrinsic}_k(x)}_{\text{ra tay}},\ \underbrace{\mathbb{E}^{\mathbb{Q}}\big[D(\tau_k,\tau_{k+1})\,V_{k+1}(X_{\tau_{k+1}})\,\big|\,X_{\tau_k}=x\big]}_{\text{chờ}}\Big).$$
+Đệ quy này chạy ngược từ $m$ về $1$; giá hôm nay là $V_0 = \mathbb{E}^{\mathbb{Q}}[D(0,\tau_1)V_1(X_{\tau_1})]$. Toàn bộ độ khó nằm ở conditional expectation cho continuation value — và có hai đường tính nó.
+
+**Đường 1 — PDE Hull-White.** Trong HW1F, state là một factor Gaussian, nên continuation value thỏa PDE lùi (backward Kolmogorov / Feynman-Kac) một chiều không gian:
+$$\frac{\partial V}{\partial t} + \tfrac12\sigma^2\frac{\partial^2 V}{\partial x^2} - a\,x\,\frac{\partial V}{\partial x} - r(x,t)\,V = 0,$$
+giải bằng finite-difference (Crank-Nicolson) trên lưới $(x,t)$. Tại mỗi ngày exercise, thay $V \leftarrow \max(V, \text{Intrinsic})$ — đúng một dòng áp đặt điều kiện exercise, phần còn lại là roll PDE giữa các node. Ưu điểm: exercise boundary hiện ra *chính xác và trơn*, không noise; Greeks ổn định. Đây là workhorse cho Bermudan một/hai factor.
+
+**Đường 2 — Longstaff-Schwartz (LSM).** Khi state nhiều chiều (LMM, hoặc HW2F cho một số cấu hình), PDE hết khả thi và ta dùng Monte Carlo với hồi quy (đã gặp ở Chương 12). Ý tưởng: mô phỏng nhiều path forward; tại mỗi node exercise, **hồi quy** giá trị tiếp diễn (đã chiết khấu, từ path) lên các basis function của state hiện tại (ví dụ $1, x, x^2$, hoặc swap rate và annuity) — hồi quy cho ta hàm continuation $\hat C_k(x)$; rồi ra quyết định exercise trên path bằng cách so intrinsic với $\hat C_k$. Điểm tinh tế thực chiến: **hồi quy chỉ dùng để quyết định exercise**, còn giá trị cuối lấy từ cashflow thực trên path sau khi đã áp quyết định đó — nếu lấy thẳng giá trị hồi quy làm giá thì dính bias hướng lên (look-ahead qua chính bộ dữ liệu regression).
+
+**Ví dụ số — Bermudan vs European, tính đến cùng.** Xét một Bermudan payer swaption "5-no-call-1": exercise vào cuối mỗi năm từ năm 1 đến năm 4 để bước vào swap trả-fixed đến năm 5, strike ATM $= 4.0\%$, trên curve phẳng 4% của Chương 9 (annual compounding). Ta dựng một Hull-White 1-factor với mean reversion $a = 5\%$ và calibrate short-rate vol $\sigma$ sao cho European co-terminal đầu tiên khớp đúng **normal vol $\sigma_N = 100$bp** — kết quả $\sigma \approx 108$bp. Với model đã fix, mọi con số dưới đây là output trực tiếp của định giá, không phải áng chừng.
+
+Trước hết, giá của từng **European ATM payer swaption** trong bộ, tính chính xác bằng Jamshidian decomposition trong HW (mỗi cái là một rổ zero-bond option). Chú ý một điểm dễ sai mà bản nháp đầu tay hay vấp: giá ATM Bachelier là
+$$V_{\text{Euro}} = A\cdot\sigma_N\cdot\sqrt{T}\cdot\phi(0),\qquad \phi(0)=\tfrac{1}{\sqrt{2\pi}}=0.3989,$$
+nên **có hệ số $\sqrt{T}$**: expiry càng xa thì time value trên mỗi đơn vị annuity càng lớn. Annuity $A$ (đã chiết khấu) thì lại co lại khi swap ngắn dần. Hai lực ngược chiều này giao tranh, nên giá European *không* đơn điệu giảm theo năm exercise:
+
+| Exercise year | Swap còn lại | Annuity $A$ (discounted) | $\sqrt{T}$ | European ATM value (% notional) |
+|---|---|---|---|---|
+| 1 | 4Y | 3.49 | 1.00 | 1.39% |
+| 2 | 3Y | 2.57 | 1.41 | 1.44% |
+| 3 | 2Y | 1.68 | 1.73 | 1.16% |
+| 4 | 1Y | 0.82 | 2.00 | 0.65% |
+
+European **tốt nhất là năm 2** ở **1.44%** — *không* phải năm 1, đúng vì hệ số $\sqrt{T}$ ở năm 2 ($\sqrt2\approx1.41$) đủ bù cho annuity nhỏ hơn. (Một sai lầm kinh điển là bỏ quên $\sqrt T$, dùng "value $= A\cdot\sigma_N\cdot\phi(0)$" cho mọi năm; khi đó bảng thành $1.39, 1.02, 0.67, 0.33$ và ta *tưởng* năm 1 tốt nhất — sai cả con số lẫn kết luận về ngày exercise "nguy hiểm nhất".) Tổng bốn European là $1.39+1.44+1.16+0.65 = 4.64\%$ — cận trên thô (nếu các quyền độc lập, điều không đúng vì chúng loại trừ nhau).
+
+Giá **Bermudan thực**, chạy Longstaff-Schwartz trên cùng HW1F đã calibrate ($120{,}000$ path, basis $1,x,x^2$), rơi vào khoảng **1.90% notional** (sai số Monte Carlo $\pm0.01\%$). Đọc con số: Bermudan $1.90\%$ đắt hơn European tốt nhất $1.44\%$ đúng
+$$\text{switch value} = 1.90\% - 1.44\% = 0.46\%\ \text{notional}.$$
+Đó là **switch value** — giá của quyền được chờ và chọn ngày tối ưu thay vì bị ép quyết định ở một expiry duy nhất. Nó chiếm khoảng $0.46/1.90 \approx 24\%$ giá Bermudan, hay $\approx 32\%$ *trên nền* European tốt nhất — một tỷ trọng lớn, và toàn bộ tỷ trọng ấy là thứ *model-dependent*, không đọc được từ vanilla.
+
+**Model choice: HW1F vs LMM và vì sao đổi giá.** Đây là trái tim model risk của Bermudan. Cả HW1F lẫn LMM đều calibrate khớp *y hệt* mọi European swaption trong cube — nghĩa là chúng đồng ý về mọi vanilla. Nhưng Bermudan phụ thuộc hai thứ vanilla không ràng buộc:
+
+- **Mean reversion $a$.** HW1F có một $a$ đơn (ví dụ 5%). $a$ điều khiển *terminal decorrelation* — mức độ các rate ở kỳ hạn/thời điểm khác nhau tách correlation theo thời gian. $a$ cao → rate quay về nhanh, các exercise date decorrelate mạnh → mỗi ngày exercise "độc lập" hơn → switch value **cao hơn** (nhiều quyền thực sự khác nhau để chọn). $a$ thấp → rate dai dẳng, các ngày exercise gần như cùng một biến → switch value **thấp hơn**. Vanilla không nhìn thấy $a$ (một European chỉ có một expiry), nên $a$ là tham số *tự do* mà giá Bermudan nhạy.
+- **Correlation structure đa-tenor.** LMM cho phép cả một ma trận correlation giữa các forward; HW1F ép correlation tức thời giữa mọi rate về 1 (một Brownian) và chỉ tạo decorrelation qua mean reversion. LMM với correlation "thực tế" (đầu ngắn và đầu dài decorrelate) thường cho exercise boundary khác, và giá Bermudan lệch.
+
+Bằng số: cùng deal 5nc1 trên, đẩy $a$ từ $5\%$ lên $10\%$ *và re-calibrate* $\sigma$ để giữ nguyên fit vanilla (short-rate vol tăng từ $108$bp lên $\approx122$bp để bù) nâng giá Bermudan từ $1.90\%$ lên khoảng $1.94\%$ — **$\approx4$bp notional chỉ từ một tham số không quan sát được**, với switch value tăng từ $0.46\%$ lên $0.50\%$. Đúng chiều dự đoán (mean reversion cao hơn → decorrelation mạnh hơn → switch value lớn hơn), và trên một book callable notional vài tỷ, $4$bp là hàng triệu; với các cấu trúc dài hơn (10nc1, callable 30Y) độ nhạy này phóng đại lên nhiều lần. Đây là lý do desk rates coi **mean reversion là một "vega thứ hai"**: Bermudan có vega thường (nhạy mức vol) *và* nhạy mean-reversion/decorrelation. Cạm bẫy kinh điển: chọn $a$ để "khớp giá thị trường của Bermudan liquid" rồi dùng cho Bermudan illiquid — hợp lý, nhưng nếu thị trường Bermudan mỏng thì $a$ trở thành *tham số mark-to-model*, và hai bank có thể mark cùng một deal lệch nhau vì chọn $a$ khác. Model validation (Chương 19) vì thế bắt buộc **model reserve** cho phần giá phụ thuộc $a$ và correlation không thể hedge bằng vanilla.
+
+Tổng kết viên gạch: Bermudan là bài optimal stopping, giải bằng PDE (HW, ít chiều) hoặc LSM (nhiều chiều, tie Chương 12), và giá của nó tách làm hai — phần European "nhìn thấy được từ vanilla" và **switch value** ẩn trong mean reversion + correlation, nơi model risk sống.
+
+## 18.2 Callable/puttable & range structured notes — bức tranh tổng quát
+
+Trước khi vào từng payoff, cần khung chung. Một **structured note** là một trái phiếu mà coupon và/hoặc điều khoản tất toán được gắn vào một payoff derivative. Kỹ thuật định giá luôn là **decomposition**: note = (một trái phiếu/annuity "sạch") ± (một derivative). Nhà đầu tư mua note thực chất mua bond và *bán* option cho issuer (hoặc mua option từ issuer), và coupon cao chính là premium của option đó chảy ngược về dưới dạng lãi.
+
+- **Callable note**: issuer giữ quyền gọi lại (redeem sớm) ở mệnh giá vào các ngày định trước. Nhà đầu tư = long bond + **short** một Bermudan (issuer call khi rate giảm/giá bond lên). Vì bán option, nhà đầu tư được coupon cao hơn bond thường. Value cho nhà đầu tư = bond straight − Bermudan call value.
+- **Puttable note**: nhà đầu tư giữ quyền bán lại note cho issuer ở mệnh giá. Nhà đầu tư = long bond + **long** một Bermudan put (bảo vệ khi rate tăng/giá bond xuống). Nhà đầu tư *trả* premium bằng coupon thấp hơn.
+
+Ví dụ số nhanh: một note 5Y trả coupon 5% (so với straight 5Y yield 4%), callable hằng năm. "Coupon dôi" 1%/năm, chiết khấu về hôm nay ở mức 4%:
+$$\sum_{t=1}^{5}\frac{1\%}{(1.04)^t} = 0.962\%+0.925\%+0.889\%+0.855\%+0.822\% = 4.45\%\ \text{notional}.$$
+Con số $\approx4.4\%$ ấy chính là premium nhà đầu tư nhận để bán quyền call — và nếu Bermudan call mà issuer nắm định giá ra $\approx4.4\%$ thì note niêm yết công bằng ở par. Nếu quant định giá Bermudan chỉ $3.5\%$ (do chọn $a$ thấp làm switch value teo), issuer *nghĩ* mình mua quyền rẻ và phát hành coupon quá hào phóng — lỗ $\approx0.9\%$ notional ngay khi phát hành. Đây là cầu nối trực tiếp từ model risk 18.1 sang P&L: sai $a$ vài phần trăm ở mục trước biến thành gần một điểm phần trăm notional lỗ ngay đây.
+
+**Range structured note** là một họ riêng: coupon không cố định mà phụ thuộc reference rate nằm trong/ngoài một khoảng. Chúng đưa ta sang các payoff path-dependent của 18.4. Điểm chung của cả họ: **coupon là biến ngẫu nhiên phụ thuộc đường đi của rate**, nên định giá cần model mô phỏng đường đi (hoặc replicate bằng rổ digital/option), và mọi cái nhạy smile vì digital = đạo hàm của call theo strike.
+
+## 18.3 TARN — target redemption note
+
+**TARN (Target Redemption Note)** là note mà coupon *tích lũy*, và ngay khi **tổng coupon đã trả chạm một target** định trước thì note **tự tất toán** (auto-redeem), trả lại mệnh giá cho nhà đầu tư. Nghĩa là maturity không cố định — nó *ngẫu nhiên*, phụ thuộc rate đi thế nào. Đây là điểm hấp dẫn với nhà đầu tư (được "chốt lời" nhanh nếu điều kiện thuận) và là điểm khó với quant (maturity là một stopping time, path-dependent nặng).
+
+Cấu trúc điển hình: mỗi kỳ trả một coupon có tính "inverse floater" — cao khi rate thấp, ví dụ $c_k = \max(0,\ L - g\cdot \text{LIBOR}_k)$ (với $L$ một mức cố định, $g$ leverage), hoặc đơn giản một coupon phụ thuộc điều kiện. Note tích lũy $\sum c_k$ cho tới khi đạt target $T^*$ thì tắt; kỳ cuối thường trả *đúng phần còn thiếu* để tổng chạm chính xác target (cap ở target).
+
+**Ví dụ số — cashflow qua vài kỳ đến target 8%.** Target $T^* = 8\%$ tổng coupon. Coupon mỗi kỳ (annual) là $c_k = \max(0,\ 6\% - 1.0\times\text{LIBOR}_k)$ — một inverse floater không leverage. Giả sử đường LIBOR thực hiện theo một kịch bản:
+
+| Kỳ $k$ | LIBOR$_k$ | Coupon thô $6\%-\text{LIBOR}$ | Coupon trả | Tổng tích lũy |
+|---|---|---|---|---|
+| 1 | 2.0% | 4.00% | 4.00% | 4.00% |
+| 2 | 2.5% | 3.50% | 3.50% | 7.50% |
+| 3 | 3.0% | 3.00% | **0.50%** (cap) | **8.00% → auto-redeem** |
+| 4 | — | — | — | (không xảy ra) |
+
+Đọc từng bước: kỳ 1 coupon thô $6\%-2\%=4.00\%$, trả 4%, tích lũy 4%. Kỳ 2 coupon thô $6\%-2.5\%=3.50\%$, trả 3.5%, tích lũy 7.5% — chưa chạm 8%. Kỳ 3 coupon thô là $6\%-3\%=3.00\%$, nhưng nếu trả đủ thì tổng thành $7.5+3.0 = 10.5\% > 8\%$, nên TARN **cap** coupon kỳ này ở đúng phần còn thiếu $8.0 - 7.5 = 0.5\%$, tổng chạm target, note **tự tất toán ngay cuối kỳ 3** và trả lại mệnh giá. Nhà đầu tư nhận tổng coupon đúng 8% trong 3 năm thay vì 4-5 năm dự kiến — IRR bị "nén" lên vì tiền về sớm.
+
+Bây giờ đọc *rủi ro của issuer/desk* qua một kịch bản khác: nếu LIBOR **tăng nhanh** (giả sử 4%, 5%, 6% ba kỳ đầu), coupon thô là $6\%-4\%=2\%$, $6\%-5\%=1\%$, $6\%-6\%=0\%$ — tích lũy chậm ($2\%, 3\%, 3\%$), note **không** redeem sớm, kéo dài hết maturity danh nghĩa (giả sử 10Y) mà vẫn chưa chạm target. Đây là bản chất rủi ro TARN: **duration ngẫu nhiên nghịch với rate**. Khi rate thấp, coupon cao, note tắt nhanh (short duration); khi rate cao, coupon thấp, note sống dài (long duration) — đúng lúc issuer *không muốn* nợ dài. TARN vì thế có **negative convexity theo rate** và một dạng "auto-callable" nghịch. Điều này làm hedge khó: delta của TARN nhảy khi xác suất redeem đổi, và **vega âm** (vol cao → phân tán path → target dễ trượt ở một số path, kéo dài duration). Định giá bắt buộc Monte Carlo trên một model rates (LMM hoặc Cheyette), vì payoff phụ thuộc *cả đường đi* của rate và một stopping time nội sinh; không có công thức đóng. Cạm bẫy thực chiến: TARN nhạy **auto-correlation của rate qua thời gian** (rate hôm nay và năm sau tương quan bao nhiêu quyết định target chạm nhanh hay chậm), một tính chất mean-reversion/vol-term-structure không đọc được từ một điểm vol — lại là model risk.
+
+## 18.4 Range accrual — coupon theo tỷ lệ ngày "in range"
+
+**Range accrual note** trả một coupon mà mỗi ngày trong kỳ chỉ "được tính" nếu reference rate ngày đó nằm trong một range $[L, U]$. Coupon hiệu dụng của kỳ tỉ lệ với **số ngày in-range chia tổng số ngày**:
+$$\text{Coupon kỳ} = c\times\frac{\#\{\text{ngày mà } L \le \text{ref}_d \le U\}}{\#\text{ngày trong kỳ}}.$$
+Nhà đầu tư đặt cược rate sẽ "ở yên" trong range — được coupon cao nếu đúng, mất coupon nếu rate lang thang ra ngoài. Đây là một trong những note bán chạy nhất mọi thời vì trực giác đơn giản và coupon niêm yết hấp dẫn.
+
+**Ví dụ số — một kỳ 22/30 ngày in range.** Coupon danh nghĩa $c = 5\%$/năm, range LIBOR $[3\%, 5\%]$, kỳ 30 ngày (minh họa; kỳ thật thường 90 ngày). Trong kỳ, giả sử LIBOR nằm trong $[3\%,5\%]$ vào **22 ngày** và ra ngoài 8 ngày. Coupon hiệu dụng của kỳ (annual-rate cho kỳ này):
+$$5\%\times\frac{22}{30} = 5\%\times0.7333 = 3.667\%.$$
+Nếu tất cả 30 ngày in range thì nhận đủ 5%; nếu ra hết thì nhận 0. Ở 22/30, nhà đầu tư nhận **3.667%** — mất $5\% - 3.667\% = 1.333\%$ (annualized rate) so với coupon tối đa, đúng bằng phần $\tfrac{8}{30}$ ngày rate "trốn" khỏi range ($5\%\times\tfrac{8}{30}=1.333\%$).
+
+**Định giá — rổ digital.** Đây là ví dụ đẹp rằng một payoff exotic phân rã thành rổ vanilla. Coupon cho *mỗi ngày quan sát* $d$ là một **range digital**: trả $c/N$ (với $N$ tổng ngày) nếu $L \le \text{ref}_d \le U$, ngược lại 0. Range digital = digital-call tại $L$ trừ digital-call tại $U$:
+$$\mathbb{1}\{L \le X \le U\} = \mathbb{1}\{X \ge L\} - \mathbb{1}\{X \ge U\}.$$
+Mỗi digital-call lại là *đạo hàm âm của giá call theo strike*: $\text{Digital}(K) = -\partial C/\partial K$. Giá range accrual vì thế là tổng (trên mọi ngày quan sát) của một cặp digital chiết khấu:
+$$V = \sum_{d}\frac{c}{N}\,P(0,T_p)\,\Big[Q_d(L) - Q_d(U)\Big],$$
+với $Q_d(K) = \mathbb{Q}(\text{ref}_d \ge K)$ là xác suất risk-neutral (đọc dưới đúng forward measure), tính từ smile.
+
+**Vì sao range accrual nhạy smile — và bằng số.** Digital = $-\partial C/\partial K$, mà độ dốc của $C$ theo $K$ *chứa slope của smile* (skew). Bỏ smile (dùng một vol phẳng ATM) sẽ mis-price digital, và range accrual gom hàng trăm digital nên sai số cộng dồn. Cụ thể, đạo hàm giá call theo strike có hai thành phần khi vol phụ thuộc strike:
+$$\frac{\partial C}{\partial K}=\underbrace{\frac{\partial C}{\partial K}\Big|_{\sigma}}_{\text{vol cố định}}+\underbrace{\frac{\partial C}{\partial\sigma}\cdot\frac{\partial\sigma}{\partial K}}_{\text{số hạng skew}}.$$
+Số hạng thứ hai — vega nhân slope của smile — là thứ vol-phẳng bỏ sót. Ví dụ: một digital "trên $U=5\%$" tính bằng vol phẳng cho xác suất, giả sử, $Q(U)=0.30$; nhưng nếu smile có skew âm (vol cao hơn ở strike thấp, tức $\partial\sigma/\partial K<0$) thì $\partial C/\partial K$ thực âm hơn, đẩy digital $-\partial C/\partial K$ lên và làm $Q(U)$ dịch cỡ vài phần trăm — đủ để coupon kỳ vọng của một ngày lệch, và trên hàng trăm ngày × nhiều năm, chênh giá tích thành nhiều bp đến chục bp notional. Bài học: range accrual **không** định giá được bằng một vol; nó là "smile viết lại thành rổ digital", đúng họ hàng với CMS ở 9.6 (payoff phi tuyến → rổ option → tích phân trên smile). Ngoài ra range accrual mang **short vega** (rate ở yên → tốt cho holder → holder short vol) và, nếu range accrual là *callable* (rất phổ biến — "callable range accrual" là sản phẩm chủ lực), lại chồng thêm một Bermudan lên trên, gộp cả model risk của 18.1 vào.
+
+## 18.5 Snowball / snowblade — coupon path-dependent tự cộng dồn
+
+**Snowball** là note mà coupon mỗi kỳ *xây trên coupon kỳ trước* cộng/trừ một hàm của rate hiện tại — coupon "lăn như quả cầu tuyết". Dạng chuẩn:
+$$c_k = \max\big(0,\ c_{k-1} + \text{spread} - \text{ref}_k\big),$$
+với $c_0$ một coupon khởi tạo. Vì $c_k$ nhớ $c_{k-1}$, payoff **path-dependent** toàn phần: cả lịch sử rate quyết định coupon hôm nay, không chỉ rate hôm nay. **Snowblade** là biến thể có thêm leverage (nhân hệ số vào ref hoặc vào phần cộng dồn), làm coupon "sắc" hơn. Trực giác cược: holder được lợi khi rate **giảm dần** (mỗi $\text{ref}_k$ nhỏ nên $c_{k-1}+\text{spread}-\text{ref}_k$ dương và cộng dồn lên) — snowball là một cược *leverage vào đường đi giảm của rate*, ngược pha inverse floater thường ở chỗ nó *tích lũy* lợi thế.
+
+**Ví dụ số — 3 kỳ.** Cho $c_0 = 4\%$, spread $= 3\%$, và một đường ref (LIBOR):
+
+| Kỳ $k$ | ref$_k$ | $c_{k-1} + \text{spread} - \text{ref}_k$ | Coupon $c_k = \max(0,\cdot)$ |
+|---|---|---|---|
+| 1 | 2.0% | $4.0 + 3.0 - 2.0 = 5.0\%$ | **5.00%** |
+| 2 | 2.5% | $5.0 + 3.0 - 2.5 = 5.5\%$ | **5.50%** |
+| 3 | 4.0% | $5.5 + 3.0 - 4.0 = 4.5\%$ | **4.50%** |
+
+Đọc từng bước: kỳ 1, rate thấp (2%), coupon vọt lên 5% (từ nền 4% + spread 3% − 2%). Kỳ 2, rate vẫn thấp (2.5%), coupon *xây tiếp trên 5%* thành 5.5% — quả cầu tuyết lớn dần. Kỳ 3, rate bật lên 4%, coupon co lại còn 4.5% nhưng **vẫn cao** vì đã tích lũy nền lớn từ hai kỳ trước. So với một inverse floater thường (không nhớ), coupon kỳ 3 sẽ chỉ là $\max(0, 6\%-4\%) = 2\%$ — snowball cho **4.5%** vì mang theo lịch sử. Đó là bản chất "memory": coupon cao được *khóa vào* và chỉ xói mòn dần nếu rate tăng bền.
+
+Nếu rate **tăng mạnh** một kỳ (giả sử kỳ 3 ref $= 9\%$): $5.5 + 3.0 - 9.0 = -0.5\% \to \max(0,\cdot) = 0$. Coupon về 0 và — điểm độc của snowball — *lịch sử reset*: kỳ sau xây từ $c_3 = 0$, nên một cú sốc rate xóa sạch cầu tuyết đã đắp. Đây là **leverage phi tuyến vào đường đi**: giá trị note cực nhạy không chỉ mức rate mà cả *thứ tự* các rate xuất hiện (rate giảm-rồi-tăng khác hẳn tăng-rồi-giảm dù cùng tập giá trị). Không một công thức đóng nào bắt được điều này; định giá là **Monte Carlo trên LMM/Cheyette**, và giá nhạy toàn bộ **vol term structure + serial correlation** của rate. Cạm bẫy: snowball có **long vega dạng lạ** — vol cao làm một số path đạt coupon rất cao (do cộng dồn) trong khi sàn $\max(0,\cdot)$ chặn dưới, nên phân phối coupon lệch phải mạnh; định giá bằng vol quá thấp sẽ *undervalue* option-ality của cầu tuyết. Model risk ở đây là **smile dynamics**: khi rate di chuyển, vol tương lai của rate (thứ điều khiển kích thước bước cộng dồn) phải được model dự báo đúng — vanilla không nói gì về nó.
+
+## 18.6 CMS spread options & steepener/flattener notes
+
+Các note ở 18.3–18.5 cược *mức* rate. Một họ lớn khác cược **hình dạng** của curve — dốc lên (steep) hay phẳng/dốc xuống (flat/invert). Công cụ là **CMS spread option**: payoff trên chênh lệch hai CMS rate, điển hình
+$$\text{Payoff} = \max\big(S^{10Y}_T - S^{2Y}_T - K,\ 0\big),$$
+với $S^{10Y}, S^{2Y}$ là các CMS (constant maturity swap) rate — swap rate 10Y và 2Y quan sát tại $T$. Gói vào note: một **steepener note** trả coupon cao khi curve dốc lên (spread 10Y−2Y lớn), tức holder long CMS spread; **flattener** ngược lại. Đây là cách nhà đầu tư đặt view "curve sẽ dốc lên" thành coupon.
+
+**Hai lớp phức tạp chồng nhau.** Thứ nhất, mỗi CMS rate riêng *đã* cần **convexity adjustment** (mục 9.6): CMS trả swap rate dưới forward measure nơi swap rate không là martingale, nên phải cộng adjustment. Nhắc lại con số 9.6 (dạng exponential Hagan): CMS 10Y với $S_0=4.5\%$, hệ số replication $\theta=0.221$, vol 20%, quan sát $T=5$ cho
+$$\text{CA}=S_0\big(e^{\sigma^2 T}-1\big)\theta = 4.5\%\times\big(e^{0.04\times5}-1\big)\times0.221 = 4.5\%\times0.2214\times0.221 \approx 22\text{bp},$$
+tức phải dùng $4.50\% + 0.22\% = 4.72\%$ làm forward hiệu dụng. CMS 2Y có adjustment nhỏ hơn (swap ngắn hơn, $\theta$ nhỏ hơn) — giả sử $\approx6$bp, nên forward 2Y hiệu dụng $\approx S^{2Y}_0 + 0.06\%$.
+
+Thứ hai — và là chỗ CMS spread *khác về chất* — payoff phụ thuộc **correlation** giữa hai swap rate. Vol của spread (normal/Bachelier world):
+$$\sigma_{\text{spread}}^2 = \sigma_{10}^2 + \sigma_2^2 - 2\rho\,\sigma_{10}\sigma_2.$$
+Correlation $\rho$ (giữa đoạn 2Y và 10Y của curve, thực nghiệm ~70–90%) *không* được sinh bởi model một-factor: HW1F ép mọi rate động cùng một Brownian nên $\rho = 1$, làm $\sigma_{\text{spread}} \to 0$ và option gần như vô giá trị. Đây là lý do CMS spread **bắt buộc HW2F/G2++** (hoặc LMM) — nhân tố thứ hai tạo đúng correlation curve.
+
+**Ví dụ số — payoff khi spread = 40bp.** Giả sử tại $T$, forward-adjusted CMS 10Y $= 4.72\%$ và CMS 2Y $= 4.32\%$, nên spread kỳ vọng $= 40\text{bp}$. Với strike $K = 0$ (steepener trả toàn bộ spread dương), giá option xấp xỉ theo Bachelier trên spread:
+$$\text{Call} = (F-K)\,N(d) + \sigma_{\text{spread}}\sqrt{T}\,\phi(d),\qquad d = \frac{F-K}{\sigma_{\text{spread}}\sqrt T},$$
+với $F=$ spread kỳ vọng. Lấy $\sigma_{10} = \sigma_2 = 90\text{bp}$ (normal vol), $\rho = 0.8$, $T = 1$. Vì hai vol bằng nhau, $\sigma_{\text{spread}} = \sigma\sqrt{2(1-\rho)}$:
+$$\sigma_{\text{spread}} = 0.90\%\times\sqrt{2\times0.2} = 0.90\%\times0.6325 = 0.569\%\ (=56.9\text{bp}).$$
+Với spread $F = 0.40\%$, $K = 0$, $T=1$:
+$$d = \frac{0.40\%}{0.569\%\times1} = 0.703,\quad N(0.703)=0.759,\quad \phi(0.703)=0.312.$$
+Giá:
+$$V = (0.40\%-0)\times0.759 + 0.569\%\times0.312 = 0.304\% + 0.177\% = 0.481\%.$$
+Đọc: một CMS spread call ATM-ish với spread 40bp, correlation 0.8, đáng **$\approx48$bp notional** cho một kỳ — tách thành intrinsic-ish $0.304\%$ (spread dương × xác suất kết thúc in-the-money) cộng time value $0.177\%$.
+
+Bây giờ **thử sai correlation**: nếu ai đó (nhầm) dùng HW1F ép $\rho = 1$, thì $\sigma_{\text{spread}} = 0$, option chỉ còn intrinsic $\max(0.40\% - 0, 0) = 0.40\%$ — mất toàn bộ time value $0.481\%-0.40\%=8.1$bp *và* mất mọi vega/hedge. Ngược lại nếu $\rho$ giảm còn $0.6$:
+$$\sigma_{\text{spread}} = 0.90\%\times\sqrt{2\times0.4} = 0.90\%\times0.8944 = 0.805\%,$$
+$d = 0.40/0.805 = 0.497$, $N(0.497)=0.690$, $\phi(0.497)=0.353$, và giá vọt lên
+$$V = 0.40\%\times0.690 + 0.805\%\times0.353 = 0.276\% + 0.284\% = 0.560\%\ (=56\text{bp}).$$
+**Sai correlation ở đây không lệch vài bp mà lệch cả bậc độ lớn** — từ $40$bp (nếu $\rho=1$) qua $48$bp ($\rho=0.8$) lên $56$bp ($\rho=0.6$), tức chỉ riêng time value biến động từ $0$ đến $16$bp khi correlation trượt trong dải thực nghiệm. Đúng cảnh báo 9.6. CMS spread vì thế là bài toán "hai smile (mỗi CMS replicate trên swaption smile riêng) cộng một correlation (HW2F)", nơi analytics convexity, model choice và curve construction gặp nhau. Model risk chủ đạo: **correlation không hedge được bằng vanilla** — không có instrument thanh khoản nào quote thẳng correlation 2Y-10Y, nên nó là tham số mark-to-model, cần reserve.
+
+## 18.7 PRDC — power reverse dual currency
+
+**PRDC (Power Reverse Dual Currency)** là con quái vật hybrid FX-rates, sản phẩm biểu tượng của thị trường structured Nhật những năm 2000 và bài học model risk kinh điển. Bối cảnh: nhà đầu tư retail Nhật ghét lãi suất JPY gần 0, thèm coupon cao. PRDC cho họ một note JPY (đầu tư bằng yen, nhận coupon bằng yen) nhưng coupon được **gắn vào tỷ giá FX** — cụ thể coupon dạng
+$$c_k = \max\Big(0,\ f\cdot\frac{S_{\tau_k}}{S_0} - g\Big),$$
+với $S$ là tỷ giá USD/JPY (yen mỗi dollar), $f, g$ hằng số, và thường có floor 0 và cap. "Power" vì đòn bẩy $f$ lớn; "reverse dual" vì coupon nghịch với sức mạnh yen. Trực giác: khi USD mạnh lên (yen yếu, $S$ tăng), coupon cao — nhà đầu tư Nhật thực chất *bán* yen forward dài hạn để đổi lấy coupon, một cược "yen sẽ không mạnh lên mãi". Kỳ hạn **rất dài** (20–30 năm), và note thường **callable** (issuer gọi lại khi bất lợi cho holder).
+
+**Vì sao PRDC là hybrid ba rủi ro chồng nhau.** Định giá cần *ba* model chạy đồng thời, correlate: (1) rates JPY (curve domestic, để chiết khấu và cho drift FX), (2) rates USD (curve foreign, vào drift FX qua chênh lãi suất), (3) FX USD/JPY với vol/smile. Forward FX kỳ hạn dài do **chênh lãi suất** quyết định (covered interest parity, Chương 10). Với quy ước $S$ là *yen mỗi dollar*, currency lãi cao (USD) trade ở forward **discount**, nên
+$$F^{\text{FX}}(0,T) = S_0\,e^{(r_{\text{JPY}}-r_{\text{USD}})T}.$$
+Với USD lãi cao ($r_{\text{USD}}\approx5\%$) và JPY lãi $\approx0$, số mũ âm, forward USD/JPY **giảm mạnh theo kỳ hạn** (yen "được kỳ vọng mạnh lên" trong risk-neutral world). Ví dụ với $r_{\text{USD}}=5\%$, $r_{\text{JPY}}=0.1\%$, sau 20 năm $F/S_0 = e^{-0.049\times20}=e^{-0.98}\approx0.375$ — dollar mất gần $63\%$ giá trị forward so với yen. Nghĩa là coupon forward của PRDC *tự nó thấp dần* theo kỳ hạn, và giá trị note phụ thuộc sống còn vào việc FX vol và correlation đẩy đuôi phân phối thế nào.
+
+**Rủi ro correlation rates-FX — trực giác và số.** Đây là chỗ PRDC dạy bài học đắt nhất. Coupon là hàm của FX, nhưng nó được chiết khấu và *drift* bởi chênh lãi suất — nếu USD/JPY rate và FX correlate, thì phân phối coupon dịch chuyển. Cụ thể, dưới domestic (JPY) risk-neutral measure, drift của FX chứa $r_{\text{USD}} - r_{\text{JPY}}$, và cả hai rate lẫn FX đều stochastic và tương quan. Correlation rates-FX (thực nghiệm cho USD/JPY thường **âm** — yen mạnh lên khi rate USD giảm, "risk-off") điều chỉnh forward FX một lượng dạng quanto (đã gặp ở Chương 10):
+$$F^{\text{adj}} \approx F^{\text{FX}}\cdot e^{-\rho_{r,S}\,\sigma_r\,\sigma_S\,T}\ \text{(bậc một)}.$$
+Nhắc con số quanto 10.x để thấy bậc độ lớn: với $\rho = 0.15$, $\sigma_S = 20\%$ (vol FX), $\sigma_r = 10\%$ (vol rate), $T=1$, số mũ là
+$$\rho\,\sigma_S\,\sigma_r\,T = 0.15\times0.20\times0.10\times1 = 0.003,\qquad e^{-0.003}\approx 0.9970,$$
+tức adjustment $\approx -0.30\%$ trên forward *cho một năm*. Với PRDC $T = 20$–30 năm, cùng dạng số hạng nhưng $\times T$ khiến adjustment **cộng dồn thành nhiều phần trăm** ($-0.003\times20\approx-6\%$ ở bậc một, trước khi tính lại đúng kỳ vọng của tích phân) — một correlation nhích 10 điểm phần trăm có thể đổi giá coupon dài hạn hàng trăm bp. Vì payoff có floor $\max(0,\cdot)$ (phi tuyến), correlation còn vào qua **vol của FX dài hạn**, mà FX vol 30Y thì gần như không có market quote đáng tin — lại là tham số mark-to-model.
+
+**Callability làm mọi thứ tệ hơn.** PRDC callable = holder short một Bermudan trên chính cái hybrid này. Issuer gọi khi note trở nên đắt với họ (coupon phải trả cao) — tức khi yen yếu bền. Định giá call cần optimal stopping (18.1) *trên* một model hybrid ba chiều (JPY rate, USD rate, FX) với correlation đầy đủ, thường là **Monte Carlo Longstaff-Schwartz** (Chương 12) vì PDE ba-bốn chiều quá đắt. Đây gần như đỉnh cao độ khó của rates/FX exotics: bạn chồng model risk của Bermudan (mean reversion, decorrelation của *hai* curve) lên model risk correlation rates-FX lên model risk FX smile dài hạn.
+
+**Bài học lịch sử.** Trong khủng hoảng 2008, khi yen mạnh lên đột ngột (carry unwind), coupon PRDC sụp về floor 0 và các note bị call/không-call lệch dự báo, các dealer phát hiện họ **short correlation và short FX vol dài hạn** ở quy mô khổng lồ mà không hedge được (không có instrument để mua lại). Lỗ correlation/vega đó là một trong những bài học model-risk lớn nhất của thập kỷ, và là lý do PRDC hôm nay được validate cực gắt: **reserve riêng cho correlation rates-FX, cho FX vol dài hạn, và cho callability**, vì cả ba đều là giá của những thứ *không quote được*.
+
+## 18.8 Sợi chỉ chung: model risk là sản phẩm chính
+
+Nhìn lại bảy mục, một chủ đề duy nhất hiện lên. Mọi payoff ở đây calibrate khớp vanilla như nhau, nhưng giá vẫn khác nhau — vì mỗi payoff nhạy một thứ *vanilla không định giá được*:
+
+| Sản phẩm | Nhạy chính (ngoài mức vol) | Vì sao vanilla không thấy |
+|---|---|---|
+| Bermudan swaption | mean reversion $a$, decorrelation | European chỉ có một expiry |
+| TARN | serial correlation, vol term structure | maturity là stopping time nội sinh |
+| Range accrual | skew/smile (rổ digital) | digital = slope của smile |
+| Snowball/snowblade | smile dynamics, thứ tự path | coupon nhớ toàn bộ lịch sử |
+| CMS spread/steepener | correlation 2Y-10Y | không instrument quote correlation |
+| PRDC | correlation rates-FX, FX vol 30Y | không có FX vol dài hạn thanh khoản |
+
+Ba đại lượng ẩn — **smile dynamics, correlation, mean reversion** — là "tài sản" mà desk rates thực sự giao dịch khi bán exotic, và là ba thứ không có market thanh khoản để hedge sạch. Số học của chương đã cho thấy chúng lớn đến đâu: switch value $\approx0.46\%$ notional của một Bermudan 5nc1 tầm thường (24% giá trị) treo trên mean reversion; time value của một CMS spread call trượt từ $0$ đến $16$bp chỉ vì correlation đi từ 1 xuống 0.6; và một quanto adjustment $0.3\%$/năm của PRDC phóng đại thành nhiều phần trăm qua 20–30 năm. Đó là lý do định giá exotic *không kết thúc* ở một con số: mỗi con số đi kèm một **model reserve** cho phần giá phụ thuộc tham số không quan sát được (mean reversion của Bermudan, correlation của CMS spread và PRDC, FX vol dài hạn). Quy trình dựng exotic vì thế luôn ba lớp: chọn model đủ giàu (HW2F cho spread, LMM/Cheyette cho path-dependent, hybrid ba-factor cho PRDC), calibrate khớp mọi vanilla có thể, rồi định lượng và trích lập reserve cho phần *residual* không hedge được.
+
+Chuỗi công cụ khép kín với những gì Q-world đã dựng: curve và smile (Chương 9), FX và quanto/correlation (Chương 10), và bộ numerics — PDE cho Bermudan ít chiều, Longstaff-Schwartz cho Bermudan/PRDC nhiều chiều, Monte Carlo trên LMM cho TARN/snowball (Chương 12). Trong `quantc`, các mảnh này sống ở `src/engines` (longstaff-schwartz, bermudan-dual, pde), `src/models` (hull-white, g2++, lmm) và `src/analytics` (convexity: cmsConvexityAdjustment, quantoForward). Nhưng điểm cốt lõi không phải code — mà là hiểu rằng ở tầng exotic, *sản phẩm bạn bán không phải payoff, mà là view của bạn về ba đại lượng ẩn ấy*, và cả nghề rates exotic quy về việc định giá, hedge tối đa, và reserve phần còn lại của smile dynamics, correlation và mean reversion.
+
+# Chương 19: Kiến trúc pricing library và model validation
 
 Sau mười lăm chương xây từng viên gạch — từ Itô, Black-Scholes, smile, lãi suất, credit, XVA, tới FRTB — chương này lùi lại một bước để hỏi câu hỏi mà không sách hàn lâm nào trả lời: tất cả những thứ đó *sống chung* trong một hệ thống như thế nào, và ai đảm bảo nó không nói dối? Một công thức Heston đẹp trên giấy vô dụng nếu nó nằm rải rác trong ba nghìn dòng code không ai dám sửa; một VaR chính xác vô nghĩa nếu không ai kiểm tra được nó tính đúng. Đây là chương về *nghề* và về *kỷ luật* của nghề — kiến trúc pricing library, một ngày desk quant, con đường tuyển dụng, thế giới Q-quant ngoài bank, và cuối cùng là bộ máy model validation đã trở thành xương sống quy định của toàn ngành sau khủng hoảng.
 
-## 16.1 Giải phẫu một pricing library production
+## 19.1 Giải phẫu một pricing library production
 
 Mọi pricing library nghiêm túc (QuantLib mã nguồn mở; các library nội bộ của GS/JPM/Citi; và `quantc` này) hội tụ về cùng một phân rã — vì bài toán ép như vậy:
 
@@ -3798,17 +4563,17 @@ Nếu PV thực đo được nhích $+1.17$, thì unexplained $\varepsilon = 1.1
 
 Hệ sinh thái mã nguồn mở đáng biết: **QuantLib** (C++, 20+ năm, chuẩn tham chiếu de facto — đọc source của nó là một nền giáo dục), QuantLib-Python, **ORE** (Open Source Risk Engine — XVA/risk portfolio-level trên QuantLib, rất gần cấu trúc Chương 14), ISDA CDS standard model, và gần đây các thư viện differentiable pricing trên JAX/PyTorch.
 
-## 16.2 Một ngày của desk quant (để bạn hình dung nghề)
+## 19.2 Một ngày của desk quant (để bạn hình dung nghề)
 
 Sáng: check batch qua đêm (risk, P&L explain có "unexplained" lớn không), calibration sáng có converge không, curve có điểm gãy bất thường không. Trong ngày: trader hỏi giá structure mới → dựng payoff từ các khối có sẵn, chọn model, chạy giá + Greeks, sanity-check bằng model thứ hai; sales cần pre-trade XVA; debug tại sao PV một deal nhảy; review spec model của đồng nghiệp; viết doc cho model validation. Nghề này 30% toán, 50% engineering, 20% giao tiếp — hầu hết người ngoài đánh giá sai tỉ lệ này.
 
 Để cụ thể hóa cái "check batch qua đêm", hãy hình dung con số. Một desk rates lớn có thể ôm $N \approx 50\,000$ deal. Batch qua đêm chạy full revaluation cộng risk cộng XVA. Nếu mỗi deal trung bình cần 2 giây CPU (nhiều là swaption Bermudan qua PDE, autocall qua Monte Carlo), thì tuần tự mất $50\,000 \times 2 = 100\,000$ giây $\approx 27.8$ giờ — quá cửa sổ đêm (thường 8–10 tiếng từ market close tới market open). Đây là lý do batch phải song song hóa: chạy trên $\sim 512$ core thì thời gian rơi về $100\,000 / 512 \approx 195$ giây lý thuyết, thực tế cỡ vài chục phút sau overhead. Nó cũng là lý do XVA phải dùng proxy model (`src/proxy`): định giá đầy đủ một swap 10Y trong 10 000 kịch bản Monte Carlo tại 100 mốc thời gian là một tỉ lần định giá con — bất khả thi nếu mỗi lần gọi full smile model; proxy (Chebyshev, differential ML, MLP) thay bằng hàm rẻ đã fit sẵn. Cái "batch converge không" buổi sáng vì thế không phải câu hỏi lười — nó là câu hỏi liệu 27 giờ công việc có nén được vào 8 giờ không.
 
-Buổi trưa khi trader hỏi giá một structure mới, "sanity-check bằng model thứ hai" cũng là một thao tác có kỷ luật số, không phải một dòng trong danh sách việc. Cụ thể hóa: trader hỏi giá một swaption ATM 1Y-into-5Y, notional 100. Bạn chạy nó qua Hull-White đã calibrate, ra premium $= 2.153\%$ notional. Rồi bạn chạy lại đúng deal đó qua công thức Black với implied vol lấy thẳng từ market, ra premium thứ hai $= 2.150\%$. Chênh lệch $|2.153 - 2.150| = 0.003\%$ notional (tức 0.3bp, hay \$3\,000 trên notional \$100M) — nhỏ hơn nhiều bid-offer thường vài bp của swaption thanh khoản, nên hai implementation "đồng ý" và bạn báo giá được. Nhưng nếu Hull-White ra $2.153\%$ còn Black ra $2.09\%$, chênh $0.063\%$ notional (6.3bp) là *quá lớn* so với bid-offer: một trong hai *sai* — có thể Hull-White calibrate lệch node vol, có thể Black nhận nhầm annuity — và bạn không được báo giá cho tới khi hiểu vì sao. Đây là "two independent implementations" thu nhỏ về một deal, cùng triết lý benchmark độc lập của model validation mà ta sẽ gặp ở mục 16.5, chỉ khác là làm trong thời gian thực với trader đang chờ trên đường dây.
+Buổi trưa khi trader hỏi giá một structure mới, "sanity-check bằng model thứ hai" cũng là một thao tác có kỷ luật số, không phải một dòng trong danh sách việc. Cụ thể hóa: trader hỏi giá một swaption ATM 1Y-into-5Y, notional 100. Bạn chạy nó qua Hull-White đã calibrate, ra premium $= 2.153\%$ notional. Rồi bạn chạy lại đúng deal đó qua công thức Black với implied vol lấy thẳng từ market, ra premium thứ hai $= 2.150\%$. Chênh lệch $|2.153 - 2.150| = 0.003\%$ notional (tức 0.3bp, hay \$3\,000 trên notional \$100M) — nhỏ hơn nhiều bid-offer thường vài bp của swaption thanh khoản, nên hai implementation "đồng ý" và bạn báo giá được. Nhưng nếu Hull-White ra $2.153\%$ còn Black ra $2.09\%$, chênh $0.063\%$ notional (6.3bp) là *quá lớn* so với bid-offer: một trong hai *sai* — có thể Hull-White calibrate lệch node vol, có thể Black nhận nhầm annuity — và bạn không được báo giá cho tới khi hiểu vì sao. Đây là "two independent implementations" thu nhỏ về một deal, cùng triết lý benchmark độc lập của model validation mà ta sẽ gặp ở mục 19.5, chỉ khác là làm trong thời gian thực với trader đang chờ trên đường dây.
 
-## 16.3 Tuyển dụng và phỏng vấn Q-quant
+## 19.3 Tuyển dụng và phỏng vấn Q-quant
 
-Phỏng vấn điển hình (bank tier 1): vòng screening toán/xác suất nhanh + coding; vòng kỹ thuật: stochastic calculus (suy GBM, Itô cho $f(S)$ nào đó), Black-Scholes và Greeks (suy công thức, vẽ profile gamma/vega, câu hỏi hedging tình huống), brainteasers xác suất (kỳ vọng có điều kiện, martingale stopping), C++ (move semantics, virtual dispatch, memory) hoặc Python tùy vai trò; vòng desk: câu hỏi "trading sense" (sticky strike vs sticky delta, tại sao skew tồn tại, P&L nếu vol realized < implied). Nguồn luyện chuẩn: *Heard on the Street* (Crack), *Quant Job Interview Questions* (Joshi), *A Practical Guide to Quantitative Finance Interviews* (Zhou) — xem Chương 17.
+Phỏng vấn điển hình (bank tier 1): vòng screening toán/xác suất nhanh + coding; vòng kỹ thuật: stochastic calculus (suy GBM, Itô cho $f(S)$ nào đó), Black-Scholes và Greeks (suy công thức, vẽ profile gamma/vega, câu hỏi hedging tình huống), brainteasers xác suất (kỳ vọng có điều kiện, martingale stopping), C++ (move semantics, virtual dispatch, memory) hoặc Python tùy vai trò; vòng desk: câu hỏi "trading sense" (sticky strike vs sticky delta, tại sao skew tồn tại, P&L nếu vol realized < implied). Nguồn luyện chuẩn: *Heard on the Street* (Crack), *Quant Job Interview Questions* (Joshi), *A Practical Guide to Quantitative Finance Interviews* (Zhou) — xem Chương 20.
 
 Năm câu hỏi mẫu đúng "chất" phỏng vấn (kèm hướng trả lời — tự làm đầy đủ trước khi đọc đáp):
 
@@ -3830,14 +4595,14 @@ Câu 5 cũng nên có một con số neo. Lấy swap 2Y của sách trên curve 
 
 Bằng cấp: MFE/MSc Quant Finance (Baruch, CMU, Princeton, Imperial, ETH — Baruch nổi tiếng placement tốt nhất), hoặc PhD toán/lý/CS (vẫn là đường vào chuẩn cho research-heavy roles), hoặc — ngày càng nhiều — kỹ sư giỏi tự học chứng minh được bằng project thật (một pricing library tự viết có XVA và FRTB như `quantc` chính là loại bằng chứng đó).
 
-## 16.4 Q-quant ngoài ngân hàng
+## 19.4 Q-quant ngoài ngân hàng
 
 Nghề Q-quant không chỉ sống trong sell-side bank. Bản đồ rộng hơn nhiều, và mỗi ô trên bản đồ có văn hóa, lương, và loại toán riêng.
 
 - **Buy-side vol**: vol arb funds, tail-risk funds (Universa), market makers options (**Optiver, IMC, SIG, Citadel Securities** — SIG nổi tiếng dạy poker cho trader) — pricing là Q, nhưng quyết định vị thế là P; trả lương cao hơn bank đáng kể. Đây chính là điểm giao P/Q: định giá option dùng công cụ Q (risk-neutral, Greeks, smile) nhưng quyết định *có nên* giữ vị thế lại là câu hỏi P (kỳ vọng thực, variance risk premium). Xem cuốn P-world để hiểu mặt kia của giao dịch vol.
 - **CCP/Clearing houses** (LCH, CME): margin models, default management. Một CCP đứng giữa mọi giao dịch clear, nên nó phải tính initial margin cho hàng triệu vị thế và quản lý default waterfall — model risk ở đây là rủi ro *hệ thống*, không phải một desk.
 - **Vendors**: Bloomberg (DLIB/MARS), Murex, Calypso, Numerix, FIS — bán pricing/risk cho bank nhỏ không tự xây; nhiều quant sống ở đây.
-- **Regulators/central banks**: cần người hiểu model để giám sát model — chính bộ máy validation ở mục 16.5 tạo ra cả một nghề bên phía giám sát.
+- **Regulators/central banks**: cần người hiểu model để giám sát model — chính bộ máy validation ở mục 19.5 tạo ra cả một nghề bên phía giám sát.
 - **Insurance/pension**: variable annuities là exotic khổng lồ (guarantee dài 30 năm); Solvency II là "Basel của bảo hiểm".
 
 Để thấy vì sao insurance là "exotic khổng lồ", hãy tính thô một guarantee kiểu GMWB (guaranteed minimum withdrawal benefit) đơn giản hóa: hãng bảo hiểm hứa trả người mua tối thiểu bằng vốn gốc $K = 100$ sau $T = 30$ năm bất kể thị trường, tức bán kèm một put châu Âu strike 100 maturity 30 năm. Với $r = 5\%$, $\sigma = 20\%$, $S_0 = 100$, put 30 năm có
@@ -3854,7 +4619,7 @@ $$
 
 Con số $\approx 1.83$ trên notional 100 nghe nhỏ, nhưng nhân với hàng chục tỉ đô notional annuity, cộng với việc guarantee thực tế phức tạp hơn nhiều (ratchet, withdrawal tùy chọn, mortality) và vol 30 năm thì cực nhạy — sai lệch nhỏ trong $\sigma$ dài hạn khuếch đại thành hàng trăm triệu. Đó là lý do variable annuity từng làm sập bảng cân đối vài hãng bảo hiểm trong 2008, và là lý do Solvency II ép họ tính vốn model-based nghiêm ngặt.
 
-## 16.5 Model validation — tuyến phòng thủ thứ hai
+## 19.5 Model validation — tuyến phòng thủ thứ hai
 
 Mọi thứ ở trên giả định một điều: model *đúng*. Nhưng model chỉ là bản đồ, không phải lãnh thổ. "All models are wrong, but some are useful" (George Box) không phải câu nói đùa — nó là tiên đề vận hành của cả một bộ máy quy định sinh ra để trả lời câu hỏi: model nào sai *đủ ít* để được dùng, và ai kiểm chứng điều đó? Khủng hoảng 2008 và một chuỗi thảm họa sau đó cho thấy để chính người xây model tự chấm điểm mình là công thức của tai họa. Từ đó ra đời model validation như một *chức năng độc lập* — không phải một khâu kiểm tra qua loa mà là một tuyến phòng thủ có luật, có ngân sách, có quyền phủ quyết.
 
@@ -3942,17 +4707,17 @@ Tỉ số $\text{lỗi}/\text{đúng} = 0.5$ *chính xác* — không xấp xỉ
 
 Điều khiến câu chuyện này thành *bài học validation* chứ không chỉ là chuyện xui rủi Excel: cái model VaR mới đó **được đưa vào dùng mà không qua validation độc lập đầy đủ**, và một lỗi công thức số học cấp tiểu học — chia cho tổng thay vì trung bình — sống sót suốt vì không có ai độc lập, có năng lực, có thẩm quyền ngồi tính lại. Đúng ba tính từ của effective challenge trong SR 11-7 đã vắng mặt. Nó chứng minh vì sao một spreadsheet cũng là "model" theo định nghĩa của SR 11-7 — và vì sao model tier phải tính cả những công cụ trông tầm thường: một chia-sai trong Excel không được ai kiểm đã thổi bay $6$ tỉ đô. Mọi nguyên tắc ở các mục trên — benchmark độc lập, ngưỡng chấp nhận, three lines of defense, model inventory — tồn tại chính xác để một London Whale không tái diễn.
 
-Khép lại: kiến trúc library đúng (trục hóa, snapshot bất biến, lineage) làm cho model *chạy được và audit được*; model validation làm cho model *đáng tin*. Hai nửa này không tách rời — một P&L explain sạch (mục 16.1) chính là một dạng validation thời gian thực, và một benchmark độc lập (mục 16.5) chính là "model thứ hai" mà desk quant chạy mỗi khi báo giá. Người quant giỏi sống ở giao điểm của cả hai: đủ toán để suy công thức, đủ engineering để dựng hệ thống không nói dối, và đủ khiêm tốn để luôn hỏi "model này sai ở đâu, và ai đang kiểm nó?".
+Khép lại: kiến trúc library đúng (trục hóa, snapshot bất biến, lineage) làm cho model *chạy được và audit được*; model validation làm cho model *đáng tin*. Hai nửa này không tách rời — một P&L explain sạch (mục 19.1) chính là một dạng validation thời gian thực, và một benchmark độc lập (mục 19.5) chính là "model thứ hai" mà desk quant chạy mỗi khi báo giá. Người quant giỏi sống ở giao điểm của cả hai: đủ toán để suy công thức, đủ engineering để dựng hệ thống không nói dối, và đủ khiêm tốn để luôn hỏi "model này sai ở đâu, và ai đang kiểm nó?".
 
-# Chương 17: Lộ trình học và tài nguyên
+# Chương 20: Lộ trình học và tài nguyên
 
-Mười sáu chương trước đã đưa ta đi từ câu hỏi tưởng như triết học — "vì sao có hai measure $\mathbb{P}$ và $\mathbb{Q}$" — cho tới những con số cụ thể của một desk quant thật: một call ATM giá $10.45$, một swap 10Y có CVA $\approx 0.172$M, một portfolio phải nộp capital theo FRTB. Chương cuối này không thêm khái niệm mới nào — nó là tấm bản đồ. Bạn đã đi hết khu rừng; giờ ta leo lên đỉnh núi nhìn lại con đường vừa qua, đánh dấu những cột mốc, và chỉ ra những lối rẽ đi tiếp. Một cuốn giáo trình tốt phải kết thúc bằng cách tự làm mình lỗi thời: nó dạy bạn cách học tiếp mà không cần đến nó nữa.
+Mười chín chương trước đã đưa ta đi từ câu hỏi tưởng như triết học — "vì sao có hai measure $\mathbb{P}$ và $\mathbb{Q}$" — cho tới những con số cụ thể của một desk quant thật: một call ATM giá $10.45$, một swap 10Y có CVA $\approx 0.172$M, một portfolio phải nộp capital theo FRTB. Chương cuối này không thêm khái niệm mới nào — nó là tấm bản đồ. Bạn đã đi hết khu rừng; giờ ta leo lên đỉnh núi nhìn lại con đường vừa qua, đánh dấu những cột mốc, và chỉ ra những lối rẽ đi tiếp. Một cuốn giáo trình tốt phải kết thúc bằng cách tự làm mình lỗi thời: nó dạy bạn cách học tiếp mà không cần đến nó nữa.
 
 Trước khi vẽ lộ trình, hãy chốt lại bản đồ chương — vì mọi cross-reference xuyên suốt sách đều dựa vào cách đánh số này.
 
-## 17.1 Toàn cảnh cuốn sách — 17 chương, 2 phụ lục
+## 20.1 Toàn cảnh cuốn sách — 20 chương, 2 phụ lục
 
-Cuốn Q-World chia làm sáu phần, mỗi phần là một tầng năng lực. Đọc bảng dưới như đọc một đường leo núi: mỗi chương chỉ đứng vững được nhờ chương bên dưới nó.
+Cuốn Q-World chia làm bảy phần, mỗi phần là một tầng năng lực. Đọc bảng dưới như đọc một đường leo núi: mỗi chương chỉ đứng vững được nhờ chương bên dưới nó.
 
 | Phần | Chương | Nội dung cốt lõi | Con số ký hiệu bạn phải nhớ |
 |---|---|---|---|
@@ -3971,14 +4736,17 @@ Cuốn Q-World chia làm sáu phần, mỗi phần là một tầng năng lực.
 | **V — Credit/XVA/Capital** | Ch13 | Credit: hazard rate, CDS, CDO | par CDS 5Y $=120$bp $\Rightarrow \lambda\approx2\%$ |
 | | Ch14 | XVA: CVA/FVA/MVA/KVA, netting, WWR | CVA $\approx0.172$M, FVA $\approx0.75$M |
 | | Ch15 | Vốn quy định FRTB: SBM, IMA, ES, PLA | SA vs IMA capital |
-| **VI — Nghề** | Ch16 | Kiến trúc library & model validation | registry, composition, benchmark |
-| | **Ch17** | **Lộ trình học** (chương này) | — |
+| **VI — Sản phẩm chuyên sâu** | Ch16 | Convertible bonds & hybrid capital | convert arb, CoCo/AT1, bond floor |
+| | Ch17 | MBS, callable bonds & OAS | prepayment, negative convexity, OAS |
+| | Ch18 | Rates exotics: TARN, snowball, range accrual, PRDC | model risk, smile dynamics |
+| **VII — Nghề** | Ch19 | Kiến trúc library & model validation | registry, composition, benchmark |
+| | **Ch20** | **Lộ trình học** (chương này) | — |
 | **Phụ lục** | A | Glossary thuật ngữ | tra cứu nhanh |
 | | B | Case studies: LTCM, London Whale, Archegos | rủi ro thật đã xảy ra |
 
 Điều đáng nói không phải là danh sách, mà là **cấu trúc phụ thuộc** ẩn dưới nó. Ch4 (FTAP) là trái tim: mọi thứ sau nó chỉ là chọn một payoff, chọn một model cho $S_t$ dưới $\mathbb{Q}$, rồi tính kỳ vọng chiết khấu đó — bằng công thức đóng (Ch5), bằng Fourier (Ch7), hay bằng Monte Carlo/PDE (Ch12). Credit và XVA (Ch13–14) không phải một môn học khác: chúng chỉ là FTAP áp lên một payoff bổ sung — khoản mất mát khi default — với một model cho thời điểm default $\tau$. Khi bạn nhìn ra sợi chỉ đỏ này — *tất cả đều là $\mathbb{E}^{\mathbb{Q}}[\text{chiết khấu}\times\text{payoff}]$, chỉ khác nhau ở payoff và ở model* — bạn đã hiểu cuốn sách; phần còn lại chỉ là kỹ thuật.
 
-## 17.2 Lộ trình 4 giai đoạn
+## 20.2 Lộ trình 4 giai đoạn
 
 Đây là ước lượng cho người tự học nghiêm túc, có nền STEM, học bán thời gian bên cạnh công việc hoặc việc học chính. Học toàn thời gian thì chia đôi thời gian. Con số tháng không phải để ép — nó để bạn biết mình đang chậm bất thường hay đang đúng nhịp.
 
@@ -4064,7 +4832,7 @@ $$\text{CVA}=(1-R)\sum_i \text{EE}(t_i)\,P(0,t_i)\,\big[Q(t_{i-1})-Q(t_i)\big],$
 
 với $Q(t)=e^{-\lambda t}$ là xác suất sống sót. Xác suất default trong một năm $\approx\lambda=2\%$ khi $\lambda$ nhỏ; nhân với loss-given-default $(1-R)=0.6$, với EE bình quân $\sim2$M chiết khấu và tích lũy qua 10 năm, ra $\text{CVA}\approx0.172$M — tức $\approx17$bp trên notional 100M. Thêm FVA (funding spread 50bp, không CSA) $\approx0.75$M ($\approx75$bp) — lớn hơn CVA vì funding chạy trên *toàn bộ* exposure dương, chứ không chỉ phần mất khi default. Điều đắt giá: nếu có CSA đầy đủ (collateral hai chiều, threshold 0), exposure gần như bị triệt tiêu và CVA còn $\sim1$bp. Một dòng trong hợp đồng CSA đổi CVA từ $17$bp xuống $1$bp — đó là vì sao XVA desk và bộ phận đàm phán CSA phải nói chuyện với nhau.
 
-***FRTB/Risk*** — đọc thẳng **BCBS *Minimum capital requirements for market risk* (d457)** $+$ **ISDA SIMM methodology**. Không tóm tắt nào thay được spec gốc ở đây, vì capital là quy định — chữ chính xác là luật. Code: SBM (Sensitivities-Based Method) aggregation đầy đủ với registry tham số (nối vào `src/risk`). Quy định thay đổi hằng năm; điều bất biến là *cách* tổ chức tham số vào một registry, để khi Basel ra bản mới, bạn chỉ đổi số chứ không đổi code (đúng nguyên tắc kiến trúc của Ch16).
+***FRTB/Risk*** — đọc thẳng **BCBS *Minimum capital requirements for market risk* (d457)** $+$ **ISDA SIMM methodology**. Không tóm tắt nào thay được spec gốc ở đây, vì capital là quy định — chữ chính xác là luật. Code: SBM (Sensitivities-Based Method) aggregation đầy đủ với registry tham số (nối vào `src/risk`). Quy định thay đổi hằng năm; điều bất biến là *cách* tổ chức tham số vào một registry, để khi Basel ra bản mới, bạn chỉ đổi số chứ không đổi code (đúng nguyên tắc kiến trúc của Ch19).
 
 ***Vol*** — **Bergomi, *Stochastic Volatility Modeling*** — cuốn vol sâu nhất hiện có, từ head quant SocGen; đọc để hiểu forward variance và vì sao skew có cấu trúc kỳ hạn như nó có. Thêm rough vol papers (Gatheral, Jaisson & Rosenbaum, *Volatility is Rough*) — hướng nghiên cứu nóng nhất thập kỷ, và là chỗ ranh giới P/Q gặp nhau (variance risk premium — xem cuốn P-world).
 
@@ -4076,7 +4844,7 @@ $$\lambda\approx\frac{s}{1-R}=\frac{0.0120}{0.60}=0.02=2\%.$$
 
 Với $\lambda=2\%$ đều và chiết khấu $\sim4\%$, RPV01 (risky annuity) $\approx4.19$; upfront cho một hợp đồng coupon chuẩn 100bp là $(\text{spread}-\text{coupon})\times\text{RPV01}=(0.0120-0.0100)\times4.19\approx0.84\%$ notional. Ba con số $\lambda\approx2\%,\ \text{RPV01}\approx4.19,\ \text{upfront}\approx0.84\%$ là toàn bộ life-cycle của một CDS trade — và $\lambda=2\%$ chính là hazard rate ta đã cắm vào CVA ở trên. Credit và XVA là một dòng chảy liên tục, không phải hai môn tách rời.
 
-## 17.3 Kệ sách xếp theo vai
+## 20.3 Kệ sách xếp theo vai
 
 Bảng này là bản mở rộng của kệ sách — mỗi cuốn kèm *vì sao* nó có mặt, vì một danh sách trần trụi không giúp bạn biết đọc gì trước.
 
@@ -4094,7 +4862,7 @@ Bảng này là bản mở rộng của kệ sách — mỗi cuốn kèm *vì sa
 
 Một lời khuyên về thứ tự: đừng mua cả kệ. Mua Hull $+$ Shreve I cho giai đoạn 1. Chỉ khi chạm trần của cuốn đang đọc mới mua cuốn tiếp. Một quant giỏi có ít sách được đọc nát, chứ không phải nhiều sách còn nguyên gáy.
 
-## 17.4 Năm nguyên tắc học đã được kiểm chứng
+## 20.4 Năm nguyên tắc học đã được kiểm chứng
 
 Đây là phần quan trọng nhất chương, vì nó là *cách* dùng mọi thứ ở trên.
 
@@ -4104,11 +4872,11 @@ Một lời khuyên về thứ tự: đừng mua cả kệ. Mua Hull $+$ Shreve 
 
 **Ba — Đọc primary sources khi vào nghề.** Tóm tắt của người khác luôn mất thông tin. Và tin vui: nhiều paper gốc ngắn và đọc được. Dupire (1994) — công thức local vol làm nền cả Ch6 — chỉ khoảng bốn trang. Hagan và cộng sự (2002) — SABR, xương sống của Ch10 — đọc được với nền giai đoạn 2. Spec Basel gốc (d457) dài nhưng là *nguồn sự thật duy nhất* cho capital; không desk nào chạy FRTB từ một bài blog. Khi bạn tự đọc Dupire và tự dẫn lại công thức local vol từ định nghĩa, bạn không còn là người học — bạn là người hành nghề.
 
-**Bốn — Dành 50% thời gian cho numerics và engineering.** Đây là tỉ lệ khớp với công việc thật, và là thứ các chương trình MFE dạy thiếu nhất. Một model đẹp không định giá được gì nếu Monte Carlo của nó không hội tụ, nếu Sobol sequence bị dùng sai chiều, nếu AAD tape rò bộ nhớ. Nhìn lại ví dụ AAD $50\times$ ở trên: khác biệt giữa một CVA desk chạy được qua đêm và một cái không, không nằm ở model tài chính — nó nằm ở kỹ thuật. Ch12 và Ch16 dài không phải ngẫu nhiên. Một nửa nghề quant là toán tài chính; nửa kia là làm cho nó chạy đúng, chạy nhanh, và kiểm chứng được.
+**Bốn — Dành 50% thời gian cho numerics và engineering.** Đây là tỉ lệ khớp với công việc thật, và là thứ các chương trình MFE dạy thiếu nhất. Một model đẹp không định giá được gì nếu Monte Carlo của nó không hội tụ, nếu Sobol sequence bị dùng sai chiều, nếu AAD tape rò bộ nhớ. Nhìn lại ví dụ AAD $50\times$ ở trên: khác biệt giữa một CVA desk chạy được qua đêm và một cái không, không nằm ở model tài chính — nó nằm ở kỹ thuật. Ch12 và Ch19 dài không phải ngẫu nhiên. Một nửa nghề quant là toán tài chính; nửa kia là làm cho nó chạy đúng, chạy nhanh, và kiểm chứng được.
 
 **Năm — Học xong Q, đọc cuốn P.** Cuốn P-world (`docs/p-world.md`) là buy-side: measure thực $\mathbb{P}$, alpha, backtest, portfolio construction. Người giỏi nhất trong nghề hiểu *cả hai* measure và biết chúng nói chuyện với nhau ở đâu. Ranh giới hai thế giới là nơi thú vị nhất: **vol trading** (bán implied vol đắt, mua realized rẻ — chính là gamma P&L bạn đo ở giai đoạn 1, nhìn từ phía P); **XVA hedging** (desk XVA sinh ra dòng lệnh hedge khổng lồ chảy vào thị trường mà buy-side đọc được); **market making** và **variance risk premium** (vì sao implied vol trung bình cao hơn realized — một câu hỏi thuần P mà chỉ hiểu trọn nếu bạn nắm cả cơ chế Q). Sinh viên chỉ học Q thấy thế giới một nửa; học cả hai, bạn thấy toàn bộ dòng chảy.
 
-## 17.5 Lời kết
+## 20.5 Lời kết
 
 Ta bắt đầu Ch1 bằng một câu hỏi tưởng như triết học — vì sao có hai measure — và kết thúc ở đây với một tấm bản đồ nghề. Giữa hai đầu ấy là một cây cầu xây bằng những con số cụ thể: $q=0.55$ của cây nhị phân đầu tiên, $C=10.45$ của call chuẩn, $P(0,2)=0.92003$ của curve, $\text{CVA}=0.172$M của counterparty, và cú nhảy $50\times$ của AAD. Mỗi con số ấy là một viên gạch bạn đã tự tay đặt xuống.
 
@@ -4176,7 +4944,7 @@ Một cuốn sách quant tốt để lại trong đầu người đọc không p
 
 ## Bảng tra nhanh — thuật ngữ nâng cao (mới)
 
-Cụm thuật ngữ dưới đây phủ các chương mở rộng: Fourier pricing (Ch7), equity & FX exotics (Ch8, Ch10), commodities & inflation (Ch11), numerics nâng cao (Ch12) và model validation (Ch16). Đọc bảng để có định nghĩa một dòng; đọc các mục sâu bên dưới để thấy con số.
+Cụm thuật ngữ dưới đây phủ các chương mở rộng: Fourier pricing (Ch7), equity & FX exotics (Ch8, Ch10), commodities & inflation (Ch11), numerics nâng cao (Ch12) và model validation (Ch19). Đọc bảng để có định nghĩa một dòng; đọc các mục sâu bên dưới để thấy con số.
 
 | Thuật ngữ | Nghĩa ngắn gọn |
 |---|---|
@@ -4473,7 +5241,7 @@ trong khi Gaussian với đúng $\rho = 0.3$ cho $\lambda_L = 0$. Nghĩa là: �
 
 Còn một tầng độc hại thứ hai: **calibration**. Vì $\rho$ không quan sát trực tiếp được, desk **implied** nó ra từ giá tranche giao dịch trên thị trường (giống implied vol từ giá option). Nhưng thị trường tranche — đặc biệt là các mezzanine của CDO tự chế (bespoke) — **cực mỏng**, ít giao dịch, giá tham chiếu thưa thớt. Nên $\rho$ được calibrate vào một nhúm điểm giá kém thanh khoản, rồi ngoại suy sang định giá hàng nghìn tranche khác. Tệ hơn, người ta phát hiện một $\rho$ duy nhất không khớp được cả cấu trúc vốn: nếu implied $\rho$ ra từ giá của tranche equity, bạn nhận một con số; làm lại từ tranche mezzanine, bạn nhận một con số khác hẳn; từ tranche senior, khác nữa. Cùng một rổ, cùng một model, mà mỗi attachment point đòi một $\rho$ riêng — hiện tượng này sinh ra "correlation smile" và trò vá víu **base correlation** (mỗi điểm đính kèm một $\rho$ riêng). Đó là dấu hiệu rõ ràng rằng model sai *cấu trúc* chứ không chỉ sai tham số. Khi bạn phải dùng một tham số khác cho mỗi điểm của cùng một đường cong, model của bạn đang hét lên rằng nó không mô tả đúng hiện thực (so sánh với volatility smile ở Chương 6 — cùng một triệu chứng, cùng một chẩn đoán: một số hằng lẽ ra phải là một số hằng, hóa ra phải bẻ cong theo strike/attachment để cứu giá, tức số hằng đó không phải bản chất của thị trường).
 
-Khi thị trường nhà đất Mỹ quay đầu năm 2007–2008, default không đến lẻ tẻ như Gaussian copula giả định — chúng đến **theo cụm**, cùng lúc, trên toàn quốc, vì tất cả cùng phụ thuộc vào một nhân tố mà model coi nhẹ: giá nhà toàn quốc. Correlation thực trong stress không phải 0.3 mà tiến về 1. Các tranche AAA "an toàn tuyệt đối" — được model gán xác suất lỗ gần 0 — bị xóa sổ. Bài học cho Q-quant thẳng thắn đến mức tàn nhẫn: **model không sai vì tham số sai, nó sai vì cấu trúc sai** — nó không có kênh để tail dependence tồn tại ($\lambda_L$ đồng nhất bằng 0), nên không lượng nhiễu calibration nào cứu được. Một con số duy nhất ($\rho$) không thể mã hóa cấu trúc phụ thuộc của một rổ 125 tên. Và calibrate một model vào một thị trường mỏng rồi dùng nó cho khối lượng lớn gấp nghìn lần là khuếch đại sai số model thành rủi ro hệ thống. Đây là vì sao credit modeling hiện đại (tầng `models/credit`) dùng các cấu trúc phụ thuộc phong phú hơn (Student-t, factor copula có tail, model chuyển trạng thái) và vì sao model validation (Chương 16) xem "model có kênh nào để bắt tail co-movement không" là câu hỏi sinh tử, không phải chi tiết kỹ thuật.
+Khi thị trường nhà đất Mỹ quay đầu năm 2007–2008, default không đến lẻ tẻ như Gaussian copula giả định — chúng đến **theo cụm**, cùng lúc, trên toàn quốc, vì tất cả cùng phụ thuộc vào một nhân tố mà model coi nhẹ: giá nhà toàn quốc. Correlation thực trong stress không phải 0.3 mà tiến về 1. Các tranche AAA "an toàn tuyệt đối" — được model gán xác suất lỗ gần 0 — bị xóa sổ. Bài học cho Q-quant thẳng thắn đến mức tàn nhẫn: **model không sai vì tham số sai, nó sai vì cấu trúc sai** — nó không có kênh để tail dependence tồn tại ($\lambda_L$ đồng nhất bằng 0), nên không lượng nhiễu calibration nào cứu được. Một con số duy nhất ($\rho$) không thể mã hóa cấu trúc phụ thuộc của một rổ 125 tên. Và calibrate một model vào một thị trường mỏng rồi dùng nó cho khối lượng lớn gấp nghìn lần là khuếch đại sai số model thành rủi ro hệ thống. Đây là vì sao credit modeling hiện đại (tầng `models/credit`) dùng các cấu trúc phụ thuộc phong phú hơn (Student-t, factor copula có tail, model chuyển trạng thái) và vì sao model validation (Chương 19) xem "model có kênh nào để bắt tail co-movement không" là câu hỏi sinh tử, không phải chi tiết kỹ thuật.
 
 ## B.4 London Whale 2012 — một lỗi công thức trong spreadsheet làm VaR nhỏ đi một nửa
 
@@ -4495,7 +5263,7 @@ $$130 \times \tfrac{1}{2} = 65 \text{ triệu USD}$$
 
 Điều làm case này thành giáo trình không phải bản thân lỗi số học — ai cũng gõ nhầm — mà là **chuỗi kiểm soát đã không bắt được nó**. Bảng tính không được version-control, không có kiểm tra độc lập, dữ liệu copy-paste thủ công giữa các sheet (điều tra tìm thấy cả trường hợp copy nhầm cột). Không có bước đối chiếu con số VaR mới với model cũ để hỏi "vì sao nó nhỏ hơn một nửa — có lý do kinh tế hay là bug?". Không có ai độc lập với desk kiểm định model trước khi nó được dùng để đo tuân thủ hạn mức. Mọi lớp phòng thủ đều vắng mặt cùng lúc.
 
-Bài học cho Q-quant có lẽ là thực dụng nhất trong cả phụ lục, vì nó không về toán mà về **kỹ thuật phần mềm và quản trị**. Thứ nhất: một model rủi ro chạy trên spreadsheet nhập tay không phải model — nó là một tai nạn đang chờ ngày. Đây là lý do industry hiện đại đòi risk engine phải là **code có version control, có unit test, có reconciliation tự động**, không phải Excel. Chính vì lớp bài học này mà kiến trúc như `src/risk` yêu cầu mọi tham số quy định nằm trong registry versioned và mọi phép aggregation là code kiểm thử được, tái lập được — chứ không phải công thức gõ tay có thể chia nhầm mẫu số mà không ai thấy. Một unit test tầm thường "khi nhân đôi mọi input volatility, VaR phải nhân đôi" sẽ bắt ngay lỗi divide-by-sum, vì phép sai không có tính chất tỷ lệ đúng đó. Thứ hai: **model validation phải độc lập với desk dùng model** (Chương 16). Khi người xây model và người bị model ràng buộc là cùng một nhóm, incentive để "model ra số đẹp" là không thể cưỡng lại. Thứ ba, và bao trùm: **khi một con số rủi ro đột nhiên tốt lên, đó là lúc phải nghi ngờ nhất**, không phải lúc ăn mừng. Một VaR giảm một nửa sau khi đổi model là một câu hỏi cần trả lời, không phải một chiến thắng cần báo cáo. FRTB phản ứng với đúng họ bài học này bằng cách bắt các desk IMA vượt **P&L attribution test** và **backtesting** liên tục — chính là để một con số VaR đẹp giả tạo không thể sống sót qua đối chiếu với P&L thật.
+Bài học cho Q-quant có lẽ là thực dụng nhất trong cả phụ lục, vì nó không về toán mà về **kỹ thuật phần mềm và quản trị**. Thứ nhất: một model rủi ro chạy trên spreadsheet nhập tay không phải model — nó là một tai nạn đang chờ ngày. Đây là lý do industry hiện đại đòi risk engine phải là **code có version control, có unit test, có reconciliation tự động**, không phải Excel. Chính vì lớp bài học này mà kiến trúc như `src/risk` yêu cầu mọi tham số quy định nằm trong registry versioned và mọi phép aggregation là code kiểm thử được, tái lập được — chứ không phải công thức gõ tay có thể chia nhầm mẫu số mà không ai thấy. Một unit test tầm thường "khi nhân đôi mọi input volatility, VaR phải nhân đôi" sẽ bắt ngay lỗi divide-by-sum, vì phép sai không có tính chất tỷ lệ đúng đó. Thứ hai: **model validation phải độc lập với desk dùng model** (Chương 19). Khi người xây model và người bị model ràng buộc là cùng một nhóm, incentive để "model ra số đẹp" là không thể cưỡng lại. Thứ ba, và bao trùm: **khi một con số rủi ro đột nhiên tốt lên, đó là lúc phải nghi ngờ nhất**, không phải lúc ăn mừng. Một VaR giảm một nửa sau khi đổi model là một câu hỏi cần trả lời, không phải một chiến thắng cần báo cáo. FRTB phản ứng với đúng họ bài học này bằng cách bắt các desk IMA vượt **P&L attribution test** và **backtesting** liên tục — chính là để một con số VaR đẹp giả tạo không thể sống sót qua đối chiếu với P&L thật.
 
 ## B.5 LME nickel 2022 — short squeeze, giá x2 một ngày, và cái nút "hủy giao dịch"
 

@@ -30,10 +30,13 @@
 15. Bản đồ các chiến lược
 16. Trading theo asset class
 17. Machine learning trong tài chính
+18. Credit và fixed-income relative value
+19. Volatility trading (buy-side)
+20. Performance attribution và P&L decomposition
 
 **Phần V — Nghề**
-18. Industry — văn hóa, career, tech stack
-19. Lộ trình học và tài nguyên
+21. Industry — văn hóa, career, tech stack
+22. Lộ trình học và tài nguyên
 
 **Phụ lục**
 - A. Ví dụ xuyên suốt — xây một book đa-tín-hiệu
@@ -196,7 +199,7 @@ Mọi thứ QR làm nằm trong một vòng khép kín. Vẽ nó ra để thấy
 
 Điểm cần nhấn: đây không phải quy trình tuyến tính làm một lần rồi xong. Nó là vòng lặp **không bao giờ dừng**, vì kẻ thù thích nghi và edge tự khấu hao (mục 1.2). Một QR không có ý tưởng mới trong pipeline là một QR đang chết chậm.
 
-Bản đồ chương theo vòng lặp, để bạn biết mình đang ở đâu khi đọc tiếp. **Part I — Nền tảng**: Ch2 (dữ liệu & returns), Ch3 (thống kê & econometrics), Ch4 (regime & structural change), Ch5 (lý thuyết danh mục), Ch6 (factor models) — bộ công cụ và ngôn ngữ chung. **Part II — Alpha**: Ch7 (alpha research), Ch8 (behavioral foundations — vì sao mispricing tồn tại), Ch9 (backtesting), Ch10 (feature engineering & labeling). **Part III — Từ tín hiệu đến P&L**: Ch11 (portfolio construction), Ch12 (microstructure theory), Ch13 (execution), Ch14 (risk management). **Part IV — Chiến lược & ML**: Ch15 (bản đồ chiến lược), Ch16 (trading theo asset class), Ch17 (machine learning). **Part V — Nghề**: Ch18 (industry), Ch19 (lộ trình). Phụ lục A dựng một ví dụ xuyên suốt từ momentum đơn tín hiệu đến danh mục multi-signal; B là case studies; C là glossary.
+Bản đồ chương theo vòng lặp, để bạn biết mình đang ở đâu khi đọc tiếp. **Part I — Nền tảng**: Ch2 (dữ liệu & returns), Ch3 (thống kê & econometrics), Ch4 (regime & structural change), Ch5 (lý thuyết danh mục), Ch6 (factor models) — bộ công cụ và ngôn ngữ chung. **Part II — Alpha**: Ch7 (alpha research), Ch8 (behavioral foundations — vì sao mispricing tồn tại), Ch9 (backtesting), Ch10 (feature engineering & labeling). **Part III — Từ tín hiệu đến P&L**: Ch11 (portfolio construction), Ch12 (microstructure theory), Ch13 (execution), Ch14 (risk management). **Part IV — Chiến lược & ML**: Ch15 (bản đồ chiến lược), Ch16 (trading theo asset class), Ch17 (machine learning), Ch18 (credit & fixed-income relative value), Ch19 (volatility trading buy-side), Ch20 (performance attribution). **Part V — Nghề**: Ch21 (industry), Ch22 (lộ trình). Phụ lục A dựng một ví dụ xuyên suốt từ momentum đơn tín hiệu đến danh mục multi-signal; B là case studies; C là glossary.
 
 Trong codebase `quantc` đi kèm, tầng P-world này sống trong `src/alpha` — signal, portfolio, backtest engine viết thuần TypeScript, tách biệt hoàn toàn với tầng pricing Q. Ta sẽ nhắc tới các module đó đúng lúc chúng minh họa một khái niệm, nhẹ nhàng, không sa đà vào chi tiết cài đặt — vì mục tiêu là hiểu *vì sao*, không phải học API.
 
@@ -2818,7 +2821,7 @@ Bây giờ đảo dấu correlation để thấy mặt kia. Nếu $\rho = +0.7$ 
 
 ## 15.14 Cỗ máy phân bổ vốn — cách các quỹ lớn tổ hợp nhiều loài
 
-Câu hỏi thực sự của một quỹ tỷ đô không phải "chiến lược nào tốt nhất" mà "làm sao ghép 100 mảnh Sharpe-0.7 tương quan thấp thành một cỗ máy Sharpe-2-rồi-leverage". Đây là mô hình **pod shop** (Millennium, Citadel, Point72, Balyasny — chương 18), và nó là ứng dụng thực tế lớn nhất, có sức nặng nhất, của mọi thứ trong cuốn sách này.
+Câu hỏi thực sự của một quỹ tỷ đô không phải "chiến lược nào tốt nhất" mà "làm sao ghép 100 mảnh Sharpe-0.7 tương quan thấp thành một cỗ máy Sharpe-2-rồi-leverage". Đây là mô hình **pod shop** (Millennium, Citadel, Point72, Balyasny — chương 21), và nó là ứng dụng thực tế lớn nhất, có sức nặng nhất, của mọi thứ trong cuốn sách này.
 
 Cơ chế. Mỗi **pod** là một team nhỏ (PM + researcher + trader) chạy một hoặc vài chiến lược trong bảng phía trên, được cấp một lượng vốn và một **risk budget** (ví dụ được phép tạo vol 3%/năm trên vốn được cấp, không hơn). Trung tâm áp ba lớp kiểm soát, và cả ba đều là những gì đã dạy rải rác trong sách, nay hợp lại thành một guồng máy. Thứ nhất, **risk trung tâm** giám sát exposure tổng hợp — nếu 30 pod cùng âm thầm long tech, trung tâm thấy crowding mà từng pod không thấy (đúng bài học quant quake — chương 14). Thứ hai, **drawdown stop tàn nhẫn** — pod mất 5% bị cắt nửa vốn, mất ~7–10% bị đóng và PM ra đi; đây là kỷ luật lạnh lùng giữ cho một pod hỏng không kéo cả quỹ. Thứ ba, **capital allocation động** — vốn chảy về pod đang tạo alpha và rút khỏi pod đang khô, liên tục. Toàn bộ cỗ máy là một meta-portfolio optimizer (chương 11) chạy trên các pod thay vì trên cổ phiếu.
 
@@ -3148,15 +3151,711 @@ Nhưng đây chính là chỗ nguy hiểm sinh ra từ chính sức mạnh đó,
 
 Do đó kỷ luật DSR và **ghi chép thí nghiệm** — experiment tracking, đếm trung thực mọi cấu hình đã thử, kể cả những cái agent thử rồi vứt trong im lặng — càng sống còn trong kỷ nguyên agent, không phải kém đi. Nghịch lý của thời đại: công cụ giúp bạn tìm alpha nhanh hơn cũng giúp bạn tự lừa nhanh hơn — và cây cầu duy nhất bắc qua vực đó vẫn là bộ đôi bất biến của cả cuốn sách này: **economic rationale trước, và validation kỷ luật (purged CV cộng deflated Sharpe) sau.** ML thay đổi tốc độ; nó không thay đổi luật chơi.
 
-# Chương 18: Industry — văn hóa, career, tech stack
+# Chương 18: Credit và fixed-income relative value
+
+Đến giờ mọi chiến lược trong sách đều sống trên một trục P&L đơn giản: bạn đúng chiều giá thì lãi, sai thì lỗ. Momentum ăn tiền khi xu hướng tiếp diễn, pairs ăn tiền khi spread hồi về, factor ăn tiền khi cross-section phân hóa đúng dự báo. Credit và fixed-income relative value trade theo một logic *khác chất*. Ở đây bạn không cược giá đi đâu; bạn cược rằng **hai cách định giá cùng một rủi ro đang lệch nhau, và cái lệch đó phải đóng**. Cùng một công ty có thể được thị trường bond định giá một mức rủi ro vỡ nợ, còn thị trường CDS định giá một mức khác — hai con số lẽ ra phải bằng nhau (no-arbitrage), và khoảng cách giữa chúng là một trade. Cùng một Treasury 10 năm có hai phiên bản, on-the-run và off-the-run, gần như giống hệt về dòng tiền nhưng khác nhau vài bp yield chỉ vì thanh khoản — và vài bp đó là một trade. Đây là họ chiến lược **relative value (RV)**: bạn không phơi mình ra hướng thị trường, bạn phơi mình ra sự *hội tụ* của hai giá lẽ ra phải trùng.
+
+Vì sao họ này đáng một chương riêng, dù các chương trước đã có pairs (một dạng RV) và Chương 16 đã chạm rates? Vì credit + fixed-income RV là **một mảng buy-side khổng lồ** — relative-value fund như cựu LTCM, các credit book ở Citadel/Millennium, các rates RV desk ở macro fund — vận hành trên một bộ công cụ mà equity RV không dạy: định giá tín dụng qua hazard rate, no-arbitrage giữa cash bond và derivative, và một cơ chế rủi ro đặc thù là **jump-to-default** cùng **basis blow-out**. Và đây cũng là nơi P-world bắt tay chặt nhất với Q-world: mọi trade dưới đây đều dựa trên một mô hình định giá sell-side — hazard curve, CDS par spread, structural model của Merton — mà bạn phải hiểu để biết cái gì đang lệch và vì sao. Sợi chỉ đỏ của chương: **RV bán thanh khoản và bán convergence, thu một khoản nhỏ đều đặn, và thỉnh thoảng bị xé nát khi convergence đảo chiều thành divergence** — đúng cái motif "bán bảo hiểm, skew âm" đã gặp ở carry, giờ tái sinh trong tín dụng.
+
+Một lời hứa xuyên chương để bạn giữ trong đầu khi đọc từng con số: mọi trade dưới đây gross *trông* như tiền lẻ nhặt được — 3bp, 30bp, một cái skew 3bp. Cái phân biệt người in tiền với người phá sản không nằm ở chỗ *thấy* cái lệch (ai cũng thấy) mà ở hai chỗ khác: (i) trừ đúng chi phí cầm trade để biết cái lệch có *thật sự* là alpha hay chỉ là giá của funding, và (ii) size để sống qua giai đoạn cái lệch tệ đi trước khi nó tốt lên. Chương này lặp đi lặp lại đúng hai bài học đó qua năm loại trade.
+
+## 18.1 Nền tảng tín dụng: từ hazard rate đến CDS spread
+
+Trước khi trade được cái lệch, phải định giá được cả hai chân. Nền tảng là **credit triangle** — quan hệ xấp xỉ nối spread tín dụng với xác suất vỡ nợ, và nó là cầu nối trực tiếp sang Q-world.
+
+Một công ty vỡ nợ được mô hình hóa như một biến cố đến ngẫu nhiên với cường độ (intensity) là **hazard rate** $\lambda$ — xác suất vỡ nợ tức thời trong một khoảng $dt$ nhỏ, có điều kiện là chưa vỡ nợ đến lúc đó. Chính thức: nếu $\tau$ là thời điểm vỡ nợ, thì $\lambda = \lim_{dt\to 0}\tfrac{1}{dt}\Pr(\tau \le t+dt \mid \tau > t)$. Với $\lambda$ hằng số, xác suất *sống sót* đến thời điểm $t$ là $Q(t) = e^{-\lambda t}$, đúng như hàm `survival` trong module hazard-curve mà `src/instruments/cds` gọi tới. (Dạng $e^{-\lambda t}$ không phải ngẫu nhiên: nó là nghiệm của $dQ = -\lambda Q\,dt$ — tỷ lệ chết mỗi lát cắt tỷ lệ với số còn sống, y hệt phân rã phóng xạ.)
+
+Một CDS (credit default swap) là hợp đồng bạn trả một premium định kỳ $s$ (spread, tính trên notional) để được bồi thường $(1-R)$ khi công ty vỡ nợ, với $R$ là recovery rate. No-arbitrage buộc giá trị kỳ vọng của **premium leg** bằng **protection leg**. Dẫn xuất credit triangle từng bước cho trường hợp một kỳ ngắn, bỏ qua discounting để lộ trực giác:
+
+1. Protection leg trong khoảng $dt$: xác suất vỡ nợ $\approx \lambda\,dt$, chi trả $(1-R)$, nên kỳ vọng $\approx \lambda(1-R)\,dt$.
+2. Premium leg trong khoảng $dt$: bạn trả $s\,dt$ (giả định còn sống, xác suất $\approx 1$).
+3. Cân bằng: $s\,dt = \lambda(1-R)\,dt \Rightarrow \boxed{s \approx \lambda(1-R)}$.
+
+Đây là credit triangle. Ba đại lượng — spread, hazard, recovery — bị khóa vào nhau, biết hai suy ra một. Ví dụ tính bằng số: một CDS 5 năm quote ở $s = 120$bp $= 0.0120$, recovery giả định $R = 40\%$ (chuẩn thị trường cho senior unsecured). Hazard rate ngụ ý
+
+$$\lambda \approx \frac{s}{1-R} = \frac{0.0120}{0.60} = 0.0200 = 2.0\%\text{/năm}.$$
+
+Xác suất sống 5 năm $Q(5) = e^{-0.02 \times 5} = e^{-0.10} = 0.9048$, tức xác suất vỡ nợ tích lũy 5 năm $\approx 9.52\%$. Đọc ý nghĩa: thị trường đang định giá công ty này có gần một phần mười khả năng vỡ nợ trong 5 năm tới. Lật ngược chiều để thấy sức mạnh của tam giác: nếu bạn có một *view độc lập* rằng công ty này thật ra chỉ có 5% khả năng vỡ nợ 5 năm ($Q=0.95 \Rightarrow \lambda \approx 1.03\%$), thì "spread công bằng" theo bạn là $s = 1.03\%\times 0.6 = 62$bp — thị trường đang đòi 120bp cho một rủi ro bạn định giá 62bp, và đó là *view tín dụng* để bán protection. Toàn bộ credit RV quy về so hai con số spread như thế này với nhau.
+
+Bản đầy đủ (có discounting, có annuity) chính là `cdsParSpread = protectionLeg / premiumAnnuity` trong module: par spread thật là tỷ số của PV protection leg trên **risky annuity** (tổng discount-factor $\times$ survival-probability trên các kỳ trả phí). Xấp xỉ $s\approx\lambda(1-R)$ bỏ qua chiết khấu và bỏ qua chuyện premium ngừng chảy sau khi vỡ nợ, nên nó lệch vài bp với con số chính xác — nhưng nó là thứ bạn nhẩm trên bàn trade để kiểm tra một quote có "vô lý" không. Toàn bộ máy móc định giá CDS, hazard curve bootstrapping, và structural model đứng ở cuốn Q-world; ở đây ta *dùng* chúng để tìm cái lệch.
+
+## 18.2 CDS–bond basis và negative-basis trade
+
+Đây là RV trade kinh điển nhất của tín dụng, và là ví dụ đẹp nhất về "hai giá cùng một rủi ro". Cùng một công ty phát hành bond (rủi ro tín dụng ở dạng cash) và có CDS giao dịch (rủi ro tín dụng ở dạng derivative). Cả hai đo *cùng một thứ* — bồi thường cho rủi ro công ty vỡ nợ — nên spread tín dụng hai bên lẽ ra phải bằng nhau. Khoảng cách giữa chúng là **CDS–bond basis**.
+
+Định nghĩa chính xác:
+$$\text{basis} = s_{\text{CDS}} - s_{\text{ASW}},$$
+trong đó $s_{\text{CDS}}$ là CDS spread và $s_{\text{ASW}}$ là **asset-swap spread** của bond — phần bù của bond so với đường LIBOR/SOFR swap sau khi đã hoán đổi coupon cố định của bond lấy floating. Asset-swap spread là cách chuẩn để biến "yield của một bond" thành một con số spread tín dụng so sánh được trực tiếp với CDS, vì nó lột bỏ rủi ro lãi suất và chỉ để lại phần bù tín dụng + thanh khoản. Nói cách khác: yield của một bond trộn hai thứ — bù cho *level lãi suất phi rủi ro* và bù cho *rủi ro tín dụng*; ASW cắt bỏ thứ nhất để chỉ còn thứ hai, đúng cái mà CDS cũng đo.
+
+### Dẫn xuất basis bằng số
+
+Lấy một bond doanh nghiệp cụ thể. Bond IG kỳ hạn 5 năm, coupon 5.0%, giá 99.0, ta cần ra asset-swap spread. Quy trình từng bước:
+
+1. **Yield của bond.** Giải phương trình giá $99.0 = \sum_{t=1}^{5} \frac{5.0}{(1+y)^t} + \frac{100}{(1+y)^5}$ cho yield-to-maturity ta được $y = 5.232\%$ (giá dưới par nên yield trên coupon). Nhẩm nhanh mà không cần solver: bond giá thấp hơn par $1.0$ điểm, dàn khoản lỗ vốn đó qua Macaulay duration $\approx 4.54$ năm cho thêm $\approx 1.0/4.54 = 0.22\%$ trên coupon, tức $\approx 5.22\%$ — sát nghiệm chính xác $5.23\%$.
+2. **Trừ đi swap rate cùng kỳ hạn** để ra phần bù tín dụng. Giả sử 5Y SOFR swap rate $= 3.73\%$. Asset-swap spread $s_{\text{ASW}} \approx 5.23\% - 3.73\% = 1.50\% = 150$bp. (Bản chính xác của ASW xử lý chênh giá par-vs-market qua một annuity điều chỉnh, làm con số nhích vài bp, nhưng $150$bp là mức ta dùng và nó đúng bậc độ lớn.)
+3. **CDS spread** cùng issuer, cùng kỳ hạn 5Y: thị trường quote $s_{\text{CDS}} = 120$bp.
+4. **Basis** $= s_{\text{CDS}} - s_{\text{ASW}} = 120 - 150 = \boxed{-30\text{bp}}$. **Negative basis**.
+
+Đọc con số: bond đang *rẻ* so với CDS. Bond trả bạn 150bp để gánh rủi ro tín dụng, nhưng bảo hiểm cho đúng rủi ro đó (CDS protection) chỉ tốn 120bp. Có một khoảng 30bp lơ lửng.
+
+### Negative-basis trade: khóa arbitrage
+
+Khi basis âm, bạn dựng **negative-basis trade** để khóa khoảng lệch:
+
+- **Mua bond** (long credit risk) → thu $s_{\text{ASW}} = 150$bp.
+- **Mua CDS protection** (short credit risk) → trả $s_{\text{CDS}} = 120$bp.
+
+Hai chân triệt tiêu rủi ro tín dụng: nếu công ty vỡ nợ, bond mất giá nhưng CDS bồi thường đúng phần mất; nếu không vỡ nợ, bond trả coupon. Vị thế ròng gần như trung tính với sự kiện tín dụng, và bạn thu chênh $150 - 120 = 30$bp/năm gần như **không rủi ro tín dụng** — một arbitrage carry.
+
+Nhưng "không rủi ro tín dụng" không phải "không rủi ro" và không phải "miễn phí". Bạn phải *tài trợ* việc mua bond. Đây là chỗ con số thật sự sống. Giả sử bond được repo với haircut, funding cost thực của bạn để cầm bond là SOFR + 40bp. Tính P&L ròng từng dòng cho \$100 notional:
+
+| Dòng tiền | bp/năm |
+|---|---|
+| Thu asset-swap spread trên bond | $+150$ |
+| Trả CDS premium | $-120$ |
+| Chênh gross (basis) | $+30$ |
+| Trả funding trên bond (spread trên SOFR để repo) | $-40$ |
+| **P&L ròng sau funding** | $\mathbf{-10}$ |
+
+Kết quả sốc và đó chính là bài học: basis gross $-30$bp *trông* như tiền free, nhưng sau khi trừ 40bp funding cost để cầm cái bond, trade **âm 10bp/năm**. Arbitrage biến mất. Hãy nhìn nó như một điều kiện *break-even*: negative-basis trade chỉ dương khi $|$basis$|$ vượt funding spread của bạn — ở đây cần basis âm hơn $-40$bp mới có lãi. Người có funding rẻ hơn (repo ở SOFR + 15bp thay vì +40bp) có break-even thấp hơn, nên cùng một cái basis $-30$bp, họ *có* alpha ($+15$bp) còn bạn *không*. Alpha của trade này không nằm trong cái lệch; nó nằm trong bảng cân đối kế toán của người cầm nó.
+
+### Vì sao basis âm tồn tại — và vì sao nó không bị arbitrage hết
+
+Con số $-10$bp trả lời câu hỏi "ai trả tiền cho alpha này và vì sao chưa bị arbitrage" một cách thẳng thừng: **basis âm là giá của funding và balance-sheet cost, không phải bữa trưa miễn phí**. Bond ngốn vốn — bạn phải bỏ tiền mặt ra mua và tài trợ nó qua repo, chiếm dụng balance sheet, và (với ngân hàng) tiêu tốn regulatory capital theo leverage ratio. CDS thì "unfunded" — bạn không bỏ vốn ra, chỉ ký hợp đồng và ghi nhận mark-to-market. Nên trong một thế giới mà balance sheet đắt đỏ (đặc biệt sau Basel III siết leverage ratio, buộc ngân hàng dành vốn cho *mọi* tài sản trên sổ bất kể rủi ro), cash bond *phải* rẻ hơn CDS một khoảng đúng bằng chi phí cầm nó — đó chính là basis âm. Nó không bị arbitrage hết vì để arbitrage nó, bạn phải là người *có* balance sheet rẻ; và với những người đó, 30bp gross không đủ bù 40bp funding. Basis âm đo lường độ khan hiếm của balance sheet trong hệ thống — nó là *giá thuê một chỗ trên bảng cân đối kế toán*, không phải một lỗ hổng định giá.
+
+Vì thế basis là một chỉ báo stress tuyệt vời. Bình thường basis IG dao động $-10$ đến $-30$bp. Trong khủng hoảng 2008, khi funding bốc hơi và ai cũng phải bán bond để giải chấp, basis nhiều tên **thủng $-250$bp** — bond rẻ điên rồ so với CDS. Người *có* funding ổn định lúc đó mua được negative-basis trade với 250bp gross, thừa sức nuốt funding và khóa lãi hai chữ số. Nhưng phần lớn không sống đến lúc gặt: khi basis nới từ $-30$ xuống $-250$, ai đã cầm negative-basis trade với đòn bẩy chịu **mark-to-market loss** khổng lồ trên chính cái vị thế "arbitrage" của mình — cái chân bond rớt giá nhanh hơn cái chân CDS lời — và bị margin call. Đây là cửa dẫn thẳng vào mục rủi ro cuối chương: một trade "vô rủi ro tín dụng" vẫn giết bạn qua rủi ro *funding* và rủi ro *mark-to-market*.
+
+## 18.3 Credit long/short và sizing theo DTS
+
+CDS–bond basis là trade *trung tính tín dụng*. Nhưng phần lớn credit RV là **long/short directional trên spread**: long bond bạn nghĩ spread sẽ thắt (rẻ), short bond bạn nghĩ spread sẽ nới (đắt). Vấn đề cốt lõi khi dựng long/short này không phải chọn tên — mà là **sizing**: làm sao hai chân có *rủi ro spread bằng nhau* để book trung tính với dịch chuyển spread chung của thị trường, chỉ còn phơi ra cái view relative của bạn?
+
+Câu trả lời ngây thơ là match theo notional (mua \$10M bond A, bán \$10M bond B). Sai, vì hai bond phản ứng khác nhau với thay đổi spread. Câu trả lời đúng dùng **DTS = duration times spread**.
+
+### Vì sao DTS, không phải duration đơn thuần
+
+Nhạy cảm giá của một bond với thay đổi spread là **spread duration** $D_s$: nếu spread nới $\Delta s$, giá đổi $\approx -D_s \times \Delta s$. Nên phản xạ đầu tiên là match spread duration hai chân. Nhưng có một sự thật thực nghiệm sâu sắc thay đổi tất cả (được chính thức hóa trong nghiên cứu của Ben Dor và cộng sự ở Lehman/Barclays, và giờ là chuẩn ngành): **spread không dịch chuyển song song bằng bp, mà dịch chuyển theo tỷ lệ phần trăm**. Một bond spread 500bp (high yield) khi thị trường credit xấu đi không nới thêm cùng *số bp* như một bond spread 100bp (investment grade) — nó nới thêm cùng *tỷ lệ*. Nếu credit bán tháo 20%, bond 100bp nới thêm 20bp, còn bond 500bp nới thêm 100bp. Nói gọn: volatility của $\Delta s$ tỷ lệ thuận với *mức* $s$, tức $\text{std}(\Delta s) \approx k\cdot s$ với $k$ gần như hằng số giữa các tên.
+
+Hệ quả trực tiếp: rủi ro P&L của một bond do spread là $\sigma_{\text{P\&L}} \approx D_s\cdot\text{std}(\Delta s) = D_s\cdot k\cdot s = k\cdot(D_s\times s)$. Đại lượng đo đúng rủi ro không phải $D_s$ mà là $D_s \times s$ — **DTS**. Một \$1 vị thế mất $\text{DTS} \times x\%$ khi credit dịch $x\%$ tương đối. Match DTS hai chân ⟹ hai chân chịu cùng P&L khi credit thị trường di chuyển cùng một *tỷ lệ* — đó mới là market-neutral thật trong thế giới credit. Match duration đơn thuần sẽ để lại rủi ro chiều: chân high-yield (spread cao) sẽ *lấn át* chân investment-grade khi credit sell off, và cái book "neutral" của bạn thật ra là một cược short credit trá hình.
+
+### Sizing bằng số: hai bond khác duration/spread
+
+Cho hai bond, ta muốn dựng long/short DTS-neutral trên vốn book \$100M:
+
+| | Bond A (long) | Bond B (short) |
+|---|---|---|
+| Spread duration $D_s$ | 7.0 | 3.5 |
+| Spread $s$ | 90bp | 240bp |
+| **DTS** $= D_s \times s$ | $7.0 \times 90 = 630$ | $3.5 \times 240 = 840$ |
+
+Bond A là một IG dài, spread thấp nhưng duration cao; Bond B là một HY ngắn, spread cao duration thấp. Để hai chân có DTS-exposure bằng nhau, notional phải tỷ lệ nghịch với DTS trên một đơn vị notional:
+$$\frac{N_A}{N_B} = \frac{\text{DTS}_B}{\text{DTS}_A} = \frac{840}{630} = 1.333.$$
+
+Nếu ta short \$30M Bond B, DTS-dollars chân short $= 30\text{M} \times 840 = 25{,}200$ M·bp. Long chân A phải khớp: $N_A = 30\text{M} \times 1.333 = 40\text{M}$, cho DTS-dollars $= 40\text{M} \times 630 = 25{,}200$ M·bp. Khớp. Vậy trade là **long \$40M Bond A, short \$30M Bond B** — nghịch với trực giác notional (bạn long *nhiều hơn* về notional cái bond spread thấp, vì nó "kém rủi ro" trên mỗi đô la nên cần nhiều đô la hơn để cân).
+
+Kiểm chứng bằng một cú sốc: credit thị trường xấu, mọi spread nới **10% tương đối**. Bond A spread nới $90 \times 10\% = 9$bp → giá đổi $-7.0 \times 9\text{bp} = -0.63\%$ trên \$40M $= -\$252{,}000$. Bond B spread nới $240 \times 10\% = 24$bp → giá đổi $-3.5 \times 24\text{bp} = -0.84\%$ trên \$30M short $= +\$252{,}000$ (bạn short nên lãi khi nó rớt). **Ròng $= 0$**. Book miễn nhiễm với dịch chuyển spread chung theo tỷ lệ — đúng thiết kế. Bạn chỉ còn phơi ra view rằng spread A sẽ thắt *tương đối* so với spread B. Đây là cách credit book của một pod shop kiểm soát rủi ro: mọi vị thế đo bằng DTS, và tổng DTS ròng của book bị ghim quanh 0 để không vô tình cược chiều credit chung.
+
+Cạm bẫy để nhớ: DTS-neutral trung tính với dịch chuyển *tỷ lệ đồng đều*, nhưng nếu HY nới nhiều hơn IG một cách *phi tỷ lệ* (một cuộc "flight to quality" nơi rác bị bán tháo mạnh hơn nhiều so với IG), thì chân short HY của bạn lỗ nhiều hơn chân long IG lời — book vẫn ăn đòn. DTS là bậc xấp xỉ thứ nhất tốt, không phải một tấm khiên hoàn hảo.
+
+## 18.4 Capital structure arbitrage — nối P-world với Q-world qua Merton
+
+Trade tinh vi nhất của chương: **cùng một công ty, hai lớp chứng khoán khác nhau trong cấu trúc vốn — equity và debt — phải nhất quán với nhau qua một mô hình cấu trúc**. Nếu equity đang định giá công ty "khỏe" mà CDS đang định giá "sắp chết", một trong hai sai, và bạn hedge cái này bằng cái kia để bắt sự hội tụ. Cây cầu là **Merton structural model** — nằm ở Q-world, ta dùng lại kết quả.
+
+### Trực giác Merton và hedge ratio
+
+Merton nhìn equity của một công ty có nợ như một **call option trên tài sản công ty**, strike bằng mệnh giá nợ $D$, đáo hạn khi nợ đến hạn. Nếu giá trị tài sản $V > D$ lúc đáo hạn, cổ đông trả nợ và giữ phần dư $V - D$ (payoff của call); nếu $V < D$, công ty vỡ nợ, cổ đông bỏ của chạy lấy người (call hết giá trị). Từ đó:
+$$E = V\,\Phi(d_1) - D e^{-rT}\Phi(d_2),$$
+với $d_1, d_2$ như Black-Scholes trên tài sản $V$ với vol tài sản $\sigma_V$. Đồng thời, xác suất vỡ nợ (risk-neutral) $= \Phi(-d_2)$ — nối thẳng sang hazard rate và CDS spread của mục 18.1. Đây là điểm giao P/Q đắt giá: *cùng một $\Phi(-d_2)$* định giá cả equity (qua call) lẫn credit (qua default prob). Nếu bạn tin Merton, không thể cùng lúc có equity "đắt" và CDS "rẻ" cho cùng một công ty — chúng bị buộc bởi một tham số chung.
+
+Điều ta cần để trade là **hedge ratio**: nếu giá trị tài sản nhích, equity đổi bao nhiêu so với CDS đổi bao nhiêu? Vì equity là call trên $V$, độ nhạy $\partial E/\partial V = \Phi(d_1)$ — chính là **delta**. Còn giá trị của một vị thế protection nhạy với $V$ qua $\partial \Phi(-d_2)/\partial V$ (default prob dịch làm mark của protection dịch). Tỷ số hai độ nhạy cho biết: một cú sốc tài sản làm equity di chuyển $\Delta E$ đi kèm CDS di chuyển $\Delta(\text{CDS mark})$, và để hedge trung tính với cú sốc tài sản, bạn khớp hai chân theo tỷ số đó.
+
+### Hedge ratio bằng số
+
+Dựng một cap-structure trade: bạn nghĩ CDS của công ty đang *quá đắt* (thị trường credit hoảng thái quá) so với những gì equity đang nói. Bạn **short CDS protection** (bán bảo hiểm, cược spread thắt) và **hedge bằng short equity** (phòng khi công ty thật sự xấu đi thì equity rớt bù cho bạn). Cần biết short bao nhiêu equity trên mỗi \$10M CDS notional.
+
+Giả sử qua Merton đã calibrate: tài sản $V = \$1{,}000$M, nợ $D = \$600$M, vol tài sản $\sigma_V = 25\%$, $T = 5$, $r = 4\%$. Tính $d_1$:
+$$d_1 = \frac{\ln(V/D) + (r + \tfrac12\sigma_V^2)T}{\sigma_V\sqrt T} = \frac{\ln(1000/600) + (0.04 + 0.03125)\times 5}{0.25\sqrt 5}.$$
+Tử số: $\ln(1.6667) = 0.5108$; $(0.07125)\times 5 = 0.3563$; tổng $= 0.8671$. Mẫu: $0.25 \times 2.236 = 0.5590$. Vậy $d_1 = 0.8671/0.5590 = 1.551$, và $d_2 = 1.551 - 0.559 = 0.992$. Tra chuẩn: $\Phi(d_1) = \Phi(1.551) = 0.9396$ (equity delta trên tài sản), $\Phi(-d_2) = \Phi(-0.992) = 0.1606$ (risk-neutral default prob 5 năm $\approx 16\%$).
+
+*Một lưu ý calibration quan trọng trước khi đi tiếp.* Cắm chính những input này vào công thức Merton cho equity model $E = 1000\times 0.9396 - 600\,e^{-0.04\times5}\times\Phi(0.992) = \$527$M. Nếu vốn hóa thị trường quan sát chỉ là \$420M, thì Merton đang nói equity *rẻ* (thị trường định giá thấp hơn $527$M mà mô hình cho là công bằng) — điều này *nhất quán* với luận điểm "CDS quá đắt": cả hai đều nói thị trường credit đang bi quan hơn fundamental. Nhưng đừng nhầm: trong calibration nghiêm túc, bạn *không* chọn $V$ và $\sigma_V$ tự do rồi so với $E$ thị trường; bạn *suy ngược* $V$ và $\sigma_V$ từ chính $E$ và equity vol quan sát (giải hệ hai phương trình Merton), rồi mới hỏi CDS lệch bao nhiêu. Con số $V=1000, \sigma_V=25\%$ ở đây là kết quả calibration *đã cho* để minh họa số học hedge; cái lệch \$527 vs \$420 là để bạn thấy tín hiệu, không phải một mâu thuẫn của mô hình.
+
+Bây giờ ra hedge ratio. Một thay đổi nhỏ $dV$ của tài sản gây:
+- Equity đổi $dE = \Phi(d_1)\,dV = 0.9396\,dV$.
+- Default prob đổi, kéo giá trị protection đổi. Đạo hàm: $\partial(-d_2)/\partial V = -1/(V\sigma_V\sqrt T)$, và mật độ $\phi(d_2) = \phi(0.992) = 0.2439$. Vậy
+$$\frac{\partial\Phi(-d_2)}{\partial V} = \frac{\phi(d_2)}{V\sigma_V\sqrt T} = \frac{0.2439}{1000\times 0.559} = \frac{0.2439}{559} = 4.36\times 10^{-4}$$
+trên mỗi \$1M tài sản.
+
+Với CDS notional \$10M và $(1-R)=0.6$, giá trị protection $\approx (1-R)\times\text{notional}\times \Phi(-d_2)$ về mặt loss-given-default kỳ vọng (một xấp xỉ bậc nhất — bỏ qua discounting và annuity, đủ để lấy hedge ratio), nên độ nhạy MtM của chân CDS với $V$ $\approx 10\text{M}\times 0.6 \times 4.36\times 10^{-4} = \$2{,}617$ trên mỗi \$1M dịch chuyển tài sản. Chân equity phải khớp độ lớn này. Mỗi \$1M tài sản làm vốn hóa đổi $dE = 0.9396\times\$1\text{M} = \$939{,}600$; để P&L của lượng equity ta short khớp \$2{,}617, tỷ trọng equity (theo giá trị thị trường) cần cầm là
+$$H = \frac{2{,}617}{939{,}600} = 0.00279 \text{ của vốn hóa} = 0.00279 \times \$420\text{M} = \$1.17\text{M equity}.$$
+
+Kết quả: hedge \$10M CDS bằng khoảng **\$1.17M equity** (short). Đọc ý nghĩa: equity nhạy hơn *rất nhiều* với tài sản so với CDS trên cùng notional (delta $0.94$ so với $4\times10^{-4}$), nên bạn chỉ cần một lượng equity nhỏ để hedge một CDS notional lớn — hedge ratio $\approx 0.117$ equity-dollars trên mỗi CDS-dollar. Khi tài sản công ty xấu đi, equity rớt (chân short equity lãi) đúng lúc CDS protection bạn đã bán lỗ — hai chân bù nhau, và bạn còn lại cược thuần rằng *cái lệch giữa hai thị trường sẽ đóng*.
+
+Cạm bẫy thực chiến, và đây là lý do cap-structure arb khét tiếng khó:
+
+- Hedge ratio này là **local** (tính tại một điểm) và trôi khi $V$ đổi — vì $\Phi(d_1)$ là hàm phi tuyến của $V$, delta thay đổi (gamma), nên trade phải **re-hedge động**, và mỗi lần re-hedge là một lần trả spread giao dịch, bào mòn cái alpha vốn đã mỏng.
+- Merton là mô hình *stylized*: recovery cố định, một lớp nợ duy nhất, vol tài sản hằng số — đời thực có nợ nhiều lớp, covenant, và $\sigma_V$ nhảy. Calibration lệch thì hedge ratio lệch theo.
+- Cược nền tảng của trade là *mô hình của bạn đúng hơn thị trường* về quan hệ equity–credit. Đó là một cược mạnh. Khi nó sai theo cách tệ nhất — ví dụ một **LBO** bất ngờ: công ty bị mua lại bằng nợ, equity holder được trả premium (equity *tăng*) trong khi đòn bẩy tăng vọt khiến credit *xấu đi* (CDS nới) — thì dấu tương quan Merton (equity và credit cùng đi lên hay xuống theo $V$) bị **đảo ngược**, và *cả hai chân cùng lỗ*. Đây chính là cách nhiều cap-structure book bị thổi bay trong làn sóng LBO 2005–2007.
+
+## 18.5 Fixed-income relative value thuần rates
+
+Rời tín dụng, sang RV trên đường cong Treasury/swap — nơi rủi ro vỡ nợ gần như bằng 0 và toàn bộ trò chơi là **thanh khoản và hình dạng đường cong**.
+
+### On-the-run vs off-the-run: liquidity premium bằng số
+
+Kho bạc Mỹ phát hành đều đặn. Trái phiếu 10Y vừa đấu giá gần nhất là **on-the-run (OTR)** — thanh khoản nhất, ai cũng dùng để hedge và giao dịch, nên có thể repo với chi phí thấp (thậm chí "special"). Trái phiếu 10Y phát hành kỳ trước, giờ còn ~9.75 năm đáo hạn, là **off-the-run (OFR)** — gần như giống hệt về dòng tiền nhưng giao dịch loãng hơn. Vì OTR được săn đón, nó **đắt hơn** (yield *thấp hơn*) — chênh lệch đó là **liquidity premium**.
+
+Ví dụ số: OTR 10Y yield 4.150%, OFR 10Y (cùng kỳ hạn hiệu dụng) yield 4.180%. Liquidity premium $= 4.180 - 4.150 = 3$bp — OTR đắt hơn 3bp yield. Trade RV: **long OFR (rẻ, yield cao), short OTR (đắt, yield thấp)**, thu 3bp carry, và cược rằng khi OTR hiện tại trở thành off-the-run (sau đợt phát hành 10Y kế tiếp, ~3 tháng, "the roll"), chênh lệch này *đóng về ~0*. Sizing **DV01-neutral** (hai chân cùng độ nhạy lãi suất theo đô la — DV01 là P&L trên 1bp dịch yield) để trung tính với dịch chuyển lãi suất chung — bạn chỉ cược cái spread 3bp hội tụ, không cược lãi suất đi đâu.
+
+Con số P&L: giả sử book cỡ vừa được cân sao cho mỗi bp thay đổi của *spread OTR–OFR* cho \$10k P&L (tức DV01 trên spread $= \$10$k/bp; hai chân DV01 lớn tự triệt tiêu với dịch chuyển level, chỉ còn spread). Nếu spread đóng từ 3bp về 0.5bp (residual premium — nó hiếm khi về 0 hẳn vì OFR vẫn kém thanh khoản chút), bạn ăn $2.5$bp $\times \$10$k/bp $= \$25{,}000$ trên convergence, cộng carry 3bp/năm trong lúc chờ. Nghe bé — và đúng là bé; đây là trade **thu vài bp, đòn bẩy cao**. LTCM sống bằng chính họ trade này (long OFR / short OTR) với đòn bẩy ~25×, biến 3bp thành return hai chữ số — và chết vì chính đòn bẩy đó khi spread *nới ra thay vì đóng* trong cơn flight-to-liquidity 1998 (mục 18.7).
+
+### Swap spread trade: Treasury vs swap
+
+**Swap spread** = swap rate trừ Treasury yield cùng kỳ hạn. Nó đo phần bù của việc nhận fixed trong một swap (đối ứng floating SOFR) so với sở hữu trái phiếu chính phủ Mỹ. Ví dụ: 10Y swap rate 4.05%, 10Y Treasury 4.15% → swap spread $= 4.05 - 4.15 = -10$bp. Swap spread *âm* nghe phản trực giác (swap có rủi ro đối tác, lẽ ra phải trả *cao hơn* chính phủ) nhưng là hiện tượng có thật thời hậu-2008: cầm Treasury vật lý ngốn balance sheet và repo, nên nhà đầu tư đòi bù, đẩy Treasury yield lên *trên* swap — lại đúng cái motif balance-sheet cost của mục 18.2. Trade: nếu bạn nghĩ swap spread quá âm và sẽ nới về $-2$bp, bạn **receive swap + short Treasury** (đặt cược spread nới lên), DV01-neutral. Spread đi từ $-10$ về $-2$ là 8bp; với \$10k/bp trên spread, lãi $8\times\$10\text{k} = \$80{,}000$. Swap spread trade cược lên *chênh giữa hai đường cong benchmark* — cùng logic RV, khác cặp công cụ.
+
+### Curve trade: 2s5s10s butterfly và PCA
+
+Trade tinh vi hơn cược lên **độ cong (curvature)** của đường cong, không phải mức (level) hay độ dốc (slope). **2s5s10s butterfly**: long điểm giữa (5Y, "belly"), short hai cánh (2Y và 10Y, "wings") — hoặc ngược lại. Để dựng đúng, cần hiểu đường cong dịch chuyển theo ba mode chính, và đây là chỗ **PCA** vào cuộc.
+
+Chạy PCA trên thay đổi yield hàng ngày của một rổ kỳ hạn (2Y, 5Y, 10Y, 30Y...), ba principal component đầu giải thích ~95–99% biến động và có ý nghĩa kinh tế cực rõ:
+
+| PC | Tên | Hình dạng (loadings điển hình) | % variance |
+|---|---|---|---|
+| PC1 | **Level** | mọi kỳ hạn cùng dấu ($+$) | ~85% |
+| PC2 | **Slope** | ngắn $-$, dài $+$ (curve steepen/flatten) | ~10% |
+| PC3 | **Curvature** | belly một dấu, wings dấu ngược | ~3% |
+
+Butterfly được thiết kế để **cô lập PC3 (curvature)**: trung tính với level và slope, chỉ phơi ra độ cong. Ý tưởng: nếu belly rẻ tương đối (5Y yield *cao* hơn nội suy tuyến tính 2Y–10Y) thì mua belly / bán wings sẽ lời khi cái "gù" đó phẳng lại — mà không thèm quan tâm cả đường cong đi lên hay xuống, dốc lên hay xuống.
+
+Dẫn xuất weight cho DV01-neutral trên cả level và slope. Đặt DV01 ba chân $\text{dv}_2, \text{dv}_5, \text{dv}_{10}$ (dấu: belly ngược wings). Hai ràng buộc:
+
+1. **Level-neutral (PC1)**: dịch song song $+1$bp toàn đường cong không được sinh P&L. Vì loading PC1 gần như bằng nhau mọi kỳ hạn, điều kiện là tổng DV01 hai cánh khớp DV01 belly: $\text{dv}_2 + \text{dv}_{10} = \text{dv}_5$.
+2. **Slope-neutral (PC2)**: một cú steepen (2Y xuống, 10Y lên) không được sinh P&L. Vì loading PC2 xấp xỉ tuyến tính theo kỳ hạn, cánh xa belly hơn phải mang ít DV01 hơn theo tỷ lệ khoảng cách — với 2s5s10s hai cánh gần đối xứng quanh 5Y nên chia gần 50/50.
+
+Ví dụ số cụ thể (quy ước phổ biến "DV01-weighted 50/50 butterfly"): đặt belly DV01 $= \$100$k. Chia đều hai cánh để level-neutral: mỗi cánh $\$50$k DV01. Vậy:
+- Long 5Y với DV01 $\$100$k (belly).
+- Short 2Y với DV01 $\$50$k, short 10Y với DV01 $\$50$k (wings).
+
+Kiểm tra level-neutral: dịch song song $+1$bp → belly $-\$100\text{k}\times 1$ (long, yield lên thì lỗ), wings $+(50+50)\text{k}\times 1 = +\$100$k → ròng $0$. Đúng. Kiểm tra slope-neutral xấp xỉ: một cú steepen $2$Y $-1$bp / $10$Y $+1$bp, belly bất động → chân 2Y (short) lỗ $\$50$k$\times 1$, chân 10Y (short) lời $\$50$k$\times 1$ → ròng $\approx 0$ (đối xứng). Đúng gần đúng. Bản chặt dùng loading PC2 *thực* để chia (thường ra hơi lệch, ví dụ 55/45 thay vì 50/50, vì loading slope không hoàn toàn tuyến tính) — đó là lý do desk **chạy PCA thay vì áng chừng**, để cái butterfly thật sự sạch level và slope chứ không rò rỉ một cược slope trá hình.
+
+P&L của butterfly khi cô lập curvature: nếu belly *rẻ đi tương đối* $+3$bp (5Y yield tăng $3$bp so với đường nối 2Y–10Y) và bạn đã long belly / short wings, thì với DV01 belly $\$100$k, cú curvature đó cho $\approx \$100\text{k}\times 3 = \$300{,}000$ (dấu tùy chiều bạn đặt butterfly). Butterfly là cách trade "belly rẻ/đắt so với cánh" mà không cược chiều lãi suất — RV thuần trên hình dạng.
+
+## 18.6 CDS index arbitrage — CDX/iTraxx vs single-name
+
+Lên một tầng: **CDS index**. CDX (Bắc Mỹ) và iTraxx (châu Âu) là rổ CDS chuẩn hóa — ví dụ CDX IG gồm 125 single-name CDS đồng đều (equal-weight). Index giao dịch như một sản phẩm riêng, thanh khoản cao. Arbitrage sống ở khoảng lệch giữa **giá index** và **giá "intrinsic"** — tổng hợp lý thuyết từ 125 single-name thành phần.
+
+### Index skew và cái bẫy "risky annuity"
+
+**Intrinsic spread** của index là spread mà rổ 125 CDS single-name ngụ ý. **Index skew** $= s_{\text{index}} - s_{\text{intrinsic}}$. Vì lý do thanh khoản (mua/bán 1 lệnh index dễ hơn 125 lệnh single-name), index thường giao dịch ở spread hơi *khác* intrinsic.
+
+Nhưng trước khi gọi cái lệch đó là "arbitrage", phải tính intrinsic cho *đúng* — và đây là chỗ nghiệp dư mất tiền. Intrinsic **không** phải trung bình cộng đơn giản các spread. Nó phải weight mỗi tên theo **risky annuity** của tên đó — tổng discount-factor $\times$ survival-probability trên các kỳ trả phí (đúng cái mẫu số của công thức par spread ở mục 18.1). Lý do: một tên spread cao có xác suất sống thấp hơn, nên annuity của nó *nhỏ hơn*, nghĩa là dòng premium của nó "ngắn" hơn và đóng góp ít hơn vào PV rổ. Trung bình cộng đơn giản cho các tên spread cao *quá nhiều* trọng số.
+
+Đóng con số vào để thấy độ lớn. Lấy một rổ nhỏ 4 tên minh họa: ba tên spread $40$bp và một tên spread $300$bp (một tên "đang lâm nguy" kéo lệch). Với $R=40\%$, $r=3\%$, $T=5$, risky annuity xấp xỉ $A(s)=\frac{1-e^{-(\lambda+r)T}}{\lambda+r}$ với $\lambda=s/(1-R)$:
+
+| Tên | spread | $\lambda$ | risky annuity $A$ |
+|---|---|---|---|
+| 1–3 | 40bp | 0.67% | ~4.44 |
+| 4 | 300bp | 5.00% | ~3.53 |
+
+- Trung bình cộng đơn giản: $(40+40+40+300)/4 = 105$bp.
+- Annuity-weighted (intrinsic *đúng*): $\dfrac{\sum s_i A_i}{\sum A_i} = 100.1$bp.
+
+Chênh **$\approx 5$bp** giữa hai cách tính — và đó *không phải* cơ hội, nó là một sai lệch **cấu trúc** do phương pháp: tên $300$bp bị annuity kéo trọng số xuống nên intrinsic đúng thấp hơn trung bình thô. Nếu bạn dùng trung bình thô làm "intrinsic" rồi thấy index quote $100$bp, bạn sẽ tưởng có skew $-5$bp để bắt, trong khi thật ra index đang đúng giá. Đây là bài học số một của index arb: *phần lớn cái "skew" nhìn thấy bằng mắt thường là lỗi của người tính, không phải lỗi của thị trường.*
+
+### Skew thật và trade
+
+Giả sử bạn đã tính intrinsic *đúng* (annuity-weighted) và ra $62$bp cho CDX IG, còn index quote $65$bp. Skew thật $= 65 - 62 = +3$bp — index giao dịch *rộng hơn* intrinsic $3$bp. Vì index rộng hơn tức *đắt hơn* về protection, bạn muốn **bán cái đắt và mua cái rẻ**:
+
+- **Bán index protection** (thu $65$bp) — bán cái đắt.
+- **Mua single-name protection** trên cả 125 tên (trả trung bình $62$bp intrinsic) — mua cái rẻ.
+
+Bạn khóa $+3$bp/năm gross, và nếu skew đóng về 0 bạn ăn thêm convergence trên mark-to-market. (Chú ý dấu: bán index protection = short credit qua index; mua 125 single-name protection = long credit... nhầm — chính xác là *cả hai* chân đều là protection nên rủi ro credit chung của rổ gần triệt tiêu, chỉ còn phơi ra basis index-vs-intrinsic. Nếu skew đảo dấu, bạn đảo chân.)
+
+### Vì sao skew tồn tại và rủi ro của nó
+
+Skew tồn tại vì ba lý do định lượng được, và chỉ *một* trong ba là cơ hội thật:
+
+1. **Kỹ thuật tính (không phải cơ hội)** — như vừa thấy, cách weight bằng annuity làm intrinsic đúng luôn lệch vài bp so với các cách xấp xỉ thô; nhầm cái này thành skew là bẫy phổ biến nhất.
+2. **Thanh khoản (cơ hội một phần)** — index dễ giao dịch nên cầu phòng hộ nhanh (macro hedger muốn short credit gấp) dồn vào index, đẩy spread index lệch tạm thời khỏi intrinsic; đây là phần có thể bắt, nhưng nó nhỏ và mau đóng.
+3. **On-the-run roll (kỹ thuật, tạm thời)** — mỗi 6 tháng index roll sang series mới, tạo dòng lệnh và lệch tạm thời quanh ngày roll.
+
+Rủi ro của index arb rất cụ thể và là bản xem trước của mục sau: nó là trade **125+ chân**, và nếu *một* tên trong rổ **jump-to-default** (vỡ nợ đột ngột), chân single-name của bạn dính (hoặc bỏ lỡ) một cú loss-given-default khổng lồ mà chân index (đã pro-rata loại tên đó theo cơ chế index) không bù đúng *độ lớn và timing*. Skew $3$bp bạn khóa có thể bị một single default trong rổ xóa sạch trong một ngày. Đây là lý do index arb được coi là "**picking up nickels in front of a steamroller**" — nhặt vài xu (skew bé) trước cỗ máy ủi (default risk rời rạc). Cộng thêm chi phí giao dịch 125 chân single-name (bid-ask trên mỗi tên) thường nuốt gần hết $3$bp gross — lại là bài học "trừ chi phí trước khi gọi là alpha".
+
+## 18.7 Rủi ro của cả họ RV: jump-to-default, funding, và basis blow-out
+
+Mọi trade trên đây chia chung một hình dạng P&L, và chương phải khép lại bằng việc đặt tên cho ba con quái vật đặc trưng của tín dụng và RV — chúng khác về chất với rủi ro của equity strategy.
+
+### Jump-to-default (JTD)
+
+Credit có một loại rủi ro equity gần như không có: giá không đi *liên tục* mà **nhảy về recovery tức thì**. Một công ty đang giao dịch spread 300bp có thể qua đêm nộp đơn phá sản, spread nhảy lên hàng nghìn bp hoặc bond rớt về recovery 40. Với người **bán CDS protection** (short credit), JTD là thảm họa: bạn thu 300bp/năm premium, rồi mất $(1-R) = 60\%$ notional trong một biến cố. Tính bằng số: bán \$10M protection thu $\$300$k/năm; một default cho loss $10\text{M}\times 0.6 = \$6$M — mất **20 năm premium trong một ngày** ($6\text{M}/0.3\text{M} = 20$). JTD không được nắm bắt bởi vol/DTS thông thường (đó là rủi ro *đuôi rời rạc*, không phải variance liên tục — DTS đo bond nhúc nhích, JTD đo bond biến mất), nên phải size riêng: giới hạn **JTD exposure trên mỗi tên** (max loss nếu tên đó default *hôm nay*), không chỉ giới hạn spread-vol. Đây là lý do credit book đo hai loại rủi ro song song — **spread risk (DTS)** cho biến động liên tục và **JTD** cho cú nhảy rời rạc — và hai limit này gần như độc lập nhau.
+
+### Liquidity, funding, và repo
+
+RV trade sống bằng **đòn bẩy** vì mỗi trade thu vài bp. 3bp on-the-run/off-the-run chỉ thành return có nghĩa khi đòn bẩy 20–30×. Nhưng đòn bẩy được cấp qua **repo**, và repo có thể bị rút theo hai kênh: **haircut tăng** (từ 2% lên 10% buộc bạn nộp thêm vốn gấp 5 cho cùng một vị thế) hoặc **counterparty ngừng cho vay** hẳn. Khi funding co lại, bạn buộc phải **giải chấp đúng lúc tệ nhất** — bán vào thị trường không thanh khoản, hiện thực hóa loss. Đây là **funding liquidity risk**, và nó là cơ chế biến một drawdown-trên-giấy thành mất-vốn-thật.
+
+Con số minh họa sức tàn phá của đòn bẩy: một book RV đòn bẩy 25× chỉ cần tài sản mất **4%** giá trị là **xóa sạch equity** ($1/25 = 4\%$). Với trade "an toàn" thu 3bp, một cú spread nới 12bp (chỉ $0.12\%$ dịch giá) khuếch đại qua $25\times$ thành $0.12\%\times 25 = 3\%$ loss trên vốn — ba phần trăm vốn bốc hơi vì một dịch chuyển mà thị trường coi là tiếng ồn. Và convergence trade *không có stop tự nhiên*: bạn cầm nó *vì tin* nó sẽ đóng, nên khi nó đi ngược, mô hình của bạn nói "giờ còn rẻ hơn, mua thêm đi" — bạn có xu hướng **tăng** vị thế khi nó đi ngược, đúng công thức tự sát. Stop-loss trong RV do đó phải là một *kỷ luật áp từ ngoài* (risk limit cứng, không thương lượng), vì logic nội tại của trade luôn cãi lại nó.
+
+### Basis blow-out và convergence đảo chiều: bài học 1998 và 2008
+
+Đây là con quái vật lớn nhất, và nó có tên: **convergence trade chỉ hội tụ nếu bạn sống đủ lâu để chờ**. Trong ngắn hạn, cái lẽ ra phải đóng có thể **nới toác ra** — divergence — khi tất cả những người cùng cầm trade đó bị buộc thoát cùng lúc. Cơ chế là một vòng xoáy: A bị margin call → A bán → spread nới thêm → B (cầm cùng trade) bị margin call → B bán → spread nới nữa. Chính sự *đông đúc* (crowding) của một trade "hiển nhiên" biến nó thành bẫy.
+
+**LTCM 1998**: LTCM cầm hàng loạt convergence trade — long off-the-run / short on-the-run Treasury, long credit spread bond / short Treasury, swap spread — tất cả cược rằng các spread thanh khoản sẽ *thu hẹp*. Tất cả là "bán thanh khoản": thu premium cho việc cầm cái kém thanh khoản. Khi Nga vỡ nợ tháng 8/1998, thế giới lao vào **flight-to-liquidity**: ai cũng muốn cầm cái thanh khoản nhất (on-the-run Treasury), bán cái kém thanh khoản. Mọi spread LTCM cược "đóng" **nới ra đồng loạt** — on/off-the-run spread thay vì về 0 lại bung ra; swap spread bung; credit spread bung. Với đòn bẩy ~25×, những dịch chuyển vài chục bp trở thành loss hủy diệt. Điểm cốt tử: các trade *về lâu dài đúng* (nhiều spread thật sự đóng trong 1999–2000), nhưng LTCM không sống đến lúc đó vì margin call buộc thoát ở đáy. **"Markets can stay irrational longer than you can stay solvent."**
+
+**2008**: cùng cơ chế, quy mô lớn hơn. CDS–bond basis (mục 18.2), thứ bình thường $-20$bp, **blow out xuống $-250$bp** — một dịch chuyển $-230$bp — khi mọi người phải bán bond để giải chấp (cash bond ngốn balance sheet, phải xả) còn CDS thì không (unfunded, giữ được). Negative-basis trade — một "arbitrage" trung tính tín dụng — chịu mark-to-market loss $\approx -230$bp trên chính vị thế lẽ ra vô rủi ro, vì chân bond rớt nhanh hơn nhiều so với chân CDS lời. Ai cầm nó với đòn bẩy bị margin call và phải thoát, đẩy basis còn âm hơn — một **vòng xoáy self-reinforcing** giống hệt 1998. Basis cuối cùng *có* đóng về bình thường năm 2009–2010, đúng như no-arbitrage hứa — nhưng chỉ những ai có funding *ổn định, không callable* mới sống đến ngày gặt.
+
+Bài học tổng kết cho cả họ RV, và nó cột lại sợi chỉ đỏ mở chương: relative value **bán thanh khoản và bán convergence** — thu một khoản nhỏ đều đặn cho việc gánh rủi ro rằng "cái lệch sẽ đóng". Phân phối return của nó **skew âm nặng** giống hệt carry ở Chương 16: nhiều tháng thu bp đều đặn, đường equity mượt đến mức quyến rũ, rồi thỉnh thoảng một cú basis blow-out xóa nhiều năm lãi trong vài tuần. Ba phòng thủ, và cả ba đều là *cấu trúc* chứ không phải dự báo — bạn không thắng con quái vật này bằng cách *đoán* nó tới, mà bằng cách dựng book để sống sót khi nó tới:
+
+1. **Đòn bẩy khiêm tốn** — đủ thấp để sống qua một cú nới 3–4 lần "bình thường" mà không bị margin call. Nếu blow-out lịch sử là $8\times$ độ lệch chuẩn thường ngày, size sao cho $8\sigma$ không giết bạn, không phải $2\sigma$.
+2. **Funding dài hạn, không callable** — cái LTCM thiếu chí mạng, và Citadel/Millennium ngày nay coi là tài sản chiến lược ngang với alpha. Term financing và lockup vốn nhà đầu tư biến "phải bán ở đáy" thành "được chọn không bán".
+3. **JTD và tail limit riêng** — không để một default đơn lẻ hay một blow-out đơn lẻ giết cả book; đo và giới hạn cú *rời rạc*, không chỉ cú *liên tục*.
+
+Alpha của RV là thật và no-arbitrage bảo đảm nó cuối cùng hội tụ; nhưng "cuối cùng" là một khoảng thời gian mà nhiều nhà giao dịch giỏi đã không sống tới. Trong tín dụng và rates RV, kỹ năng phân biệt người xuất sắc với người phá sản không phải tìm cái lệch — ai cũng thấy 3bp — mà là *trừ đúng chi phí để biết 3bp đó có thật sự là alpha hay chỉ là giá của funding*, và *sizing để sống qua lúc cái lệch trở nên tệ hơn trước khi nó tốt lên*.
+
+# Chương 19: Volatility trading (buy-side)
+
+Mọi chương trước, dù nói về momentum, mean-reversion, hay factor, đều giao dịch trên một biến duy nhất: **giá**. Bạn dự báo giá sẽ lên hay xuống, và P&L của bạn là hàm của việc bạn đoán đúng hướng đến đâu. Chương này bước sang một chiều hoàn toàn khác. Ở đây bạn có thể *không quan tâm giá đi đâu* và vẫn kiếm được tiền — hoặc mất sạch — chỉ dựa trên việc giá **dao động mạnh hay yếu**. Volatility là một asset class riêng: có cung cầu riêng, có risk premium riêng, có đường cong kỳ hạn riêng, và có những kẻ blow-up huyền thoại riêng. Và quan trọng hơn với người đọc cuốn sách này: vol trading là ranh giới rõ nhất giữa P-world và Q-world. Người bán option ở Q-world (dealer, market-maker) định giá và hedge bằng độ đo rủi ro-trung tính $\mathbb{Q}$; người mua-bán vol có định hướng ở P-world (quỹ buy-side) đặt cược rằng thế giới thực $\mathbb{P}$ sẽ khác với cái mà giá option đang ngụ ý. Chính khe hở giữa hai độ đo đó — implied vs realized — là mỏ vàng và cũng là bãi mìn của cả chương.
+
+Câu hỏi định hình mọi thứ: *ai trả tiền cho alpha vol, và vì sao nó chưa bị arbitrage?* Câu trả lời ngắn gọn là con người sợ biến động một cách bất đối xứng và sẵn lòng trả phí bảo hiểm cho nó, còn người bán bảo hiểm đó thì thỉnh thoảng bị xóa sổ — nên premium không bao giờ về 0, nhưng nó cũng không phải bữa trưa miễn phí. Cả chương này là việc bóc tách con số của cái mặc cả đó, từng chiến lược một, và mỗi chiến lược đều có một ví dụ tính ra tiền cụ thể. Điểm chung ngầm của cả năm chiến lược: chúng đều **short một dạng phí bảo hiểm**, nên đều mang cùng một hình dạng P&L — nhiều tháng lãi nhỏ đều đặn, thỉnh thoảng một cú lỗ khổng lồ. Hiểu được hình dạng đó, và hiểu vì sao Sharpe không nhìn thấy nó, là toàn bộ nghề này.
+
+## 19.1 Variance risk premium: nền móng của toàn bộ chương
+
+Vì sao mục này tồn tại: mọi chiến lược vol buy-side, dù phức tạp đến đâu, đều là một biến thể của một quan sát thực nghiệm duy nhất — **implied variance có xu hướng cao hơn realized variance một cách hệ thống**. Nắm chắc con số của quan sát này thì năm chiến lược sau chỉ là các cách khác nhau để thu hoạch nó.
+
+Định nghĩa cho sạch. Realized variance trên một cửa sổ $[0,T]$ là tổng bình phương các log-return:
+
+$$RV = \frac{252}{n}\sum_{t=1}^{n} \tilde r_t^2,$$
+
+annualized, trong đó $\tilde r_t$ là log-return ngày và $n$ là số ngày giao dịch. Căn của nó là realized volatility. Implied variance là cái mà giá option đang ngụ ý — cụ thể là **strike của một variance swap**, một hợp đồng trả cho bạn $RV$ và bạn trả một mức cố định $K_{\text{var}}$ đã chốt lúc vào lệnh. Q-world cho ta công thức replicate strike đó bằng một rổ option OTM (xem cuốn Q-world ch.5 về variance swap replication qua log-contract); ở đây ta chỉ cần biết rằng $K_{\text{var}}$ quan sát được trên thị trường, và về mặt số nó xấp xỉ bình phương của mức implied vol ATM cộng một đóng góp dương từ skew (rổ replicate nặng phía put OTM đắt, nên $K_{\text{var}}$ thường nhỉnh hơn $\sigma_{\text{ATM}}^2$ vài phần trăm).
+
+**Variance risk premium (VRP)** là hiệu:
+
+$$VRP = K_{\text{var}} - \mathbb{E}^{\mathbb{P}}[RV].$$
+
+Đây chính là điểm giao P/Q tinh khiết nhất trong cả hai cuốn sách. $K_{\text{var}}$ là một kỳ vọng dưới $\mathbb{Q}$ (giá thị trường của rủi ro variance); $\mathbb{E}^{\mathbb{P}}[RV]$ là kỳ vọng thật của bạn dưới $\mathbb{P}$. Khe hở dương giữa hai cái là phí bảo hiểm mà người sợ biến động trả cho người dám bán nó.
+
+### 19.1.1 Bán variance swap: P&L tính bằng số
+
+Cách trực tiếp nhất để thu VRP là **bán variance swap**: bạn nhận $K_{\text{var}}$, trả $RV$. P&L của người bán, tính trên một đơn vị *variance notional* $N_{\text{var}}$ (tiền cho mỗi điểm variance), là
+
+$$\text{P\&L}_{\text{seller}} = N_{\text{var}}\,(K_{\text{var}} - RV).$$
+
+Chú ý biến số ở đây là *variance* (vol bình phương), không phải vol — đây là cái bẫy đầu tiên và ta sẽ quay lại nó ở mục rủi ro.
+
+Chạy running example của cả cuốn về vol. Giả sử strike variance swap 1 tháng trên SPX là **$K_{\text{var}} = 20^2 = 400$** (tức implied vol 20%), và tháng đó hóa ra thị trường yên ắng, realized vol chỉ **17%**, tức $RV = 17^2 = 289$. Bạn là người bán. Với variance notional \$10.000 cho mỗi điểm variance:
+
+$$\text{P\&L} = 10.000 \times (400 - 289) = 10.000 \times 111 = \$1.110.000.$$
+
+Lãi. Bạn thu strike 400, chỉ phải trả lại 289, giữ chênh lệch 111 điểm variance nhân notional. Con số 111 điểm variance đó chính là VRP *đã hiện thực hóa* của tháng này. Đọc theo vol: bạn short vol ở 20%, vol về 17%, chênh 3 vol points — đúng khoảng VRP lịch sử của SPX.
+
+Bây giờ đảo ngược để thấy mặt tối. Tháng sau có một cú sốc, realized vol bật lên **35%**, $RV = 35^2 = 1225$:
+
+$$\text{P\&L} = 10.000 \times (400 - 1225) = 10.000 \times (-825) = -\$8.250.000.$$
+
+Một tháng lãi 1,11 triệu, một tháng lỗ 8,25 triệu. Tỉ số lỗ/lãi là $825/111 = 7{,}43$: bạn cần **hơn bảy tháng lãi** kiểu tháng đầu để bù một tháng lỗ kiểu tháng sau. Đây là bất đối xứng cốt lõi, và nó không phải ngẫu nhiên mà là *cấu trúc*: vì P&L là hàm của *variance* (bình phương vol), khi vol nhân đôi từ 20% lên 40% thì variance nhân bốn, và lỗ của bạn phình theo bình phương trong khi lãi bị chặn trên bởi chính $K_{\text{var}}$ (điều tốt nhất có thể xảy ra là $RV=0$, giới hạn lãi ở đúng 400 điểm). Payoff của người short variance là *lãi bị chặn, lỗ vô hạn* — đó là hình dạng của mọi chiến lược short vol: nhiều tháng lãi nhỏ đều đặn, thỉnh thoảng một tháng lỗ khổng lồ. Skew của phân phối P&L âm sâu.
+
+### 19.1.2 VRP lịch sử và Sharpe của nó
+
+Con số thực nghiệm để ghim vào đầu: trên SPX, trung bình dài hạn của $\sqrt{K_{\text{var}}} - \sqrt{\mathbb{E}[RV]}$ vào khoảng **2–4 vol points** (implied ~ 18–19%, realized ~ 15–16% trung bình). Nói theo variance thì hiệu này khuếch đại vì variance là bình phương: với implied 18–19% và realized 15–16%, implied variance trung bình cao hơn realized variance khoảng **30–45%** (ví dụ $18^2/15^2 - 1 = 44\%$; $18{,}5^2/16^2 - 1 = 34\%$). Đây là một điểm dễ nhầm — vài vol points nghe nhỏ, nhưng vì bạn giao dịch variance, cái edge tính theo variance lớn hơn nhiều so với cảm giác của con số vol.
+
+Sharpe của chiến lược bán vol thô (short variance swap hoặc short straddle delta-hedged) trong lịch sử rất cao — thường báo cáo trong khoảng **0,8–1,5** nếu đo trên đủ dài. Nhưng con số Sharpe này *nói dối một cách nguy hiểm*, và hiểu vì sao nó nói dối là bài học đắt nhất của chương. Sharpe giả định phân phối gần chuẩn; short vol thì không. Ta minh họa bằng số. Giả sử chiến lược short vol cho lợi nhuận hàng tháng: 11 tháng mỗi tháng +1,1% và 1 tháng −8,3% (đúng theo hai ví dụ trên, scale về phần trăm vốn). Mean hàng tháng:
+
+$$\bar\mu = \frac{11 \times 1{,}1\% + 1 \times (-8{,}3\%)}{12} = \frac{12{,}1\% - 8{,}3\%}{12} = \frac{3{,}8\%}{12} = 0{,}317\%/\text{tháng}.$$
+
+Std hàng tháng (dùng phương sai population, chia cho 12): mỗi tháng lãi lệch $1{,}1 - 0{,}317 = 0{,}783$ khỏi mean, bình phương $0{,}613$; tháng lỗ lệch $-8{,}3 - 0{,}317 = -8{,}617$, bình phương $74{,}25$. Vậy
+
+$$\text{Var} = \frac{11 \times 0{,}613 + 74{,}25}{12} = \frac{6{,}74 + 74{,}25}{12} = \frac{80{,}99}{12} = 6{,}75,\qquad \text{std} = 2{,}60\%.$$
+
+Sharpe hàng tháng $= 0{,}317/2{,}60 = 0{,}122$, annualized $= 0{,}122 \times \sqrt{12} = 0{,}42$. Con số 0,42 nghe khiêm tốn, nhưng đó chỉ vì ta cố tình đặt một tháng lỗ *nhẹ* vào chuỗi; các quỹ short vol thật, trong giai đoạn êm, báo Sharpe 1,0–1,5 vì suốt nhiều năm không gặp tháng lỗ nào cả. Và đó chính là cái bẫy: skewness của chuỗi này là **−3,0** (một đuôi trái dài, xác minh bằng `scipy.stats.skew`), nên cái Sharpe đó *hoàn toàn bỏ sót* rủi ro thật. Nếu cái tháng −8,3% thay bằng một tháng crash −40% (variance nổ gấp bốn), toàn bộ Sharpe dương biến mất và bạn phá sản — mà Sharpe được đo *trước* cú đó vẫn đẹp. Đây là lý do người ta nói short vol là "nhặt xu trước xe lu" (picking up pennies in front of a steamroller): Sharpe đo được các đồng xu, không đo được chiếc xe lu. Về mặt kỹ thuật, đây đúng là ca mà một QR sẽ với sang **deflated Sharpe** và các moment bậc cao (Chương 9) thay vì tin vào Sharpe trần.
+
+## 19.2 Gamma scalping: cỗ máy chuyển hóa VRP thành P&L hằng ngày
+
+Vì sao mục này tồn tại: variance swap là công cụ thu VRP dạng đóng gói sẵn, nhưng bản chất *cơ học* của việc thu VRP nằm ở một quy trình cụ thể hơn — **delta-hedge một option**. Hiểu gamma scalping là hiểu chính xác đồng tiền VRP chảy vào túi bạn từ đâu, ngày qua ngày. Đây cũng là cây cầu thẳng nhất sang Q-world: toàn bộ machinery Greeks (Chương 5 cuốn Q-world) sống ở đây.
+
+Ý tưởng: bạn mua một option (long vol), rồi liên tục delta-hedge nó bằng underlying để trung hòa rủi ro hướng. Sau khi hedge sạch delta, cái còn lại trong P&L của bạn *chỉ* là cược thuần túy về vol. Q-world cho ta công thức chính xác của P&L một vị thế delta-hedged sau một khoảng thời gian nhỏ $dt$:
+
+$$d\Pi = \frac{1}{2}\Gamma S^2\left[\left(\frac{dS}{S}\right)^2 - \sigma_{\text{imp}}^2\,dt\right],$$
+
+trong đó $\Gamma$ là gamma của option, $S$ là giá underlying, $dS/S$ là realized return trong khoảng đó, và $\sigma_{\text{imp}}$ là implied vol đã trả khi mua option. Đây là một trong những phương trình đẹp nhất của toàn bộ finance, vì nó nói toạc ra bản chất: **P&L delta-hedged tỉ lệ với hiệu giữa realized variance và implied variance**, có trọng số $\frac{1}{2}\Gamma S^2$ (gọi là dollar gamma). Cái ngoặc vuông tách sạch hai lực: $\big(\tfrac{dS}{S}\big)^2$ là "gamma gain" bạn thu được từ độ cong của option khi giá lắc; $\sigma_{\text{imp}}^2 dt$ là "theta bleed" bạn trả mỗi đơn vị thời gian vì đã mua option. Nếu thị trường dao động *mạnh hơn* implied, gamma gain thắng theta, người long lãi; nếu *êm hơn*, theta ăn hết, người long lỗ. Tích phân qua cả đời option:
+
+$$\Pi = \int_0^T \frac{1}{2}\Gamma_t S_t^2\left(\sigma_{\text{real},t}^2 - \sigma_{\text{imp}}^2\right)dt.$$
+
+Người *bán* option (short vol, thu VRP) chỉ đơn giản là dấu ngược lại: họ lãi khi realized < implied. Đây chính là variance swap ở mục 19.1 nhìn từ góc độ cơ học hằng ngày — và mối liên hệ chặt hơn ta tưởng. Một straddle vanilla có dollar gamma $\frac{1}{2}\Gamma S^2$ *thay đổi theo $S$* (gamma cao nhất khi ATM, tụt khi giá trôi xa strike), nên P&L của nó không phải đúng $RV - K_{\text{var}}$ mà bị "path-dependent": các dao động xảy ra gần strike được cân nặng hơn. Variance swap khắc phục điều đó bằng cách replicate qua một rổ option OTM có trọng số $1/K^2$ theo strike, sao cho tổng dollar gamma của rổ **không đổi theo $S$**. Chính điều kiện dollar-gamma-hằng đó biến tích phân trên thành đúng $RV - K_{\text{var}}$, sạch hình dạng và không còn phụ thuộc đường đi. Đó là lý do variance swap là công cụ "pure play" trên variance, còn straddle chỉ là xấp xỉ.
+
+### 19.2.1 Một ngày gamma scalping tính bằng số
+
+Cụ thể hóa. Bạn long 100 call ATM trên một cổ phiếu \$100, mỗi hợp đồng trên 100 cổ phiếu. Implied vol đã trả là **20%/năm**. Gamma của một call ATM là một con số Q-world; giả sử $\Gamma = 0{,}04$ mỗi cổ phiếu (tức mỗi \$1 giá lên, delta tăng 0,04). Số cổ phiếu tương đương của vị thế là $100 \text{ hợp đồng} \times 100 = 10.000$ cổ phiếu. Dollar gamma toàn vị thế:
+
+$$\Gamma^\$ = \frac{1}{2}\Gamma S^2 N = \frac{1}{2} \times 0{,}04 \times 100^2 \times 10.000 = \frac{1}{2}\times 0{,}04 \times 10.000 \times 10.000 = \$2.000.000$$
+
+trên một đơn vị $(dS/S)^2$. Đại lượng này là hệ số nhân biến hiệu variance thành tiền, và ta sẽ cắm thẳng vào công thức P&L bên dưới.
+
+Implied vol 20%/năm quy ra *daily variance breakeven*: $\sigma_{\text{imp}}^2\,dt = (0{,}20)^2/252 = 0{,}04/252 = 0{,}0001587$. Tức breakeven daily move là $\sqrt{0{,}0001587} = 0{,}0126 = 1{,}26\%$. Nghĩa là: nếu hôm nay cổ phiếu nhúc nhích đúng ±1,26%, bạn hòa vốn (theta ăn hết gamma). Lớn hơn thì lãi, nhỏ hơn thì lỗ. Kiểm tra chéo cho vui: dollar theta hằng ngày của vị thế đúng bằng $\Gamma^\$ \times \sigma_{\text{imp}}^2 dt = 2.000.000 \times 0{,}0001587 = \$317{,}5$ — đó là "tiền thuê" bạn trả mỗi ngày để nắm gamma, và mỗi ngày bạn phải scalp ít nhất bấy nhiêu mới hòa.
+
+Kịch bản lãi: hôm nay cổ phiếu chạy **+2%**. Realized $(dS/S)^2 = (0{,}02)^2 = 0{,}0004$. P&L ngày:
+
+$$d\Pi = \Gamma^\$\left[(dS/S)^2 - \sigma_{\text{imp}}^2 dt\right] = 2.000.000 \times (0{,}0004 - 0{,}0001587) = 2.000.000 \times 0{,}0002413 = \$482{,}5.$$
+
+Bạn lãi ~\$483 trong ngày vì thị trường dao động mạnh hơn implied. Cơ học đằng sau con số này là **gamma scalping** đúng nghĩa: là người long gamma, delta của bạn tăng khi giá lên và giảm khi giá xuống, nên hedge kỷ luật buộc bạn *bán cao, mua thấp* quanh mỗi dao động — bạn scalp lợi nhuận từ chính sự lắc lư. Con số \$483 là tổng các cú scalp đó ($800 gamma gain) trừ đi theta đã trả ($317,5).
+
+Kịch bản lỗ: hôm nay cổ phiếu chỉ chạy **+0,5%**. $(dS/S)^2 = 0{,}000025$.
+
+$$d\Pi = 2.000.000 \times (0{,}000025 - 0{,}0001587) = 2.000.000 \times (-0{,}0001337) = -\$267{,}5.$$
+
+Thị trường quá êm, bạn không scalp đủ để bù theta, lỗ \$267. Đó là giá của việc long vol trong một ngày chán.
+
+Cộng qua cả tháng: nếu realized vol trung bình hóa ra 17% trong khi bạn trả implied 20%, người long như bạn *lỗ* tổng cộng (bạn ở sai phía của VRP), còn người short (bán call cho bạn, delta-hedge) *lãi* đúng khoản đó. Đây là toàn bộ VRP nhìn qua kính hiển vi ngày: nó là dòng theta chảy từ người mua bảo hiểm sang người bán, mỗi ngày một ít, với người mua chỉ được đền bù vào đúng những ngày thị trường nổ.
+
+## 19.3 Dispersion trade: bán tương quan
+
+Vì sao mục này tồn tại: hai mục trước cược trên *mức* vol. Dispersion cược trên một thứ tinh vi hơn và ít crowded hơn — **tương quan giữa các cổ phiếu**. Đây là chiến lược vol có tính "relative value" nhất, và là nơi toán học đẹp nhất của chương.
+
+Trực giác: vol của một chỉ số (index) *thấp hơn* trung bình vol của các cổ phiếu thành phần, vì khi gộp lại, các dao động idiosyncratic triệt tiêu nhau một phần — mức triệt tiêu phụ thuộc vào correlation. Nếu correlation thấp, index rất êm dù từng cổ phiếu lắc mạnh; nếu correlation = 1 (mọi thứ đi cùng nhau), index lắc y như thành phần. Cho nên **giá của index vol so với single-name vol chính là một giá ngụ ý của correlation.**
+
+### 19.3.1 Implied correlation: dẫn xuất từng bước
+
+Variance của một danh mục có trọng số $w_i$, vol thành phần $\sigma_i$, và ma trận correlation $\rho_{ij}$:
+
+$$\sigma_{\text{index}}^2 = \sum_i w_i^2\sigma_i^2 + \sum_{i\neq j} w_i w_j \sigma_i\sigma_j\rho_{ij}.$$
+
+Số hạng đầu là đóng góp idiosyncratic (variance riêng của từng tên), số hạng sau là đóng góp tương quan (các cặp). Giờ giả định một correlation *đồng nhất* duy nhất $\bar\rho$ cho mọi cặp — đây là **implied correlation**, một con số tóm tắt. Thay $\rho_{ij} = \bar\rho$ và giải ra:
+
+$$\sigma_{\text{index}}^2 = \sum_i w_i^2\sigma_i^2 + \bar\rho\sum_{i\neq j} w_i w_j \sigma_i\sigma_j.$$
+
+$$\boxed{\;\bar\rho_{\text{imp}} = \frac{\sigma_{\text{index}}^2 - \sum_i w_i^2\sigma_i^2}{\sum_{i\neq j} w_i w_j \sigma_i\sigma_j}\;}$$
+
+Tử số là "variance dư" của index sau khi trừ phần idiosyncratic; mẫu số là tổng đóng góp chéo nếu correlation bằng 1. Tỉ số cho biết correlation ngụ ý thực tế là bao nhiêu phần của mức tối đa. Công thức chính xác này (dùng đủ cả hai số hạng) là cái các sàn báo giá "implied correlation index" như KCJ/COR3M thực sự tính.
+
+Có một xấp xỉ thực dụng mà trader dùng miệng. Với danh mục nhiều tên vốn hóa gần đều, $\sum_i w_i^2\sigma_i^2$ (bậc $1/N$) nhỏ so với số hạng chéo, nên gần đúng
+
+$$\bar\rho_{\text{imp}} \approx \left(\frac{\sigma_{\text{index}}}{\sum_i w_i\sigma_i}\right)^2 = \left(\frac{\sigma_{\text{index}}}{\bar\sigma}\right)^2,$$
+
+với $\bar\sigma = \sum_i w_i\sigma_i$ là vol thành phần trung bình có trọng số. Công thức "bình phương tỉ số vol" này là con số dispersion trader nhẩm trong đầu. Nhưng phải cẩn thận với sai số của nó: xấp xỉ này bỏ số hạng idiosyncratic, nên nó *phóng đại* implied correlation khi số tên nhỏ. Với một rổ 5 tên vol ~26%, $\bar\rho$ thật 0,35, công thức đủ cho index vol ≈ 18,0% nhưng xấp xỉ $\bar\sigma\sqrt{\bar\rho}$ cho 15,4% — lệch ~15% (kiểm bằng numpy). Với S&P 500 (500 tên), sai số này teo lại vì $1/N$ rất nhỏ, và xấp xỉ dùng được. Bài học: dùng xấp xỉ để nhẩm nhanh và cho index rộng, dùng công thức boxed đầy đủ khi rổ hẹp hoặc khi tiền thật trên bàn.
+
+### 19.3.2 Tính bằng số
+
+Chạy running example vol của cuốn. Index vol implied = **18%**, weighted-average single-name vol = **26%**. Implied correlation xấp xỉ:
+
+$$\bar\rho_{\text{imp}} \approx \left(\frac{0{,}18}{0{,}26}\right)^2 = (0{,}6923)^2 = 0{,}479.$$
+
+Thị trường đang định giá correlation trung bình ~**48%**. Bạn nhìn con số này và tự hỏi: realized correlation thật của rổ này thường là bao nhiêu? Giả sử phân tích lịch sử của bạn cho thấy trong regime bình thường (không crash), realized correlation của rổ này chỉ ~**35%**. Vậy market đang trả *quá cao* cho correlation — đây là một cược dispersion. (Để nhất quán, ta dùng cùng một xấp xỉ vol-ratio ở cả hai chiều — implied và realized — nên chênh lệch correlation bên dưới là so sánh táo-với-táo, không bị nhiễm sai số của xấp xỉ.)
+
+**Cấu trúc lệnh:** bán index vol (short straddle/variance swap trên index), mua single-name vol (long straddle trên từng thành phần), cân sao cho vega trung hòa. Bạn lãi khi realized correlation < implied correlation, vì khi đó index thật sự êm hơn cái bạn đã bán (bạn lãi ở chân short index) trong khi single-name vẫn lắc như bạn đã mua (bạn không lỗ nhiều ở chân long single).
+
+**P&L tính bằng số.** Giả sử realized correlation hóa ra đúng 35% như bạn dự. Ta tính vol index *thực hiện* ứng với correlation đó, giữ nguyên single-name vol realized ở 26% (giả định single-name realized khớp implied để cô lập hiệu ứng correlation):
+
+$$\sigma_{\text{index,real}} = \bar\sigma\sqrt{\bar\rho_{\text{real}}} = 0{,}26\times\sqrt{0{,}35} = 0{,}26 \times 0{,}5916 = 0{,}1538 = 15{,}38\%.$$
+
+Bạn đã *bán* index vol ở 18%, index thật hiện thực chỉ 15,38%. Chân short index lãi $18\% - 15{,}38\% = 2{,}62$ vol points. Chân long single-name hòa (realized = implied 26%). Với vega notional index \$100.000 mỗi vol point, chân index đóng góp:
+
+$$100.000 \times 2{,}62 = \$262.000$$
+
+lãi gộp trước chi phí. Nếu single-name realized *cũng* nhỉnh hơn implied một chút (thường xảy ra vì bạn chọn tên có gamma tốt), chân long thêm lãi nữa. Toàn bộ edge đến từ chênh 13 điểm correlation (48% implied vs 35% realized), được khuếch đại qua đòn bẩy vega.
+
+**Ai trả tiền và vì sao chưa bị arbitrage:** người mua index put để phòng hộ danh mục (structural hedging demand) đẩy index vol lên cao một cách dai dẳng — họ mua bảo hiểm ở tầng index vì rẻ hơn mua từng tên. Dòng cầu phòng hộ đó chính là cái bơm implied correlation lên trên realized. Chưa bị arbitrage vì cược này có một cái đuôi khủng khiếp: trong crash, correlation *phi lên gần 1* ("everything sells off together"), lúc đó chân short index nổ tung. Ta sẽ định lượng cú đuôi này ở mục 19.6. Dispersion về bản chất là **short correlation**, và short correlation là short một thứ nhảy vọt đúng lúc bạn cần nó đứng yên nhất.
+
+## 19.4 Vol carry và term structure: thu roll-down
+
+Vì sao mục này tồn tại: ba chiến lược trên thu VRP theo chiều *mức* và *tương quan*. Chiều thứ ba là *thời gian* — cấu trúc kỳ hạn của vol. VIX futures và variance term structure thường ở trạng thái **contango** (kỳ hạn xa đắt hơn kỳ hạn gần), và trạng thái đó tạo ra một dòng carry thu hoạch được bằng cách bán vol xa, để nó "roll down" về giao ngay.
+
+Cơ chế: VIX spot (vol kỳ vọng 30 ngày) trung bình quanh 15–16 trong regime bình thường, nhưng VIX futures kỳ hạn xa được định giá cao hơn vì bất định về tương lai và vì cầu phòng hộ dài hạn. Đường cong contango dốc lên. Nếu không có gì xảy ra, khi thời gian trôi, một future kỳ hạn xa dần *rơi xuống* mức spot thấp hơn — đó là roll-down, và người short future kỳ hạn đó bỏ túi chênh lệch.
+
+### 19.4.1 VIX futures roll tính bằng số
+
+Giả sử đường cong VIX một ngày điển hình: VIX spot = **15**, future 1 tháng = **16**, future 2 tháng = **17**. Contango dốc ~1 điểm/tháng. Bạn **short 1 future 2 tháng ở giá 17 và giữ một tháng**, rồi mua lại khi nó đã trở thành future 1 tháng. Nếu đường cong *đứng yên* (không dịch), thì sau một tháng cái future bạn short — vốn là 2-tháng ở 17 — nay đứng ở vị trí kỳ hạn 1-tháng, và tại vị trí đó đường cong định giá ~16. Bạn short ở 17, mua lại ở 16:
+
+$$\text{Roll P\&L} = 17 - 16 = 1 \text{ điểm VIX}.$$
+
+Với mỗi hợp đồng VIX future có multiplier \$1.000/điểm, đó là **\$1.000/hợp đồng/tháng** thu được *chỉ nhờ đường cong dốc và thời gian trôi*, không cần vol đi đâu cả. (Chú ý logic: điều thu carry không phải là "giá của một future cố định giảm", mà là *future bạn nắm trượt xuống dọc đường cong dốc lên* khi kỳ hạn của nó ngắn lại — nó tiến từ điểm 17 về điểm 16 trên đường cong đứng yên.) Annualize thô nếu roll đều mỗi tháng: ~12 điểm/năm trên một future giá 16–17, tức carry yield cỡ 75%/năm theo mệnh giá future — một con số phi lý, và chính sự phi lý đó là lý do các ETP short-VIX (như XIV, SVXY) hấp dẫn đến vậy trong thị trường yên, và cũng là cảnh báo đầu tiên rằng nó không thể miễn phí.
+
+Nhưng — và đây là chủ đề lặp lại — carry này là **short vol trá hình**. Đường cong contango đảo thành **backwardation** (kỳ hạn gần đắt hơn xa) đúng vào lúc vol spike. Khi VIX spot nhảy từ 15 lên 40 trong một ngày, cái future 1-tháng bạn đang short không rơi xuống 16 mà bay lên 35+, và roll P&L +1 điểm/tháng của bạn bị nuốt bởi một cú lỗ cỡ −19 điểm trong *một ngày* — tức 19 tháng carry bay trong một phiên. Ta định lượng chính cú này qua case XIV ở mục 19.6. Vol carry trả cho bạn một đồng đều đặn để bạn đứng canh một quả bom hẹn giờ.
+
+### 19.4.2 Đọc contango như một tín hiệu
+
+Có một tinh tế đáng giá cho QR: độ dốc contango tự nó là một tín hiệu về mức độ crowding của trade short vol. Khi contango rất dốc (spot 13, 1-tháng 16, tức +23%), carry hấp dẫn kéo dòng tiền short vol vào, và chính dòng đó *ép* implied xuống, làm đường cong dốc hơn nữa cho đến khi mỏng manh. Khi cả thị trường cùng short cùng một điểm trên đường cong, cú unwind đồng pha (mọi người phải mua lại vol cùng lúc) tạo ra một phản hồi dương tàn khốc — đúng cơ chế Volmageddon. Đo độ dốc và so với mức trung bình lịch sử là một cách thô để cảm nhận "nước đã sâu đến đâu": contango dốc bất thường không phải tín hiệu "carry ngon" mà thường là tín hiệu "quá đông người đang canh cùng quả bom".
+
+## 19.5 Skew và put-selling: thu hoạch phí bảo hiểm đuôi
+
+Vì sao mục này tồn tại: VRP ở mục 19.1 là premium trên *mức* vol; còn có một premium riêng trên *hình dạng* của vol theo strike — **skew**. Put OTM (bảo hiểm crash) đắt hơn một cách hệ thống so với call OTM cùng khoảng cách, vì ai cũng muốn bảo hiểm giảm giá. Bán cái skew đó là một chiến lược riêng, với cái đuôi riêng và tệ nhất trong cả chương.
+
+Sự thật thị trường: implied vol của put OTM cao hơn ATM, cao hơn nữa so với call OTM — đường "volatility skew" dốc xuống bên phải với equity index. Ví dụ số điển hình cho SPX 1 tháng: put 90% strike (OTM 10%) có implied vol **24%**, ATM **19%**, call 110% strike **16%**. Chênh put-vs-ATM = 5 vol points là "phí skew".
+
+### 19.5.1 Bán put OTM tính bằng số
+
+Cấu trúc đơn giản: bán put OTM đã bảo chứng (cash-secured put) hoặc put spread. Bạn thu premium; nếu thị trường không sập dưới strike, bạn giữ hết. Giả sử SPX ở **5.000**, bạn bán put strike **4.500** (OTM 10%) 1 tháng, implied vol 24%. Premium của put OTM đó — một con số Black-Scholes Q-world — giả sử là **~0,9% của notional** (put xa nên rẻ theo tiền, đắt theo vol). Trên notional \$10M:
+
+$$\text{Premium thu} = 0{,}9\% \times \$10M = \$90.000.$$
+
+Kịch bản thường (thị trường không sập): put hết hạn vô giá trị, bạn giữ trọn \$90.000. Làm mỗi tháng, giả sử 11/12 tháng êm, bạn thu $11 \times 90.000 = \$990.000$/năm.
+
+Kịch bản đuôi: một tháng SPX sập **−15%** về 4.250, xuyên qua strike 4.500. Put in-the-money 250 điểm = 5% của 5.000. Bạn — người bán put — phải trả $5\% \times \$10M = \$500.000$, trừ premium đã thu \$90.000, lỗ ròng **\$410.000** trong một tháng. Cần hơn bốn tháng lãi để bù một tháng lỗ, và nếu cú sập là −30% (2008, tháng 3/2020), put ITM 20% của 5.000, lỗ nhảy lên $20\% \times 10M - 90k = \$1{,}91M$ — hơn hai năm lãi bay trong một tháng. Đây lại là hình dạng bất đối xứng, lần này còn dữ hơn vì put OTM có **negative skew kép**: bạn short cả vol *và* short cái đuôi mà skew đang định giá, nên khi cú sập tới, cả hai cái cùng đánh bạn — realized nổ *và* implied put vol nổ còn nhanh hơn (put skew dựng đứng trong panic).
+
+### 19.5.2 Vì sao skew premium tồn tại dai dẳng
+
+Skew premium bền vì nó là phí bảo hiểm thật cho một rủi ro mà đa số nhà đầu tư *phải* mua: quỹ hưu trí, quỹ tương hỗ, mọi thực thể có mandate không được mất quá X% đều là người mua put cấu trúc. Cầu một chiều đó đẩy put vol lên vĩnh viễn. Nhưng "bền" không có nghĩa "an toàn": người bán skew đang được trả để *chịu* đúng cái rủi ro mà mọi người khác trả tiền để tránh, nên khi cái rủi ro đó hiện thực, người bán skew là người đứng cuối cùng chịu trận. Sizing là tất cả — và đây là nơi Kelly (Chương 5) gào lên rằng với một payoff lệch trái sâu như bán put OTM, kích thước tối ưu nhỏ hơn nhiều so với trực giác, vì một cú đuôi có thể đưa vốn về gần 0, mà $\log(0) = -\infty$ trừng phạt vô hạn. Một trader put-selling sống lâu không phải người bán nhiều premium nhất, mà là người size đủ nhỏ để sống qua cú −30% mà không bị margin call quét sạch.
+
+## 19.6 Rủi ro: short vol = short gamma = blow-up
+
+Vì sao mục này tồn tại — và vì sao nó là mục dài nhất: năm chiến lược trên đều là các biến thể của short vol, và tất cả chia chung một DNA rủi ro duy nhất. Nếu bạn chỉ nhớ một điều từ chương này, hãy nhớ mục này. Bốn cơ chế đan vào nhau: short vol là short gamma, đuôi trái, convexity ngược, và correlation spike. Chúng không cộng — chúng nhân với nhau trong một cuộc khủng hoảng.
+
+### 19.6.1 Short gamma: cơ học của việc bị nghiền
+
+Người short vol là người **short gamma**. Nhắc lại công thức 19.2 với dấu ngược cho người short:
+
+$$d\Pi_{\text{short}} = \frac{1}{2}|\Gamma| S^2\left[\sigma_{\text{imp}}^2 dt - (dS/S)^2\right].$$
+
+Khi thị trường êm, $(dS/S)^2$ nhỏ, người short lãi đều. Nhưng khi $(dS/S)^2$ lớn (giá nhảy), số hạng âm nổ ra. Tệ hơn: người short gamma khi delta-hedge bị buộc **mua cao, bán thấp** — ngược hẳn người long gamma. Giá lên, delta short của họ càng âm, họ phải mua để hedge — mua vào lúc giá đang lên. Giá xuống, họ phải bán — bán vào lúc giá đang xuống. Hedging của họ *khuếch đại* chuyển động thay vì hấp thụ nó. Đây là lý do khi dealer cộng đồng short gamma (dealer gamma âm — xem cuốn Q-world về dealer gamma positioning), một cú giảm nhỏ tự nuôi thành cú giảm lớn: mỗi tick xuống buộc một làn sóng bán hedge, đẩy tick tiếp theo xuống. Short gamma biến bạn thành nhiên liệu cho chính đám cháy.
+
+Tính bằng số cú nghiền. Người short 100 straddle ở 20% implied (dollar gamma $\Gamma^\$ = \$2M$ như mục 19.2, giờ với dấu âm về gamma). Một ngày bình thường +0,5%: họ lãi $2M \times (0{,}0001587 - 0{,}000025) = 2M\times 0{,}0001337 = +\$267$. Đẹp. Nhưng một ngày **−7%** (kiểu 2/2018 hoặc một chân của crash):
+
+$$d\Pi_{\text{short}} = 2M \times (0{,}0001587 - (0{,}07)^2) = 2M\times(0{,}0001587 - 0{,}0049) = 2M \times (-0{,}004741) = -\$9.482$$
+
+trong *một ngày*, so với +\$267 ngày thường. Tỉ số là 35: một ngày xấu xóa **35 ngày** lãi (xác minh: $9482/267 = 35{,}5$). Và đó mới chỉ là gamma tĩnh với một ngày −7%; thực tế còn tệ hơn vì —
+
+### 19.6.2 Vega nổ: implied vol bản thân nó phi lên
+
+Khi thị trường crash, không chỉ realized variance nổ — *implied* vol cũng phi lên (VIX từ 15 lên 40). Người short vol lỗ kép: lỗ trên realized (gamma) *và* mark-to-market lỗ trên vega (implied vol họ đã bán giờ đắt hơn nhiều để mua lại). Với vega notional \$100.000/vol point, VIX nhảy từ 15 lên 40 là **+25 vol points**, tức mark-to-market lỗ tức thời:
+
+$$100.000 \times 25 = \$2.500.000$$
+
+*trước khi* thị trường kịp hiện thực bất kỳ realized variance nào. Đây là đòn giết người short vol trong ngày: bạn có thể đúng về realized dài hạn, nhưng margin call ập đến từ mark vega *ngay hôm nay*, buộc bạn đóng vị thế ở đúng đáy — biến một khoản lỗ giấy thành lỗ thật, vĩnh viễn. Nghịch lý cay đắng: nhiều quỹ short vol *đúng* về luận điểm ("vol sẽ hạ nhiệt trong vài tuần") nhưng vẫn chết, vì họ không sống nổi đến lúc luận điểm đúng.
+
+### 19.6.3 Correlation spike: dispersion và phòng hộ cùng chết
+
+Nhắc lại dispersion (mục 19.3): bạn short index vol, long single-name vol, lãi khi realized correlation thấp. Trong crash, correlation *phi lên gần 1*. Tính lại vol index thực hiện với $\bar\rho = 0{,}9$ (crash), single vol nhảy lên 45%:
+
+$$\sigma_{\text{index,real}} = \bar\sigma\sqrt{\bar\rho} = 0{,}45\times\sqrt{0{,}9} = 0{,}45\times 0{,}9487 = 0{,}4269 = 42{,}7\%.$$
+
+Bạn đã short index vol ở 18%; index thực hiện 42,7%. Chân short index lỗ $42{,}7 - 18 = 24{,}7$ vol points. Với vega \$100.000/point: **lỗ \$2,47M** ở riêng chân index — và chân long single-name không cứu được vì nó chỉ tăng theo tuyến tính chậm hơn (single vol 26%→45% chỉ đem lại một phần bù nhỏ so với cú nổ ở chân index). Cú correlation-to-one này là lý do dispersion, dù đẹp về relative value, vẫn là một chiến lược có đuôi tail-risk lớn: bạn short chính xác cái biến số (correlation) nhảy vọt đúng lúc bạn không chịu nổi. Chú ý cơ chế thống nhất: cả dispersion, put-selling và vol carry đều *ngắn cùng một rủi ro ẩn* — rủi ro "mọi thứ đổ cùng lúc" — nên trong một crash thật, một quỹ nghĩ mình có ba chiến lược đa dạng hóa thực ra chỉ có *một* cược lặp ba lần.
+
+### 19.6.4 Case study: XIV, ngày 5 tháng 2 năm 2018 (Volmageddon)
+
+Đây là hiện thân hoàn hảo của mọi cơ chế trên, và ta trỏ sang Phụ lục B để mổ xẻ đầy đủ; ở đây tóm tắt con số để đóng đinh bài học của chương. XIV là một ETP cho phép nhà đầu tư *inverse* VIX short-term futures — về bản chất, một cái hộp đóng gói sẵn chiến lược vol carry ở mục 19.4 (short front VIX futures, thu roll-down). Nó đã tăng ~150% trong 2017 nhờ contango dốc và vol thấp lịch sử — mọi tháng thu carry, đường cong mượt như lụa. Đúng chân dung "nhặt xu".
+
+Ngày 5/2/2018, VIX spot nhảy từ ~17 lên ~37 trong một phiên (VIX front future còn dữ hơn). Cơ chế blow-up:
+
+1. **Short vol = short gamma**: XIV short front VIX future, nên khi future phi lên, NAV của nó rơi tự do.
+2. **Convexity ngược + rebalance cưỡng bức**: prospectus buộc XIV rebalance cuối ngày để giữ leverage inverse −1×. Khi vol tăng, để giữ −1× nó phải **mua thêm VIX future** — mua vào đúng lúc giá đang phi. Cơ chế rebalance này giống hệt short-gamma hedging ở 19.6.1: nó *khuếch đại* cú tăng. Ước tính vài trăm triệu đô VIX vega phải mua trong 15 phút cuối phiên, tự đẩy front future lên thêm.
+3. **Feedback đồng pha**: mọi ETP short-vol (XIV, SVXY, và các quỹ chạy chiến lược tương tự) cùng phải mua vol cùng một thời điểm cuối ngày — đúng cơ chế unwind đồng pha ở mục 19.4.2. Cầu mua đồng loạt đẩy VIX future lên thêm nữa, nuôi vòng lặp.
+
+Kết quả: NAV của XIV mất **~96% trong một ngày** (từ ~\$99 xuống ~\$4, tức $(4-99)/99 = -96\%$). Credit Suisse thực thi quyền đóng (acceleration event khi mất >80% trong ngày) và **thanh lý sản phẩm**. Người nắm giữ — nhiều là nhà đầu tư nhỏ lẻ tưởng mình đang "ăn carry an toàn" — mất gần sạch trong 24 giờ. Toàn bộ VRP tích lũy nhiều năm bay trong một phiên, đúng theo số học "bảy tháng lãi bù một tháng lỗ" ở mục 19.1, chỉ là tỉ lệ ở đây là *hàng năm lãi bù một ngày lỗ*.
+
+Bài học rút thành nguyên tắc, không phải giai thoại: (1) **short vol là short một khoản nợ ngẫu nhiên có đuôi vô hạn**, và leverage cố định (−1× rebalance hằng ngày) trên một tài sản có đuôi béo là công thức tự hủy — convexity ngược đảm bảo bạn mua đúng đỉnh, bán đúng đáy. (2) **Crowding giết chết carry**: khi ai cũng short cùng điểm trên đường cong, cú unwind không còn là rủi ro độc lập của bạn mà là một cascade hệ thống. (3) **Sharpe không nhìn thấy điều này**: XIV có Sharpe tuyệt đẹp đến hết ngày 4/2/2018.
+
+### 19.6.5 Nguyên tắc quản lý rủi ro vol
+
+Gói lại thành các con số hành động. **Sizing theo đuôi, không theo Sharpe**: dùng scenario left-tail (crash −20%, vol → 60%, correlation → 0,9) làm ràng buộc sizing chứ không dùng vol hằng ngày — vì như mục 19.1.2 cho thấy, Sharpe đo xu không đo xe lu, và skewness −3 của chuỗi P&L nói rằng std đã đánh lừa bạn. **Mua đuôi bảo hiểm cho chính mình** (long put OTM xa, long VIX call): điều này biến short-vol thành một cấu trúc convex-lại, hy sinh một phần VRP để cắt cụt đuôi trái — thường là mua put spread hoặc call VIX rẻ để cap lỗ ở một mức hữu hạn; bạn đổi một phần của 111 điểm variance mỗi tháng lấy quyền không mất 825 điểm trong tháng crash. **Giới hạn leverage cứng**: XIV chết vì −1× cố định; một quỹ tỉnh táo giảm gross khi vol tăng (vol-targeting ngược), tự nhiên de-risk khi nước sâu. **Đo crowding**: theo dõi độ dốc contango, kích thước tổng các ETP short-vol, và dealer gamma positioning — khi ba cái cùng báo "quá đông ở một phía", cắt size trước, hỏi sau.
+
+Vol trading là asset class kỷ luật nhất trong cả cuốn sách, không phải vì toán khó hơn — mà vì nó trừng phạt sự thiếu kỷ luật một cách nhanh nhất và không thể đảo ngược. Bạn có thể sai về momentum trong sáu tháng và vẫn còn vốn để sửa; bạn sai về đuôi vol một lần và không còn ván sau. Đó là lý do mọi con số trong chương này đều quay về một phép so sánh duy nhất — premium nhỏ đều đặn ở tử số, đuôi khổng lồ hiếm hoi ở mẫu số — và vì sao người sống lâu trong nghề này không phải người thu VRP giỏi nhất, mà là người *sống sót qua cái mẫu số* đủ nhiều lần để tử số kịp cộng dồn.
+
+# Chương 20: Performance attribution và P&L decomposition
+
+Cuối tháng, một con số hạ xuống bàn của PM: danh mục lãi 1.8%, benchmark lãi 1.1%, active return +0.7%. Câu hỏi tiếp theo — câu mà quyết định bonus, quyết định vốn được cấp thêm hay bị rút, quyết định một PM còn ngồi ghế đó năm sau hay không — không phải "bao nhiêu" mà là **"vì đâu"**. Cái +0.7% đó đến từ việc chọn đúng ngành hay chọn đúng cổ trong ngành? Đến từ alpha thật của tín hiệu, hay chỉ từ việc vô tình nghiêng vào momentum đúng tháng momentum thắng? Bao nhiêu bị phí giao dịch và financing gặm mất? Và — câu hỏi lạnh lùng nhất — cái +0.7% ấy có phân biệt được với may mắn không, hay t-stat của nó bé đến mức tháng sau có thể thành -0.7% mà chẳng vi phạm quy luật nào?
+
+Attribution là bộ máy trả lời những câu đó. Nó là nghiệp vụ chuẩn buy-side mà các chương trước chưa hệ thống hóa: chương 5 dạy ghép tín hiệu thành danh mục, chương 6 dạy factor là ngôn ngữ của return, chương 14 dạy đo và phân bổ rủi ro — nhưng khép vòng lại, biến return đã-xảy-ra thành một bản kê "tiền này đến từ đâu, rủi ro này nằm ở đâu, và có thật không", là việc của chương này. Nguyên tắc xuyên suốt: **decomposition phải cộng lại đúng** — mọi đồng P&L phải quy được về một nguồn có tên, và tổng các nguồn phải khớp con số tổng đến từng basis point. Một attribution không reconcile được là một attribution sai, và ta sẽ thấy nó *tự nhiên* không cộng tuyến tính ở đâu, rồi xử lý chỗ đó cho đàng hoàng thay vì quét xuống thảm.
+
+## 20.1 Vì sao attribution tồn tại — và vì sao nó khó cộng cho khớp
+
+Có một cám dỗ ngây thơ: return danh mục là tổng return của các vị thế nhân trọng số, vậy thì active return chắc cũng chỉ là tổng các đóng góp, cộng thẳng là xong. Cám dỗ này sai ở ba chỗ, và ba chỗ đó là toàn bộ lý do attribution là một *kỹ năng* chứ không phải một phép cộng.
+
+Thứ nhất, **cross terms**. Khi bạn vừa lệch trọng số (overweight một ngành) vừa chọn cổ tốt trong ngành đó, một phần lợi nhuận sinh ra từ *tương tác* của hai quyết định — không thuộc riêng "chọn ngành" cũng chẳng thuộc riêng "chọn cổ". Ép nó vào một trong hai là gian lận sổ sách. Thứ hai, **compounding qua nhiều kỳ**: attribution một kỳ cộng gọn, nhưng return nhiều kỳ *nhân* chứ không cộng, nên tổng attribution 12 tháng không bằng tổng số học 12 tháng attribution — sai số này có tên (residual/linking) và phải được san đúng cách. Thứ ba, **overlap giữa các nguồn**: alpha và factor không trực giao sẵn; nếu tín hiệu của bạn nạp 0.9 vào UMD (chương 6), thì phần return bạn tưởng là "alpha" thực ra phần lớn là "momentum factor return" đội lốt. Không tách sạch thì bạn tự khen mình vì cưỡi một beta rẻ tiền.
+
+Ba khó khăn này không phải lỗi kỹ thuật vặt — chúng là bản chất. Attribution tốt thừa nhận chúng, đặt tên cho phần dư, và reconcile đến 0. Ta đi qua bốn ống kính — Brinson (holdings), factor, risk, và P&L-explain hằng ngày — rồi khép bằng câu hỏi thống kê: con số này có thật không.
+
+## 20.2 Brinson attribution — allocation, selection, interaction
+
+Ống kính đầu tiên, cổ điển nhất, là **Brinson-Hood-Beebower**. Nó không cần biết factor là gì; nó chỉ cần bốn thứ cho mỗi *segment* (thường là sector): trọng số danh mục $w_i^P$, trọng số benchmark $w_i^B$, return danh mục trong segment $r_i^P$, và return benchmark trong segment $r_i^B$. Từ đó nó tách active return thành ba hiệu ứng trả lời ba câu người-thường: *Ta có đặt tiền vào đúng ngành không?* (allocation), *Trong mỗi ngành ta có chọn đúng cổ không?* (selection), và phần tương tác không thuộc riêng ai.
+
+Return danh mục là $r^P=\sum_i w_i^P r_i^P$, benchmark là $r^B=\sum_i w_i^B r_i^B$, active return $A=r^P-r^B$. Công thức tách cho từng segment $i$:
+
+$$\text{Allocation}_i=(w_i^P-w_i^B)\,r_i^B,\quad \text{Selection}_i=w_i^B\,(r_i^P-r_i^B),\quad \text{Interaction}_i=(w_i^P-w_i^B)(r_i^P-r_i^B).$$
+
+Dẫn xuất chỉ là mở ngoặc và cộng có kiểm soát. Đóng góp active của segment $i$ là $w_i^P r_i^P - w_i^B r_i^B$. Cộng và trừ $w_i^B r_i^B$ và $w_i^P r_i^B$ một cách khéo:
+
+$$w_i^P r_i^P - w_i^B r_i^B = \underbrace{(w_i^P-w_i^B)r_i^B}_{\text{allocation}} + \underbrace{w_i^B(r_i^P-r_i^B)}_{\text{selection}} + \underbrace{(w_i^P-w_i^B)(r_i^P-r_i^B)}_{\text{interaction}}.$$
+
+Bạn kiểm tra bằng cách nhân bung vế phải: $w_i^P r_i^B - w_i^B r_i^B + w_i^B r_i^P - w_i^B r_i^B + w_i^P r_i^P - w_i^P r_i^B - w_i^B r_i^P + w_i^B r_i^B$. Các số hạng $w_i^P r_i^B$, $-w_i^P r_i^B$ triệt tiêu; $w_i^B r_i^P$, $-w_i^B r_i^P$ triệt tiêu; còn lại $-w_i^B r_i^B$ và chỉ giữ $w_i^P r_i^P - w_i^B r_i^B$. Khớp. Đây là điểm đẹp của Brinson: nó là một đẳng thức đại số, **luôn** reconcile đến từng bp — không phải xấp xỉ.
+
+**Ví dụ số đầy đủ.** Danh mục và benchmark trên 3 sector — Tech, Financials, Energy:
+
+| Sector | $w_i^P$ | $w_i^B$ | $r_i^P$ | $r_i^B$ |
+|---|---|---|---|---|
+| Tech | 50% | 40% | 8.0% | 6.0% |
+| Financials | 30% | 35% | 3.0% | 4.0% |
+| Energy | 20% | 25% | -2.0% | -3.0% |
+
+Return tổng trước. $r^P = 0.50(8.0)+0.30(3.0)+0.20(-2.0)=4.0+0.9-0.4=4.5\%$. $r^B=0.40(6.0)+0.35(4.0)+0.25(-3.0)=2.4+1.4-0.75=3.05\%$. Active $A=4.5-3.05=+1.45\%$. Đây là con số phải khớp cuối cùng.
+
+Allocation từng sector (đặt tiền đúng ngành chưa — dùng return *benchmark* của ngành để cô lập quyết định trọng số):
+- Tech: $(0.50-0.40)\times 6.0 = 0.10\times 6.0 = +0.60\%$. Overweight ngành lãi dương → tốt.
+- Financials: $(0.30-0.35)\times 4.0 = -0.05\times 4.0 = -0.20\%$. Underweight ngành lãi dương → bị phạt.
+- Energy: $(0.20-0.25)\times(-3.0) = -0.05\times(-3.0)=+0.15\%$. Underweight ngành lỗ → thưởng.
+- Tổng allocation $=0.60-0.20+0.15=+0.55\%$.
+
+Selection từng sector (trong ngành chọn cổ đúng chưa — dùng trọng số *benchmark* để cô lập quyết định chọn cổ):
+- Tech: $0.40\times(8.0-6.0)=0.40\times 2.0=+0.80\%$.
+- Financials: $0.35\times(3.0-4.0)=0.35\times(-1.0)=-0.35\%$.
+- Energy: $0.25\times(-2.0-(-3.0))=0.25\times 1.0=+0.25\%$.
+- Tổng selection $=0.80-0.35+0.25=+0.70\%$.
+
+Interaction từng sector (tương tác — chỉ khác 0 khi vừa lệch trọng số vừa lệch return):
+- Tech: $(0.10)(2.0)=+0.20\%$.
+- Financials: $(-0.05)(-1.0)=+0.05\%$.
+- Energy: $(-0.05)(1.0)=-0.05\%$.
+- Tổng interaction $=0.20+0.05-0.05=+0.20\%$.
+
+**Reconcile:** $0.55+0.70+0.20=+1.45\%$ — khớp active đúng đến bp. Đọc ý nghĩa: đóng góp lớn nhất là selection (+0.70%), nghĩa PM này giỏi *chọn cổ* trong ngành; allocation (+0.55%) cũng dương nhưng nhỏ hơn; interaction +0.20% là phần thưởng cho việc *đặt tiền nặng đúng chỗ mình cũng chọn cổ giỏi* (Tech: vừa overweight vừa outperform). Interaction dương ở Tech là dấu hiệu tốt — các quyết định của bạn cộng hưởng chứ không đá nhau.
+
+**Cạm bẫy interaction.** Nhiều nhà cung cấp (và không ít PM) *ghét* interaction vì khó giải thích cho nhà đầu tư, nên họ gộp nó vào selection: định nghĩa lại $\text{Selection}_i=w_i^P(r_i^P-r_i^B)$ (dùng $w_i^P$ thay $w_i^B$). Làm thế thì selection ở Tech thành $0.50\times 2.0=1.0\%$ — đã nuốt trọn 0.20% interaction (kiểm: $0.80+0.20=1.00$). Bản kê vẫn reconcile, nhưng bạn đã *gán* toàn bộ hiệu ứng tương tác cho stock-picking, thổi phồng năng lực chọn cổ. Không có đáp án "đúng" tuyệt đối — chỉ cần **nhất quán** và **khai báo quy ước**. Buy-side pod shop nghiêm túc giữ interaction tách riêng chính vì nó là tín hiệu: interaction lớn và dương nghĩa hai lớp quyết định của bạn ăn khớp; lớn và âm là cảnh báo bạn đang overweight đúng những ngành bạn chọn cổ *dở*.
+
+Brinson mở rộng nhiều kỳ thì đụng ngay khó khăn compounding ở mục 20.7. Nhưng một kỳ, nó là nền vững: một đẳng thức, luôn khớp, không cần model.
+
+## 20.3 Factor-based attribution — phân rã theo nguồn có tên
+
+Brinson trả lời "ngành nào, cổ nào"; nó *không* trả lời "cược của tôi thực chất là cược vào cái gì". Một PM có thể outperform hoàn toàn vì danh mục vô tình nghiêng vào momentum đúng tháng momentum thắng — Brinson sẽ khen anh ta "selection giỏi", trong khi sự thật là anh ta chỉ cưỡi một factor công khai rẻ tiền. Để bắt được điều đó ta cần ống kính factor (chương 6): phân rã return danh mục thành **tổng các đóng góp factor** cộng một phần **alpha residual** — phần thật sự không giải thích được bằng các factor đã biết.
+
+Mô hình chuẩn (cross-sectional Barra, chương 6): tại mỗi kỳ, return danh mục
+
+$$r^P=\sum_{k}\beta_k f_k+\alpha,$$
+
+với $\beta_k$ là exposure (loading) của danh mục lên factor $k$, $f_k$ là factor return kỳ đó (giá của rủi ro factor, đã ước lượng bằng cross-sectional regression), và $\alpha$ là residual — phần return còn lại sau khi đã trừ hết mọi thứ có tên. Đóng góp của factor $k$ là tích $\beta_k f_k$; đọc "danh mục nghiêng $\beta_k$ vào factor này, factor này tháng nay trả $f_k$, nên nó góp $\beta_k f_k$ vào return của tôi."
+
+**Ví dụ số.** Một equity market-neutral book, return tháng $r^P=+12.0\%$ (giả định tháng đẹp để số tròn). Risk model cho exposures và tháng này factor returns như sau:
+
+| Factor $k$ | Exposure $\beta_k$ | Factor return $f_k$ | Contribution $\beta_k f_k$ |
+|---|---|---|---|
+| Market | 0.20 | 15.0% | $0.20\times 15.0=3.00\%$ |
+| Momentum (UMD) | 0.50 | 5.0% | $0.50\times 5.0=2.50\%$ |
+| Value (HML) | 0.40 | 2.5% | $0.40\times 2.5=1.00\%$ |
+| Quality | 0.30 | 3.0% | $0.30\times 3.0=0.90\%$ |
+| Size | -0.20 | 2.0% | $-0.20\times 2.0=-0.40\%$ |
+| **Tổng factor** | | | **$7.00\%$** |
+| **Alpha residual** | | | **$5.00\%$** |
+| **Tổng $r^P$** | | | **$12.00\%$** |
+
+Reconcile: $3.00+2.50+1.00+0.90-0.40=7.00\%$ factor, cộng alpha $12.00-7.00=5.00\%$. Chú ý ta *suy ra* alpha bằng phép trừ — alpha là số dư, không phải số đo trực tiếp. Đây là điểm sống còn về mặt tư duy: **alpha của bạn chỉ tốt bằng danh sách factor bạn trừ đi**. Nếu risk model thiếu một factor mà danh mục vô tình nạp vào (ví dụ crowding, hay short-volatility), phần đó sẽ chảy nhầm vào alpha và bạn tự lừa mình.
+
+Đọc bản kê: trong 12% ấy, chỉ 5% là alpha thật; 7% là bạn được factor trả. Riêng momentum góp 2.5% — nếu tín hiệu của bạn là chính cái momentum 12-1 công khai (rank-IC ~0.025, loading UMD ~0.9, alpha residual ~0 như running example ở chương 6), thì "alpha" tưởng có sẽ teo về gần 0 sau khi trừ UMD, và bạn không nên tính công cho mình vì nó. Ngược lại, một book mà alpha residual chiếm phần lớn return và *ổn định qua các tháng* mới là book có edge thật — đó là thứ nhà đầu tư trả phí 2-and-20 để mua, không phải beta factor họ mua được qua một ETF smart-beta rẻ hơn nhiều.
+
+**Nối Brinson và factor.** Hai ống kính không mâu thuẫn — chúng nhìn cùng một P&L từ hai phía. Brinson phân theo *cấu trúc danh mục* (ngành, cổ), factor phân theo *nguồn rủi ro hệ thống*. Một PM lý tưởng có allocation/selection dương *và* alpha residual dương; một PM đáng ngờ có Brinson-selection dương nhưng factor cho thấy nó chỉ là momentum-loading. Chạy cả hai, đọc chéo, là cách bắt "closet factor betting" — cược factor trá hình alpha. Cụ thể với ví dụ trên: nếu Brinson của cùng book này khoe selection +0.70% mà factor cho thấy momentum một mình đã góp +2.50%, thì cái "tài chọn cổ" ấy phần lớn chỉ là cùng một momentum tilt nhìn từ góc holdings — hai bản kê đang mô tả *một* quyết định đội hai cái tên, và bạn không được tính công hai lần.
+
+## 20.4 Risk attribution — MCTR và phân rã volatility
+
+Return đã xảy ra là quá khứ; rủi ro là tương lai. Attribution không chỉ hỏi "tiền đến từ đâu" mà còn "rủi ro của tôi *đang* nằm ở đâu" — và câu này phải trả lời *trước* khi P&L xảy ra, vì nó là thứ bạn kiểm soát. Công cụ trung tâm là **marginal contribution to risk** (MCTR), thứ phân rã volatility danh mục $\sigma_P$ thành các đóng góp cộng-lại-đúng theo từng vị thế hoặc từng factor (chương 14 dùng nó cho risk budgeting; ở đây ta xem nó như một attribution ex-ante).
+
+Volatility danh mục là $\sigma_P=\sqrt{w^\top\Sigma w}$ với $w$ trọng số, $\Sigma$ covariance. Điểm mấu chốt: $\sigma_P$ là hàm **bậc một thuần nhất** của $w$ (nhân đôi mọi vị thế thì vol nhân đôi), nên theo định lý Euler nó bằng đúng tổng các đạo hàm riêng nhân biến:
+
+$$\sigma_P=\sum_i w_i\frac{\partial \sigma_P}{\partial w_i}.$$
+
+Đạo hàm riêng chính là marginal contribution. Từ $\sigma_P=\sqrt{w^\top\Sigma w}$:
+
+$$\frac{\partial \sigma_P}{\partial w_i}=\frac{(\Sigma w)_i}{\sqrt{w^\top\Sigma w}}=\frac{(\Sigma w)_i}{\sigma_P}.$$
+
+Nên **contribution to risk** của vị thế $i$ là
+
+$$\text{MCTR}_i=w_i\frac{(\Sigma w)_i}{\sigma_P},\qquad \sum_i \text{MCTR}_i=\frac{w^\top\Sigma w}{\sigma_P}=\frac{\sigma_P^2}{\sigma_P}=\sigma_P.$$
+
+Đẹp và cộng đúng: tổng các MCTR bằng chính $\sigma_P$. Đây là điều Euler bảo đảm, và nó là lý do MCTR là *chuẩn công nghiệp* để nói "vị thế này chiếm bao nhiêu % rủi ro của tôi."
+
+**Ví dụ số.** Hai vị thế, $w=(0.6,\,0.4)$. Vol $\sigma_1=20\%$, $\sigma_2=10\%$, tương quan $\rho=0.5$. Covariance:
+
+$$\Sigma=\begin{pmatrix}0.04 & 0.01\\ 0.01 & 0.01\end{pmatrix},\quad \text{vì } \Sigma_{12}=\rho\sigma_1\sigma_2=0.5\times 0.20\times 0.10=0.01.$$
+
+Vol danh mục: $w^\top\Sigma w = 0.6^2(0.04)+0.4^2(0.01)+2(0.6)(0.4)(0.01)=0.0144+0.0016+0.0048=0.0208$. Nên $\sigma_P=\sqrt{0.0208}=0.1442=14.42\%$.
+
+$(\Sigma w)_1 = 0.04(0.6)+0.01(0.4)=0.024+0.004=0.028$. $(\Sigma w)_2=0.01(0.6)+0.01(0.4)=0.006+0.004=0.010$.
+
+$\text{MCTR}_1 = 0.6\times 0.028/0.1442 = 0.0168/0.1442 = 0.1165=11.65\%$. $\text{MCTR}_2=0.4\times 0.010/0.1442=0.004/0.1442=0.0277=2.77\%$.
+
+**Reconcile:** $11.65\%+2.77\%=14.42\%=\sigma_P$. Khớp. Đọc: vị thế 1 chiếm $11.65/14.42=80.8\%$ *rủi ro* dù chỉ chiếm 60% *vốn*. Rủi ro tập trung nặng hơn vốn — vì vị thế 1 vol gấp đôi. Đây là bài học kinh điển: **weight ≠ risk**. Một PM tưởng mình đã "diversify 60/40" thực ra đang all-in vào một cái. Risk parity (chương 5, 14) chính là cân lại để MCTR đều nhau, không phải để vốn đều nhau.
+
+**Phân rã theo factor — làm đầy đủ bằng số.** Trong risk model ta thay $\Sigma=B\Sigma_f B^\top+D$ (loadings $B$, factor covariance $\Sigma_f$, idio $D$ — chương 6). Cùng logic Euler cho ta tách $\sigma_P^2$ thành phần *factor risk* và phần *specific risk*, rồi trong factor risk lại tách theo từng factor. Thay vì khẳng định suông một cặp số, ta dựng một book cụ thể để thấy nó ra thế nào. Một equity market-neutral book có loading factor $b=(\beta_{\text{mom}},\beta_{\text{val}})=(0.50,\,0.30)$; factor vol năm $\sigma_{\text{mom}}=12\%$, $\sigma_{\text{val}}=9\%$, tương quan hai factor $\rho_f=0.20$; specific vol năm $\sigma_{\text{spec}}=4.7\%$. Factor covariance:
+
+$$\Sigma_f=\begin{pmatrix}0.12^2 & 0.20(0.12)(0.09)\\ 0.20(0.12)(0.09) & 0.09^2\end{pmatrix}=\begin{pmatrix}0.0144 & 0.002160\\ 0.002160 & 0.0081\end{pmatrix}.$$
+
+Factor variance của book: $b^\top\Sigma_f b = 0.50^2(0.0144)+0.30^2(0.0081)+2(0.50)(0.30)(0.002160)=0.0036+0.000729+0.000648=0.004977$. Vậy factor vol $=\sqrt{0.004977}=7.05\%$. Specific variance $=0.047^2=0.002209$, specific vol $=4.70\%$. Tổng variance $=0.004977+0.002209=0.007186$, tổng vol $=\sqrt{0.007186}=8.48\%$. Kiểm bằng Pythagoras: factor và idio trực giao nên $\sqrt{7.05^2+4.70^2}=\sqrt{49.7+22.1}=\sqrt{71.8}=8.48\%$ — khớp. Đọc: book "target" quanh 8.5% vol năm thì $7.05\%$ đến từ **factor exposures** (momentum một mình đóng $0.50^2\times 0.0144/0.007186=50.1\%$ *variance*) và chỉ $4.70\%$ từ **idio** — nói rằng phần lớn *rủi ro* của bạn KHÔNG phải cái stock-specific bet bạn nghĩ mình đang chơi, mà là factor tilt bạn không chủ ý.
+
+Risk attribution ex-ante và return attribution ex-post phải kể *cùng một câu chuyện*: nếu risk nói "bạn nặng momentum" (như factor risk trên) mà return-attribution lại gán mọi thứ cho alpha, một trong hai đang nói dối. Book vừa dựng ở đây chính là book market-neutral ở mục 20.3 — và quả nhiên nó nạp momentum nặng cả về return (contribution +2.50%) lẫn risk (50% variance); hai ống kính đồng thanh, đó là dấu hiệu attribution đáng tin.
+
+## 20.5 P&L explain buy-side — mổ một ngày
+
+Ba mục trên nhìn theo tháng/kỳ. Nhưng bàn trading sống theo **ngày**, và "P&L explain" (hay "P&L attribution", "P&L decomp") hằng ngày là nghiệp vụ mà mọi middle-office và mọi PM pod đều chạy trước khi đi ngủ. Câu hỏi: hôm nay lãi/lỗ $X$ đô, tách ra thì $X$ đến từ *market move* trên vị thế đang giữ, từ *alpha* (vị thế tự outperform ngoài beta), từ *financing* (chi phí vay/lãi ký quỹ), từ *execution/slippage* (giá thực hiện lệch giá tham chiếu), và từ *fees*. Nếu tổng các mảnh không bằng P&L thực tế trong sổ, có một *unexplained* — và unexplained lớn là báo động đỏ: hoặc model sai, hoặc có lệnh/booking lỗi, hoặc có cái gì đó bạn chưa hiểu về vị thế của mình.
+
+**Ví dụ số — một ngày của một book long/short.** Book gross $100M (long $60M, short $40M), net long $20M. Hôm nay:
+
+- **Market/beta P&L**: net exposure $20M, beta danh mục 0.3 lên thị trường, thị trường +0.80%. $\Rightarrow 20\text{M}\times 0.3\times 0.0080 = +\$48{,}000$. Đây là phần bạn kiếm chỉ vì *có mặt* trên thị trường một ngày thị trường lên.
+- **Alpha/idio P&L**: long leg outperform beta-adjusted +0.25%, short leg (bạn short) underperform beta-adjusted -0.15% → cả hai đều có lợi. Long: $60\text{M}\times 0.0025=+\$150{,}000$. Short: short cổ giảm tương đối, lãi $40\text{M}\times 0.0015=+\$60{,}000$. $\Rightarrow$ alpha $=+\$210{,}000$. Đây là dòng bạn *muốn* thấy — tiền từ selection thật, không từ beta.
+- **Financing P&L**: short $40M sinh rebate/borrow cost; giả sử net financing (borrow fee trên short leg + lãi margin trên long) $= -3\text{bps}$/ngày trên gross vay $80M $\Rightarrow -80\text{M}\times 0.0003=-\$24{,}000$. Financing gần như luôn âm với book leverage cao và là chỗ alpha rò rỉ âm thầm.
+- **Execution/slippage**: hôm nay trade $8M notional để rebalance; slippage thực đo được 6bps so với arrival price $\Rightarrow -8\text{M}\times 0.0006=-\$4{,}800$. (Chương 13 dạy đo cái này bằng implementation shortfall; ở đây nó là một *dòng P&L có tên*, không phải chi phí ẩn.)
+- **Fees/commissions**: $-\$1{,}200$.
+
+Tổng explained: $48{,}000+210{,}000-24{,}000-4{,}800-1{,}200=+\$228{,}000$.
+
+Giả sử P&L thực trong sổ (mark-to-market cuối ngày) là $+\$230{,}000$. **Unexplained $=230{,}000-228{,}000=+\$2{,}000$** ($\approx 0.87\%$ của P&L, hay 0.2bps trên gross). Nhỏ, chấp nhận được — thường do FX rounding, dividend accrual, hoặc mark timing. Nếu unexplained là $+\$50{,}000$ (22% của P&L), bạn *dừng lại và điều tra* trước khi tin bất kỳ con số nào: có thể một vị thế bị book sai giá, một corporate action chưa xử lý, hay một greek chưa hedge nếu book có options.
+
+Đọc bản kê một ngày này như một bác sĩ đọc phim: alpha $210k dương và *lớn hơn* market $48k — dấu hiệu tốt, tiền chủ yếu từ skill không từ beta. Financing $-24k đều đặn ăn mòn; nếu nó lặp lại mỗi ngày, $24k\times 250\approx\$6\text{M}$/năm — một khoản khổng lồ mà nhiều PM mới bỏ quên khi tính Sharpe backtest (chương 9 gọi đây là một trong những khoảng cách backtest-vs-live). Cộng dồn P&L explain hằng ngày qua tháng, bạn có một *bức tranh nguồn gốc* mượt hơn nhiều so với chỉ nhìn con số cuối tháng — và nó là dữ liệu đầu vào để trả lời câu hỏi cuối: có thật không.
+
+**Khi book không chỉ là cổ phiếu — carry, roll, price, convexity.** Bản kê năm-dòng ở trên là bộ khung cho một equity book. Nhưng ngay khi vị thế của bạn có *đường cong* hay *lồi* — trái phiếu, FX carry, rates RV (chương 18), hay options (chương 19) — P&L explain phải mọc thêm dòng, vì một cú dịch giá không còn tuyến tính theo yếu tố rủi ro. Với một fixed-income / carry book, chuẩn mực là tách:
+
+$$\text{P\&L} = \underbrace{\text{carry}}_{\text{accrual}} + \underbrace{\text{roll-down}}_{\text{trượt trên curve}} + \underbrace{\text{price (duration)}}_{-D\cdot\Delta y} + \underbrace{\text{convexity}}_{\frac12 C(\Delta y)^2} + \text{residual}.$$
+
+Ví dụ số cho một vị thế trái phiếu 10Y, notional $50M, modified duration $D=8.0$, convexity $C=75$, coupon/yield $y=4.0\%$, trong một ngày yield giảm $\Delta y=-10$bp và curve roll đem lại tương đương $+2$bp lợi giá:
+
+- **Carry** (accrual một ngày): $50\text{M}\times 0.040\times \tfrac{1}{252}=+\$7{,}937$. Tiền bạn kiếm chỉ vì *nắm giữ*, chưa cần giá nhúc nhích.
+- **Roll-down**: $50\text{M}\times 8.0\times 0.0002=+\$80{,}000$. Trái phiếu "trẻ lại" trượt xuống curve dốc.
+- **Price (duration)**: $-50\text{M}\times 8.0\times(-0.0010)=+\$400{,}000$. Cú lớn nhất — yield giảm, giá lên.
+- **Convexity**: $\tfrac12\times 50\text{M}\times 75\times(0.0010)^2=+\$1{,}875$. Số hạng bậc hai — nhỏ hôm nay nhưng chính là thứ cứu bạn (hoặc giết bạn) khi $\Delta y$ lớn: ở cú dịch $100$bp nó phình lên $\tfrac12\times 50\text{M}\times 75\times 0.01^2=\$187{,}500$.
+
+Tổng explained $=7{,}937+80{,}000+400{,}000+1{,}875=+\$489{,}812$. Cái đẹp của cách tách này là nó *phân biệt* được nguồn: nếu ngày mai yield đứng yên mà book vẫn lãi, đó là carry+roll (bền, lặp lại); nếu nó lãi vì $\Delta y$ chạy, đó là price (may rủi thị trường, không lặp). Một carry trader nhìn dòng carry+roll để biết edge cấu trúc của mình, và nhìn dòng convexity để biết mình đang short hay long gamma — hệt như một options PM tách theo delta/gamma/theta/vega (chương 19; và xem cuốn Q-world cho variance risk premium và dealer gamma, nơi P&L explain của một vol book chính là bản kê greeks). Nguyên tắc bất biến: mỗi yếu tố rủi ro *có tên* được một dòng, phần dư *đo được* là unexplained, và unexplained lớn nghĩa bạn thiếu một greek hoặc book sai một mark.
+
+## 20.6 Đánh giá thống kê — alpha này có phân biệt được với may mắn không
+
+Mọi con số alpha ở trên là *điểm ước lượng* trên một mẫu hữu hạn, nên câu hỏi sống còn — câu mà chương 9 đã gieo và ở đây ta thu hoạch — là: **cái +5% alpha residual, hay +0.7% active return, có phân biệt được với 0 không?** Nếu không, bạn đang thưởng cho may mắn và sẽ phân bổ vốn sai.
+
+**Information ratio** là tỷ số đầu tiên. $IR=\text{active return trung bình}/\text{tracking error}$, tức Sharpe của *active* return (chương 5). Với chuỗi active $A_t$: $IR=\bar A/\sigma_A$ (annualized). Đây cũng là mẫu số của Fundamental Law (chương 5, 7): $IR=IC\cdot\sqrt{BR}$ — một book breadth cao với IC khiêm tốn vẫn ra IR đẹp. Nối vào running example xuyên sách: một tín hiệu $IC=0.05$ chơi trên $BR=256$ cược độc lập/năm cho $IR=0.05\times\sqrt{256}=0.05\times 16=0.80$ — đúng ngưỡng "tốt" của một pod, và cũng là con số ta đem đi kiểm định ngay dưới đây.
+
+**t-stat của alpha** biến IR thành phát biểu về ý nghĩa thống kê. Với $T$ kỳ độc lập, quan hệ then chốt:
+
+$$t_\alpha = IR\times\sqrt{T}\quad(\text{IR và } T \text{ cùng tần suất năm}).$$
+
+Dẫn xuất: $\bar A$ có sai số chuẩn $\sigma_A/\sqrt{T}$, nên $t=\bar A/(\sigma_A/\sqrt{T})=(\bar A/\sigma_A)\sqrt{T}=IR\sqrt{T}$.
+
+**Ví dụ số.** Book có $IR=0.8$ (một pod shop coi 0.7–1.0 là tốt), chạy $T=3$ năm. $t_\alpha=0.8\times\sqrt{3}=0.8\times 1.732=1.39$. So chuẩn $t>2$: **1.39 chưa đủ** — alpha này *chưa* phân biệt được với may mắn ở mức tin cậy thường dùng, dù IR nghe hấp dẫn. Cần bao nhiêu năm để $t=2$? $\sqrt{T}=2/0.8=2.5\Rightarrow T=6.25$ năm. Đây là sự thật phũ phàng buy-side: một IR 0.8 *cần hơn 6 năm* live mới đủ bằng chứng thống kê — và đó là lý do track record ngắn gần như vô giá trị để phân biệt skill với luck, dù nó lấp lánh đến đâu. Lật ngược lại cũng đau không kém: muốn kết luận trong đúng $T=3$ năm ($t=2$) thì cần $IR=2/\sqrt{3}=1.15$ — một mức mà rất ít book đơn lẻ chạm tới, giải thích vì sao pod shop gộp hàng chục strategy uncorrelated để nâng IR tổng hợp thay vì chờ một cái sáng đủ nhanh.
+
+**Deflated Sharpe / deflated alpha** (chương 9) là lớp phòng thủ cuối, chống **multiple testing**. Nếu con số alpha bạn khoe là *cái tốt nhất* trong $N$ cấu hình bạn đã thử, thì ngưỡng phải cao hơn — vì thử nhiều thì cái tốt nhất trông đẹp *do noise*. Ngưỡng Sharpe kỳ vọng của trò may rủi thuần túy khi thử $N$ lần trong $T$ năm:
+
+$$SR_0=\sqrt{\frac{2\ln N}{T}}.$$
+
+Với running example của chương 9: thử $N=1000$ cấu hình trên $T=10$ năm $\Rightarrow SR_0=\sqrt{2\ln 1000/10}=\sqrt{2\times 6.908/10}=\sqrt{1.382}=1.18$. Nghĩa: kể cả khi *không có edge nào*, cái tốt nhất trong 1000 thử nghiệm sẽ có Sharpe kỳ vọng ~1.18 chỉ vì may. Nên nếu attribution của bạn khoe alpha ứng với Sharpe 1.2 — deflated về gần 50% xác suất là đồ giả. Áp thẳng vào attribution: một selection effect hay factor-alpha *chọn ra* từ nhiều biến thể phải bị deflate y hệt, nếu không bạn đang attribution cho noise và gọi nó là skill. Đây là chỗ attribution gặp overfitting: **đừng attribution một con số bạn đã data-snoop để tìm ra.**
+
+## 20.7 Gotchas — nơi decomposition phản bội bạn
+
+Attribution trông như số học sạch sẽ, nhưng nó đầy bẫy, và mọi bẫy đều bắt nguồn từ một sự thật: **thế giới không cộng tuyến tính, còn bản kê thì muốn cộng tuyến tính.** Bốn cái bẫy đáng máu nhất:
+
+**(1) Không cộng tuyến tính qua nhiều kỳ (linking/compounding).** Một kỳ, Brinson cộng đúng đến bp. Nhưng ghép $Q$ kỳ, return *nhân*: $(1+r_1)(1+r_2)\cdots$, không cộng. Nên $\sum_t A_t \neq$ active return tích lũy đúng, và tổng $\sum_t \text{Allocation}_t$ cũng lệch. Đây là chỗ chương cũ hay vẫy tay — ta làm bằng số cho hết mơ hồ. Lấy hai kỳ, danh mục return $r^P=(10\%,\,5\%)$, benchmark $r^B=(8\%,\,4\%)$. Active từng kỳ là $+2\%$ và $+1\%$, **cộng số học ra $+3.00\%$**. Nhưng active *tích lũy đúng* là hiệu hai return compound: $r^P_{\text{cum}}=(1.10)(1.05)-1=15.50\%$, $r^B_{\text{cum}}=(1.08)(1.04)-1=12.32\%$, nên active tích lũy $=15.50-12.32=+3.18\%$. Chênh $+3.18-3.00=+0.18\%$ là **linking residual** — một cross-term bậc hai không thuộc kỳ nào (return kỳ 2 được khuếch đại bởi vốn đã tăng từ kỳ 1).
+
+Giải pháp công nghiệp là các thuật toán smoothing — **Carino, Menchero, GRAP** — san residual ngược vào từng kỳ theo một hệ số scaling sao cho tổng khớp *và* mỗi kỳ vẫn diễn giải được. Cụ thể Carino: định nghĩa hệ số log-linking cho mỗi kỳ $k_t=\dfrac{\ln(1+r^P_t)-\ln(1+r^B_t)}{r^P_t-r^B_t}$ và hệ số tổng $k=\dfrac{\ln(1+R^P)-\ln(1+R^B)}{R^P-R^B}$; rồi active mỗi kỳ được scale thành $(k_t/k)\,A_t$. Với số trên: $k=0.8779$, $k_1=0.9175$, $k_2=0.9569$; active đã scale là $\tfrac{0.9175}{0.8779}(2\%)=2.09\%$ và $\tfrac{0.9569}{0.8779}(1\%)=1.09\%$, **tổng $=3.18\%$** — khớp active tích lũy đúng đến bp, mà mỗi kỳ vẫn giữ diễn giải riêng. Điểm cần nhớ không phải thuộc lòng công thức Carino mà là: **đừng bao giờ cộng số học attribution qua nhiều kỳ và tin nó khớp** — nó lệch, phần lệch có tên, và có thuật toán chuẩn để san.
+
+**(2) Interaction/cross terms bị nuốt.** Như mục 20.2: gộp interaction vào selection thổi phồng stock-picking. Tổng quát hơn, mọi decomposition của một tích thành các thành phần đều đẻ ra cross-term, và *quyết định cross-term thuộc về ai là một lựa chọn, không phải một sự thật*. Nhất quán và khai báo — đừng lặng lẽ gán để bảng đẹp hơn.
+
+**(3) Timing effect — trọng số trong kỳ không đứng yên.** Brinson một kỳ giả định $w_i^P$ cố định suốt kỳ. Thực tế bạn trade *trong* kỳ; nếu bạn tăng Tech đúng lúc Tech bắt đầu chạy, có một **timing/trading effect** mà attribution "buy-and-hold" (dùng trọng số đầu kỳ) không bắt được — nó chảy nhầm vào unexplained hoặc bị gán sai cho selection. Ví dụ: bạn vào Tech ngày 15 với return nửa cuối kỳ +5%, nhưng attribution dùng $w^P$ đầu kỳ (khi bạn chưa có Tech) sẽ *bỏ sót* +5% ấy hoặc gán nó lung tung. Giải pháp: attribution tần suất cao hơn (daily linking) để "đóng băng" trọng số trong từng ngày rồi link lại — chính là lý do P&L explain *hằng ngày* (mục 20.5) chuẩn hơn attribution *hằng tháng*: nó cắt kỳ đủ nhỏ để timing effect không kịp làm nhiễu, và đồng thời làm linking residual nhỏ đi (residual bậc hai co theo bình phương độ dài kỳ).
+
+**(4) Chọn sai benchmark.** Toàn bộ Brinson đo *so với benchmark*; một benchmark sai làm mọi effect vô nghĩa. Kinh điển: một book small-cap value đo so với S&P 500 (large-cap) sẽ ra "allocation effect" khổng lồ chỉ vì hai vũ trụ khác nhau — không phản ánh skill mà phản ánh *sai lệch định nghĩa*. Benchmark phải là **investable, phản ánh đúng vũ trụ và style** của danh mục; nếu không, cái +0.7% active bạn khoe có thể chỉ là size/style premium mà một benchmark đúng đã hấp thụ. Đây là mặt Brinson của cùng cạm bẫy mà factor-attribution bắt qua "thiếu factor": cả hai đều là câu chuyện *bạn đang so với cái nền sai*.
+
+Một gotcha bao trùm, đã gặp ở mục 20.6: **đừng attribution cái bạn đã data-snoop.** Nếu con số alpha là kết quả của việc thử-và-chọn, thì mọi decomposition đẹp đẽ của nó chỉ là mô tả chi tiết của một ảo ảnh. Attribution mô tả *đã xảy ra gì*; nó không chứng minh *sẽ lặp lại*. Chỉ khi t-stat qua ải (mục 20.6, đã deflate) thì bản kê nguồn gốc mới đáng để cấp thêm vốn.
+
+## 20.8 Ghép lại — một quy trình attribution buy-side hoàn chỉnh
+
+Gộp bốn ống kính và lớp thống kê thành một recipe làm-lại-được, đây là những gì một pod nghiêm túc chạy mỗi kỳ. **Một**, chạy P&L explain *hằng ngày* (mục 20.5): tách market/alpha/financing/execution/fees — cộng thêm carry/roll/convexity nếu book có đường cong hay lồi — reconcile với sổ đến unexplained nhỏ; unexplained lớn là dừng-và-điều-tra trước mọi thứ khác. **Hai**, cuối kỳ chạy Brinson (mục 20.2) trên holdings để trả lời allocation-vs-selection-vs-interaction, giữ interaction tách riêng, dùng daily linking + Carino để né timing effect và linking residual (mục 20.7). **Ba**, chạy factor attribution (mục 20.3) song song để tách return thành factor-contributions cộng alpha residual — đọc chéo với Brinson để bắt closet factor betting. **Bốn**, chạy risk attribution ex-ante bằng MCTR (mục 20.4) và kiểm rằng câu chuyện rủi ro khớp câu chuyện return: nếu risk nói "nặng momentum" thì return-attribution phải thấy momentum, không được giấu vào alpha. **Năm**, và cuối cùng, đặt mọi con số alpha qua tòa án thống kê (mục 20.6): $t_\alpha=IR\sqrt T$, deflate cho multiple testing bằng $SR_0=\sqrt{2\ln N/T}$, và chỉ tin phần alpha sống sót.
+
+Sợi chỉ đỏ xuyên cả năm bước là một kỷ luật duy nhất: **mỗi đồng phải reconcile về một nguồn có tên, và mọi phần dư phải có tên riêng chứ không bị quét xuống thảm.** Brinson reconcile đến bp vì nó là đẳng thức; factor reconcile vì alpha là số dư định nghĩa; MCTR reconcile vì Euler; P&L explain reconcile đến một unexplained *đo được*; multi-period reconcile nhờ Carino san đúng linking residual. Attribution không phải là kể một câu chuyện đẹp về vì sao bạn thắng — nó là một bài kiểm toán lạnh lùng buộc câu chuyện phải cộng cho khớp, và buộc bạn thừa nhận phần bạn không giải thích được. Chính chỗ "không giải thích được" — unexplained trong P&L, alpha residual sau khi trừ factor, phần vượt t-stat sau khi deflate — mới là nơi cất giữ hai thứ đắt nhất của nghề: edge thật, và những lỗ hổng chưa thấy sẽ giết bạn nếu không tìm ra. Đo và phân rã P&L, xét cho cùng, là cách một quỹ tự soi gương và hỏi câu khó nhất: *tiền này có thật là của tôi không, và tôi có hiểu vì sao nó đến không.*
+
+# Chương 21: Industry — văn hóa, career, tech stack
 
 Mọi thứ trước chương này là công cụ: cách đo return, dựng factor, backtest có kỷ luật, xây danh mục, quản trị rủi ro. Chương này nói về nơi bạn sẽ dùng những công cụ đó — một ngành công nghiệp có cấu trúc kinh tế rất đặc thù quyết định văn hóa làm việc, cách trả lương, tech stack, và cả loại người sống sót được trong đó. Hiểu sai cấu trúc này là lý do nhiều người giỏi toán vào nghề rồi vỡ mộng sau mười tám tháng. Vì sao một pod shop cắt bạn khi drawdown chạm 5% nhưng RenTec giữ người hàng chục năm? Vì sao một QR mới ra trường ở quỹ top nhận 300k trong khi một PhD tương đương ở fintech nhận 180k? Vì sao polars đang giết pandas nhưng kdb+ vẫn sống sau hai mươi năm? Tất cả đều suy ra được từ một điều duy nhất: ai trả tiền cho cái gì, và vì sao. Chương này không kể giai thoại; nó dựng lại từng cơ chế kinh tế đó bằng số, để bạn nhìn ngành như nhìn một mô hình chứ như nghe đồn.
 
-## 18.1 Hai mô hình văn hóa: mercenary vs collaborative
+## 21.1 Hai mô hình văn hóa: mercenary vs collaborative
 
 Toàn bộ buy-side định lượng phân cực về hai kiến trúc tổ chức. Chúng không phải hai điểm trên một trục — chúng là hai lời giải khác nhau cho cùng một bài toán: *làm sao biến tài năng nghiên cứu thành P&L ổn định mà không bị chính tài năng đó tống tiền hoặc bỏ đi mang theo alpha.* Hai lời giải trái ngược đến mức chúng tuyển hai loại người khác nhau, viết code theo hai triết lý khác nhau, và vẽ ra hai đường cong sự nghiệp khác nhau. Không có mô hình nào "đúng" hơn; mỗi mô hình tối ưu cho một ràng buộc khác nhau, và chọn nhầm nơi là chọn nhầm cả cách sống mười năm tới.
 
-### 18.1.1 Pod shop — kiến trúc "mercenary"
+### 21.1.1 Pod shop — kiến trúc "mercenary"
 
 Trong **pod shop** (Millennium, Citadel, Point72, Balyasny, ExodusPoint, Schonfeld), đơn vị nguyên tử là **pod**: một Portfolio Manager (PM) cùng một nhóm nhỏ QR/QD, được cấp một lượng vốn (book) và một hạn mức rủi ro. PM tự chủ hoàn toàn chiến lược trong hạn mức đó, và ăn chia P&L theo một payout thường 10–20%. Tri thức **không** chảy giữa các pod — pod A không biết pod B đang chạy tín hiệu gì, và đó là thiết kế có chủ đích, không phải tai nạn: cô lập tín hiệu ngăn một QR nghỉ việc bê cả cỗ máy đi, đồng thời buộc mỗi pod phải tự đứng được trên chân mình.
 
@@ -3176,7 +3875,7 @@ Thế số từng bước với $b=25$. Số hạng một: $\Phi\!\left(\frac{-2
 
 Đó là lý do các nghiên cứu ngành ước tính khoảng 15–30% PM pod bị đào thải mỗi năm, và tuổi thọ trung vị của một PM ở pod shop chỉ vài năm. Payout hào phóng 18% chính là **phí bảo hiểm cho rủi ro nghề nghiệp cực cao này** — firm sẵn sàng chia đậm vì biết cấu trúc stop sẽ tự động thải những PM kém may mà không tốn chi phí sa thải. Văn hóa nảy sinh trực tiếp từ cấu trúc: tốc độ học khủng khiếp (bạn cầm P&L thật ngay ngày đầu), áp lực cực cao, chủ nghĩa cá nhân "mercenary" — bạn được thuê để tạo alpha, không phải để nuôi văn hóa. Hợp với người muốn cầm P&L riêng sớm và chịu được rằng một năm tệ có thể kết thúc sự nghiệp ở firm đó. Không hợp với người muốn xây thứ gì đó dài hạn hay dựa vào đồng đội.
 
-### 18.1.2 Collaborative/centralized — kiến trúc "one machine"
+### 21.1.2 Collaborative/centralized — kiến trúc "one machine"
 
 Đối cực là mô hình **collaborative/centralized** (RenTec, Two Sigma, DE Shaw, và Jane Street ở phần market-making định lượng của họ). Ở đây không có pod cô lập. Mọi người đóng góp tín hiệu, dữ liệu, hạ tầng vào **một cỗ máy chung**; một risk/allocation layer trung tâm tổng hợp tất cả thành một danh mục firm-wide duy nhất. Lương gồm base + bonus theo **firm performance**, không theo P&L cá nhân của bạn. Tri thức tích lũy trong codebase chung suốt hàng chục năm — và đó là **moat sâu nhất trong ngành**.
 
@@ -3190,7 +3889,7 @@ Thứ hai là **retention**. Vì payout gắn với firm chứ không cá nhân,
 
 Đánh đổi: bạn không cầm P&L riêng, không có đường tắt thành "PM 10 triệu đô một năm" ở tuổi 30. Đường lên chậm hơn nhưng bền hơn, và trần trên (nếu firm cực tốt) có thể còn cao hơn vì bạn ăn phần của một cỗ máy compounding hàng chục năm chứ không phải một book cô lập có thể bay trong một drawdown. Hợp với người thích engineering sâu, nghiên cứu dài hơi, và ổn định.
 
-### 18.1.3 Bảng so sánh và các mô hình lai
+### 21.1.3 Bảng so sánh và các mô hình lai
 
 | Chiều | Pod shop (mercenary) | Collaborative (one machine) |
 |---|---|---|
@@ -3205,11 +3904,11 @@ Thứ hai là **retention**. Vì payout gắn với firm chứ không cá nhân,
 
 Thực tế nhiều firm là **lai**. Citadel có cả pod (Global Equities, Global Fixed Income) lẫn các nhóm centralized (Citadel Securities market-making là một cỗ máy chung). Two Sigma phần lớn centralized nhưng có sleeves độc lập. Jane Street là market-making tập trung nhưng payout rất phẳng và văn hóa collaborative cực mạnh. Khi phỏng vấn, câu hỏi đầu tiên nên tự trả lời không phải "firm này có tên tuổi không" mà "kiến trúc kinh tế của nó là gì, và tôi hợp với ai trả tiền cho cái gì trong đó." Trả lời được câu đó, bạn đã lọc được nửa số quyết định sự nghiệp sai lầm.
 
-## 18.2 Lương thưởng — cấu trúc, con số 2026, và phân phối lệch
+## 21.2 Lương thưởng — cấu trúc, con số 2026, và phân phối lệch
 
 Con số dưới đây là mặt bằng Mỹ (2024–2026) dùng để **định cỡ**, không phải lời hứa; chúng thay đổi theo chu kỳ và theo firm. Điều quan trọng hơn con số là **cấu trúc phân phối**, vì đó mới là thứ quyết định bạn nên kỳ vọng gì và vì sao hai người cùng xuất phát điểm có thể kết thúc cách nhau một bậc độ lớn.
 
-### 18.2.1 Mặt bằng theo cấp bậc
+### 21.2.1 Mặt bằng theo cấp bậc
 
 | Cấp | Total comp (Mỹ, 2026) | Ghi chú |
 |---|---|---|
@@ -3222,7 +3921,7 @@ Châu Á (Hong Kong, Singapore) và London thường theo sau với chiết kh�
 
 Bây giờ hãy tính vì sao "300k mới ra trường" không phải điều bất thường ở quỹ top mà là **hệ quả kinh tế trực tiếp**. Một QR giỏi đóng góp một tín hiệu độc lập nâng IR của cỗ máy firm lên một chút. Giả sử firm quản lý \$10B ở Sharpe 2.0, target vol 10%, tức return kỳ vọng $2.0\times 0.10\times \$10\text{B} = \$2\text{B}$/năm, và tín hiệu mới của bạn nâng Sharpe từ 2.00 lên 2.02 (một đóng góp *khiêm tốn*). Marginal P&L cận biên: nâng Sharpe thêm 0.02 tại vol 10% trên \$10B là $0.02 \times 0.10 \times \$10\text{B} = \$20\text{M}$/năm giá trị kỳ vọng. Trả một người mới \$300k để có kỳ vọng đóng góp \$20M là một cái giá **rẻ** — tỷ lệ giá trị trên chi phí xấp xỉ $20\text{M}/300\text{k} \approx 67$ lần. Đó chính xác là logic khiến các quỹ top đấu giá lương lên cao cho tài năng thật: họ không trả cho bằng cấp, họ trả cho *phần đuôi của phân phối đóng góp*, và ở đuôi đó một QR duy nhất có thể tự trả lương mình gấp hàng chục lần.
 
-### 18.2.2 Vì sao payout PM lệch đến vậy
+### 21.2.2 Vì sao payout PM lệch đến vậy
 
 Payout pod là **P&L phân phối lệch**, không phải lương cố định — và hiểu hình dạng của phân phối đó quan trọng hơn nhớ con số trung vị. Xét lại pod \$500M ở trên với payout 18%. Nếu sống sót cả năm, P&L là $\mathcal{N}(\$60\text{M}, \$40\text{M})$. Nhưng stop cắt đuôi dưới, nên phân phối payout thực tế bị **kiểm duyệt** (censored) ở dưới và **kéo dài** ở trên:
 
@@ -3233,25 +3932,25 @@ Payout pod là **P&L phân phối lệch**, không phải lương cố định �
 
 Kỳ vọng payout *có điều kiện sống sót* nghe rất hấp dẫn, nhưng kỳ vọng *vô điều kiện* — nhân với ~86% xác suất sống một năm và tính cả cái đuôi mất việc — thấp hơn nhiều và mang **variance khổng lồ**. Đây là lý do vì sao hai người cùng vào một pod shop, năm năm sau một người kiếm \$30M tích lũy và người kia đã đổi nghề. Không phải một người giỏi gấp mười; phần lớn là **path và may rủi trên một cấu trúc payout lồi bị chặn dưới**. Người hiểu điều này sẽ *half-Kelly hóa sự nghiệp của mình*, đúng tinh thần chương sizing: không all-in một book quá rủi ro so với vốn cấp (chọn target vol vừa phải để đẩy xác suất chạm stop từ 14% xuống dưới 5%), giữ optionality, và xây danh tiếng để "chạm stop một lần" không đồng nghĩa "hết nghề". Nhớ bài học Kelly: over-bet một edge tốt vẫn dẫn thẳng tới ruin — và một sự nghiệp cũng là một chuỗi cược, ruin ở đây là bị đá khỏi cuộc chơi trước khi kịp compound.
 
-## 18.3 Tech stack — P-stack (dữ liệu + thí nghiệm) vs Q-stack (đúng đắn + audit)
+## 21.3 Tech stack — P-stack (dữ liệu + thí nghiệm) vs Q-stack (đúng đắn + audit)
 
 Tech stack của một quỹ định lượng không phải danh sách công cụ thời thượng; nó là hình chiếu trực tiếp của **bài toán kinh tế** firm đang giải. Đây là lý do P-stack (buy-side alpha) và Q-stack (sell-side pricing, cuốn Q-world chương 12) trông khác nhau từ gốc, và hiểu sự khác biệt này giúp bạn không mang nhầm tư duy sang nhầm chỗ khi chuyển việc.
 
-### 18.3.1 Ngôn ngữ: Python thống trị research, C++/Rust ở lõi nóng
+### 21.3.1 Ngôn ngữ: Python thống trị research, C++/Rust ở lõi nóng
 
 **Python** thống trị lớp nghiên cứu. Ngăn xếp điển hình: pandas/**polars** (polars đang thay pandas ở dữ liệu lớn — xem lý do định lượng dưới đây), numpy, scikit-learn, LightGBM/XGBoost (gradient boosting vẫn là workhorse cho tabular alpha), PyTorch cho deep learning. Notebook dùng để thăm dò, **nhưng production research code là package có test đàng hoàng** — quỹ tốt phân biệt rất rõ hai thứ này: một notebook lởm chởm để nghịch dữ liệu buổi chiều, và một signal đã "lên máy" phải có unit test, PIT guarantee, và code review. Nhầm hai thứ này là dấu hiệu nhận diện junior nhanh nhất.
 
-Vì sao polars thay pandas không phải chuyện thời trang mà là số học. pandas dựng trên một trục index Python-object và eager evaluation; polars dựng trên Apache Arrow columnar + lazy query optimizer + multi-threading. Trên một join-groupby điển hình của dữ liệu tick 500 triệu dòng, polars thường nhanh 5–30× và dùng bộ nhớ ít hơn 2–4×. Cụ thể hóa thành vòng đời nghiên cứu: nếu một pipeline feature-engineering chạy 40 phút trên pandas single-thread, cùng logic trên polars lazy với 16 lõi có thể xuống 4 phút. Với một QR chạy hàng trăm thí nghiệm mỗi tuần, cắt thời gian vòng lặp từ 40 xuống 4 phút là nhân **10× throughput nghiên cứu** — và qua Fundamental Law, throughput nghiên cứu chính là số cược mới thử được, là con đường mở rộng breadth, là IR. Nói thẳng ra: một công cụ nhanh gấp mười cho phép bạn tìm ra gấp mười tín hiệu ứng viên trong cùng một quý, và (sau khi trừ tương quan như mục 18.1.2) chuyển một phần lợi thế đó thẳng vào Sharpe. Tốc độ công cụ chuyển thành alpha — đó là lý do các firm bỏ tiền viết lại pipeline dù pandas "vẫn chạy được".
+Vì sao polars thay pandas không phải chuyện thời trang mà là số học. pandas dựng trên một trục index Python-object và eager evaluation; polars dựng trên Apache Arrow columnar + lazy query optimizer + multi-threading. Trên một join-groupby điển hình của dữ liệu tick 500 triệu dòng, polars thường nhanh 5–30× và dùng bộ nhớ ít hơn 2–4×. Cụ thể hóa thành vòng đời nghiên cứu: nếu một pipeline feature-engineering chạy 40 phút trên pandas single-thread, cùng logic trên polars lazy với 16 lõi có thể xuống 4 phút. Với một QR chạy hàng trăm thí nghiệm mỗi tuần, cắt thời gian vòng lặp từ 40 xuống 4 phút là nhân **10× throughput nghiên cứu** — và qua Fundamental Law, throughput nghiên cứu chính là số cược mới thử được, là con đường mở rộng breadth, là IR. Nói thẳng ra: một công cụ nhanh gấp mười cho phép bạn tìm ra gấp mười tín hiệu ứng viên trong cùng một quý, và (sau khi trừ tương quan như mục 21.1.2) chuyển một phần lợi thế đó thẳng vào Sharpe. Tốc độ công cụ chuyển thành alpha — đó là lý do các firm bỏ tiền viết lại pipeline dù pandas "vẫn chạy được".
 
 **Hiệu năng ở lõi nóng**: C++ vẫn ngự trị execution engine, HFT, và backtest simulator lõi — nơi bạn replay hàng tỷ tick và mọi microsecond đếm. **Rust** đang lên rất nhanh ở hạ tầng trading mới: an toàn bộ nhớ mà không cần garbage collector, phù hợp cho hệ thống chịu tải cao không được phép dừng để GC. Java tồn tại ở một số shop, đặc biệt hạ tầng cũ. OCaml là cá biệt nổi tiếng — Jane Street xây gần như toàn bộ hệ thống bằng OCaml, đặt cược rằng một ngôn ngữ có type system mạnh giảm lỗi runtime trong môi trường mà một bug định giá sai có thể mất hàng triệu đô trong vài giây. Đó không phải sở thích học thuật mà là một quyết định kinh tế: chi phí kỳ vọng của một bug catastrophic đủ lớn để justify cả một ngôn ngữ lệch dòng chính.
 
-### 18.3.2 Dữ liệu: kdb+ bền bỉ, thế hệ mới columnar
+### 21.3.2 Dữ liệu: kdb+ bền bỉ, thế hệ mới columnar
 
 **kdb+/q** là chuẩn de facto cho tick data suốt hai mươi năm — đắt (license doanh nghiệp có thể lên tới sáu chữ số một năm), cú pháp q khét tiếng khó đọc, nhưng nhanh kinh khủng cho time-series query trên tick, và **ai biết kdb+ được trả giá cao** vì nguồn cung nhân lực hiếm. Vì sao nó sống dai? Vì trên một truy vấn kiểu "VWAP theo phút cho 3000 mã trong 5 năm tick", kdb+ được tối ưu đến mức các giải pháp đa dụng khó bì. Thế hệ mới đang gặm dần thị phần: ClickHouse, QuestDB (columnar OLAP mã nguồn mở), và đặc biệt **Arrow/Parquet + DuckDB trên object storage** — kiến trúc "data lake" nơi dữ liệu nằm ở Parquet trên S3 và bạn query bằng DuckDB/Polars mà không cần một database server đắt tiền chạy suốt ngày đêm. Airflow/Dagster điều phối pipeline: schedule, dependency graph, backfill.
 
 Một phép tính quy mô để thấy vì sao thế hệ mới là một cuộc dân chủ hóa. Một năm US equity tick (top ~8000 mã, tất cả trade + quote) cỡ vài terabyte nén Parquet; toàn bộ options chain của Mỹ vài chục terabyte một năm. Ở object storage tier chuẩn (~\$23/TB/tháng), giữ 10 năm × 3 TB/năm = 30 TB lịch sử tick tốn khoảng $30 \times \$23 \times 12 \approx \$8{,}300$/năm — một con số mà cả quỹ một người cũng gánh được. So với license kdb+ sáu chữ số cộng phần cứng chuyên dụng của kỷ nguyên trước, chênh lệch là hai bậc độ lớn. Đó chính là dân chủ hóa mà Parquet+DuckDB mang lại: rào cản dữ liệu tick, từng là moat của các quỹ lớn, nay gần như biến mất, và cạnh tranh dịch từ "ai có dữ liệu" sang "ai research giỏi hơn trên dữ liệu ai cũng có".
 
-### 18.3.3 Backtest/research platform: hầu hết tự xây
+### 21.3.3 Backtest/research platform: hầu hết tự xây
 
 Điểm quan trọng nhất về tech stack buy-side: **hầu hết quỹ tự xây research platform**, vì nó *là* lợi thế cạnh tranh, không thể mua ngoài — mua platform ngoài nghĩa là chấp nhận mọi đối thủ dùng nó đều có cùng năng lực và cùng cạm bẫy như bạn. Kiến trúc chuẩn — đúng thứ module `src/alpha` trong repo này đang dựng — là một pipeline tuyến tính:
 
@@ -3259,27 +3958,27 @@ $$\text{Data layer (PIT)} \to \text{Signal registry} \to \text{Portfolio constru
 
 Từng khâu mang một cạm bẫy đã học suốt cuốn sách, và platform tồn tại chính là để đóng đinh từng cạm bẫy đó thành ràng buộc kỹ thuật không thể vi phạm: data layer phải **point-in-time** (không look-ahead, không survivorship — chương 2/9); signal registry để tổ hợp và version tín hiệu (mỗi thí nghiệm được ghi log để về sau tính deflated Sharpe trên đúng số cấu hình đã thử); portfolio constructor áp constraint và cost (chương 11); event-driven simulator để tránh vectorized look-ahead và mô phỏng fill thực (chương 13); tearsheet ra Sharpe, MDD, deflated Sharpe (chương 9/17). Open source đáng học **kiến trúc** (không phải để chạy production): vectorbt (vectorized backtest nhanh, tốt cho khảo sát thô), Lean/QuantConnect (event-driven đầy đủ), Nautilus Trader (hiệu năng cao); và các repo academic-grade quanh AFML (López de Prado) cho purged CV, triple-barrier labeling, meta-labeling. Đọc chúng để thấy *một platform đúng đắn buộc kỷ luật ra sao*, rồi tự dựng bản của mình.
 
-### 18.3.4 P-stack vs Q-stack: hai văn hóa engineering từ gốc yêu cầu
+### 21.3.4 P-stack vs Q-stack: hai văn hóa engineering từ gốc yêu cầu
 
-Đây là phần giao với cuốn Q-world và là một trong những phân biệt sâu sắc nhất mà ít người nói rõ. **P-stack** (buy-side alpha) xoay quanh **dữ liệu và thí nghiệm**: data pipeline khổng lồ, experiment tracking (chạy nghìn backtest, ghi log cấu hình để tính deflated Sharpe — nhớ mục 18.3.3), feature store. Câu hỏi engineering trung tâm là *"làm sao chạy nhiều thí nghiệm đúng đắn hơn, nhanh hơn, mà không tự lừa mình bằng overfitting."* Sai lầm chết người là look-ahead và multiple-testing — hai con quỷ đã ám cả cuốn sách.
+Đây là phần giao với cuốn Q-world và là một trong những phân biệt sâu sắc nhất mà ít người nói rõ. **P-stack** (buy-side alpha) xoay quanh **dữ liệu và thí nghiệm**: data pipeline khổng lồ, experiment tracking (chạy nghìn backtest, ghi log cấu hình để tính deflated Sharpe — nhớ mục 21.3.3), feature store. Câu hỏi engineering trung tâm là *"làm sao chạy nhiều thí nghiệm đúng đắn hơn, nhanh hơn, mà không tự lừa mình bằng overfitting."* Sai lầm chết người là look-ahead và multiple-testing — hai con quỷ đã ám cả cuốn sách.
 
 **Q-stack** (sell-side pricing, xem cuốn Q-world) xoay quanh **đúng đắn và audit**: pricing kernel phải khớp đến từng basis point với market maker khác, market data snapshot phải reproducible, mọi con số phải có **lineage** để trả lời được câu hỏi của risk/regulator: "con số P&L này đến từ đâu, dùng curve nào, snapshot lúc mấy giờ." Câu hỏi engineering trung tâm là *"làm sao đảm bảo con số này đúng và có thể tái tạo/kiểm toán được ba năm sau."* Sai lầm chết người là một mismatch định giá hoặc một snapshot không reproducible — một sai số một basis point trên một book notional hàng tỷ là tiền thật và là rắc rối pháp lý thật.
 
 Hai bộ yêu cầu này đẻ ra hai văn hóa code khác nhau từ gốc. P-stack chấp nhận một chút hỗn độn *có kỷ luật* (chạy nghìn thí nghiệm, prune 95% sau) và tối ưu cho **iteration speed**; Q-stack tối ưu cho **correctness và immutability** — mọi thứ versioned, snapshotted, testable đến cực đoan. Một QR buy-side quen chạy nhanh và vứt bỏ 95% ý tưởng sẽ thấy Q-stack ngột ngạt; một quant sell-side quen với audit trail sẽ thấy P-stack ẩu và liều. Cả hai đều đúng trong thế giới của mình, vì họ đang tối ưu cho hai hàm mất mát khác nhau: P-stack sợ *bỏ lỡ alpha vì chạy chậm*, Q-stack sợ *một con số sai không truy được nguồn*. Điểm giao thực sự — nơi hai stack buộc phải nói chuyện — là ở vol trading, variance risk premium, options positioning, và dealer gamma, khi buy-side đọc dòng hedging của sell-side như một tín hiệu (xem cuốn Q-world). Người đi được cả hai thế giới, hiểu vì sao mỗi bên tối ưu như vậy, là người hiếm và đắt giá.
 
-## 18.4 Vào nghề — ba cửa chính và xu hướng tuyển dụng 2026
+## 21.4 Vào nghề — ba cửa chính và xu hướng tuyển dụng 2026
 
 Có ba cửa chính vào QR/QD, và tỷ trọng của chúng đang dịch chuyển rõ rệt theo hướng engineering ngày càng nặng ký.
 
-**Cửa 1 — PhD/Masters STEM → QR.** Con đường cổ điển. Quỹ top tuyển từ pool olympiad (IMO/IPhO medalists) và PhD (toán, vật lý, CS, statistics, EE). Phỏng vấn nặng xác suất + brainteasers + ML + thống kê. Ưu điểm: chiều sâu toán. Nhược điểm ngày càng lộ: nhiều PhD giỏi lý thuyết nhưng yếu engineering, và ngành ngày càng cần người viết được production code sạch, không chỉ chứng minh được định lý. Một QR nâng Sharpe 0.02 (giá trị \$20M như mục 18.2.1) chỉ có ích nếu tín hiệu của họ *lên được máy* — một chứng minh đẹp trong notebook không có PIT guarantee thì bằng không.
+**Cửa 1 — PhD/Masters STEM → QR.** Con đường cổ điển. Quỹ top tuyển từ pool olympiad (IMO/IPhO medalists) và PhD (toán, vật lý, CS, statistics, EE). Phỏng vấn nặng xác suất + brainteasers + ML + thống kê. Ưu điểm: chiều sâu toán. Nhược điểm ngày càng lộ: nhiều PhD giỏi lý thuyết nhưng yếu engineering, và ngành ngày càng cần người viết được production code sạch, không chỉ chứng minh được định lý. Một QR nâng Sharpe 0.02 (giá trị \$20M như mục 21.2.1) chỉ có ích nếu tín hiệu của họ *lên được máy* — một chứng minh đẹp trong notebook không có PIT guarantee thì bằng không.
 
-**Cửa 2 — SWE giỏi → QD rồi chuyển dần sang research.** Con đường **ngày càng phổ biến nhất** vào 2026, vì mọi quỹ đói engineer và vì tech stack đã trở thành lợi thế cạnh tranh (toàn bộ mục 18.3). Một SWE mạnh về hệ thống phân tán, hiệu năng, data infra có thể vào làm Quant Developer, xây research platform, rồi thẩm thấu dần sang signal research. Xu hướng 2026: ranh giới QD/QR mờ đi; nhiều firm tuyển "quant" full-stack biết cả research lẫn production. Machine learning engineering — feature store, training pipeline, model serving — là kỹ năng cầu vượt cung mạnh nhất, vì nó đứng ngay giao điểm giữa "chạy nhiều thí nghiệm nhanh" (18.3.1) và "lên máy có kỷ luật" (18.3.3).
+**Cửa 2 — SWE giỏi → QD rồi chuyển dần sang research.** Con đường **ngày càng phổ biến nhất** vào 2026, vì mọi quỹ đói engineer và vì tech stack đã trở thành lợi thế cạnh tranh (toàn bộ mục 21.3). Một SWE mạnh về hệ thống phân tán, hiệu năng, data infra có thể vào làm Quant Developer, xây research platform, rồi thẩm thấu dần sang signal research. Xu hướng 2026: ranh giới QD/QR mờ đi; nhiều firm tuyển "quant" full-stack biết cả research lẫn production. Machine learning engineering — feature store, training pipeline, model serving — là kỹ năng cầu vượt cung mạnh nhất, vì nó đứng ngay giao điểm giữa "chạy nhiều thí nghiệm nhanh" (21.3.1) và "lên máy có kỷ luật" (21.3.3).
 
-**Cửa 3 — trader/analyst discretionary học quant hóa.** Hiếm dần nhưng chưa chết, đặc biệt ở macro/rates nơi trực giác thị trường và hiểu biết định chế vẫn có giá trị mà pure-quant khó thay. Người này mang **market sense** — thứ mà mục 18.5 sẽ cho thấy các firm tốt vẫn kiểm tra ráo riết ở vòng cuối phỏng vấn.
+**Cửa 3 — trader/analyst discretionary học quant hóa.** Hiếm dần nhưng chưa chết, đặc biệt ở macro/rates nơi trực giác thị trường và hiểu biết định chế vẫn có giá trị mà pure-quant khó thay. Người này mang **market sense** — thứ mà mục 21.5 sẽ cho thấy các firm tốt vẫn kiểm tra ráo riết ở vòng cuối phỏng vấn.
 
-**Bốn xu hướng tuyển dụng 2026 cần biết.** Thứ nhất, **ML/AI-native**: các firm kỳ vọng ứng viên hiểu deep learning và LLM đủ để dùng chúng như công cụ nghiên cứu — sinh feature, xử lý alt-data dạng text, code assist — không phải chỉ gradient boosting. Thứ hai, **alt-data literacy**: credit card panels, satellite, web-scraped, sentiment — biết cách PIT hóa và tránh look-ahead trong dữ liệu bẩn (một field timestamp sai một ngày là cả một backtest ảo). Thứ ba, **engineering bar tăng**: một QR không viết được code production sạch ngày càng khó cạnh tranh; "PhD nhưng code ẩu" không còn là hồ sơ mạnh như năm 2015. Thứ tư, **compliance/PIT rigor**: sau nhiều vụ overfitting công khai và scandal alt-data licensing, các firm coi trọng ứng viên chứng minh được kỷ luật nghiên cứu — chính là điểm cuối mục 18.5.
+**Bốn xu hướng tuyển dụng 2026 cần biết.** Thứ nhất, **ML/AI-native**: các firm kỳ vọng ứng viên hiểu deep learning và LLM đủ để dùng chúng như công cụ nghiên cứu — sinh feature, xử lý alt-data dạng text, code assist — không phải chỉ gradient boosting. Thứ hai, **alt-data literacy**: credit card panels, satellite, web-scraped, sentiment — biết cách PIT hóa và tránh look-ahead trong dữ liệu bẩn (một field timestamp sai một ngày là cả một backtest ảo). Thứ ba, **engineering bar tăng**: một QR không viết được code production sạch ngày càng khó cạnh tranh; "PhD nhưng code ẩu" không còn là hồ sơ mạnh như năm 2015. Thứ tư, **compliance/PIT rigor**: sau nhiều vụ overfitting công khai và scandal alt-data licensing, các firm coi trọng ứng viên chứng minh được kỷ luật nghiên cứu — chính là điểm cuối mục 21.5.
 
-## 18.5 Phỏng vấn QR — cấu trúc và năm câu hỏi mẫu có lời giải
+## 21.5 Phỏng vấn QR — cấu trúc và năm câu hỏi mẫu có lời giải
 
 Phỏng vấn QR điển hình có năm trục: (1) **xác suất/combinatorics nhanh** (kỳ vọng, martingale, Bayes); (2) **thống kê** (regression pitfalls — chương 3); (3) **ML** (bias-variance, đặc biệt CV cho time series — chương 9/17); (4) **coding** (Python/pandas hoặc leetcode-style); (5) **market sense** ("thiết kế cho tôi một tín hiệu từ dataset X, và nói trước nó sẽ chết vì gì"). Trục thứ năm là thứ phân biệt ứng viên "giỏi toán" với ứng viên "sẽ tạo được alpha", và là thứ nhiều người ôn thiếu nhất — vì nó không có trong sách, chỉ có ở người đã sống với dữ liệu thật.
 
@@ -3307,17 +4006,17 @@ Return năm $\sim \mathcal{N}(\mu, \sigma)$ với $\mu = SR \times \sigma = 2 \t
 
 Không có một con số duy nhất đúng — họ đang xem bạn có bản năng "người bán bảo hiểm" không. Ba fill mua liên tiếp là tín hiệu **hai chiều**, và người giỏi đọc được cả hai. Về **inventory**: bạn đang ôm long ngoài ý muốn, cần nghiêng quote xuống — hạ cả bid lẫn ask, chẳng hạn dịch cả hai xuống một nửa tick — để khuyến khích dòng lệnh đẩy bạn về flat. Về **adverse selection**: fill dễ và một chiều thường nghĩa là *có người biết gì đó* — họ đang gom, có thể vì tin tức bạn chưa thấy, và mỗi fill tiếp theo có kỳ vọng lỗ. Minh họa bằng số cho trực giác: nếu spread của bạn là 4 bps và bạn ước xác suất dòng lệnh là informed đã tăng từ 20% lên 50% sau ba fill, thì adverse-selection cost kỳ vọng trên fill tiếp theo có thể vượt nửa spread, nghĩa là quote hiện tại đã lỗ kỳ vọng — phải nới spread hoặc rút. Phản ứng đúng là một *quy trình phòng thủ*, không phải một con số: (1) nghiêng quote để giảm inventory; (2) thu hẹp size để giảm phơi nhiễm nếu nghi informed flow; (3) nới spread để đòi phí bảo hiểm cao hơn cho adverse selection; (4) kiểm tin tức và order book. Họ muốn thấy bạn hiểu rằng *mọi fill đều mang thông tin*, và người thắng ở market-making là người định giá đúng adverse selection — đây chính là trực giác Kyle lambda và microstructure ở chương 12, được hỏi dưới dạng bản năng thay vì công thức.
 
-### 18.5.1 Chuẩn bị: sách và thứ đáng giá hơn mọi chứng chỉ
+### 21.5.1 Chuẩn bị: sách và thứ đáng giá hơn mọi chứng chỉ
 
-Tài liệu ôn kinh điển: *A Practical Guide to Quantitative Finance Interviews* (Xinfeng Zhou), *Heard on the Street* (Timothy Crack), *Fifty Challenging Problems in Probability* (Mosteller). Nhưng thứ **đáng giá hơn bất kỳ chứng chỉ nào** là **một project thật chứng minh kỷ luật nghiên cứu**: một backtest có PIT data (không look-ahead, không survivorship), purged/embargoed CV cho time series, cost model thực tế (impact + spread + fee), và deflated Sharpe tính trên đúng số cấu hình bạn đã thử. Một dự án như vậy trả lời trực tiếp mọi câu hỏi ngầm của interviewer — bạn có hiểu look-ahead không, có sợ overfitting không, có mô hình được chi phí không — mà không cần bạn tự khoe một lời nào. Nó chính là hiện thân của kiến trúc `src/alpha`: từ data layer PIT đến tearsheet có deflation, đúng pipeline ở mục 18.3.3. Trong một ngành mà mọi CV đều ghi "Sharpe 2.5 trên backtest", người mang được một pipeline chứng minh mình *không* tự lừa mình là người hiếm — và như toàn bộ chương này cho thấy, từ payout PM đến moat của cỗ máy trung tâm đến logic lương \$300k, thứ hiếm mới là thứ được trả giá.
+Tài liệu ôn kinh điển: *A Practical Guide to Quantitative Finance Interviews* (Xinfeng Zhou), *Heard on the Street* (Timothy Crack), *Fifty Challenging Problems in Probability* (Mosteller). Nhưng thứ **đáng giá hơn bất kỳ chứng chỉ nào** là **một project thật chứng minh kỷ luật nghiên cứu**: một backtest có PIT data (không look-ahead, không survivorship), purged/embargoed CV cho time series, cost model thực tế (impact + spread + fee), và deflated Sharpe tính trên đúng số cấu hình bạn đã thử. Một dự án như vậy trả lời trực tiếp mọi câu hỏi ngầm của interviewer — bạn có hiểu look-ahead không, có sợ overfitting không, có mô hình được chi phí không — mà không cần bạn tự khoe một lời nào. Nó chính là hiện thân của kiến trúc `src/alpha`: từ data layer PIT đến tearsheet có deflation, đúng pipeline ở mục 21.3.3. Trong một ngành mà mọi CV đều ghi "Sharpe 2.5 trên backtest", người mang được một pipeline chứng minh mình *không* tự lừa mình là người hiếm — và như toàn bộ chương này cho thấy, từ payout PM đến moat của cỗ máy trung tâm đến logic lương \$300k, thứ hiếm mới là thứ được trả giá.
 
-# Chương 19: Lộ trình học và tài nguyên
+# Chương 22: Lộ trình học và tài nguyên
 
-Bạn đã đi qua mười tám chương. Chúng ta đã dựng từ số 0: P-world là gì và ai trả tiền cho alpha, cách làm sạch dữ liệu và tính return cho đúng, bộ đồ nghề thống kê-econometrics, cách phát hiện regime, lý thuyết danh mục, factor models; rồi sang alpha research thật sự — behavioral foundations, backtesting kỷ luật, feature engineering; rồi từ tín hiệu tới P&L — portfolio construction, microstructure, execution, risk management; rồi bản đồ chiến lược, trading theo asset class, machine learning; và cuối cùng là nghề. Chương này là chương khép sách. Nó không dạy kỹ thuật mới; nó trả lời một câu hỏi khác, khó hơn: **bạn tự học lại toàn bộ thứ này như thế nào, theo trình tự nào, đọc cái gì trước cái gì, và làm sao biết mình đang tiến bộ chứ không phải đang tự lừa mình.** Vì quant là nghề mà đường tự học sai sẽ tốn ba năm, còn đường đúng tốn một.
+Bạn đã đi qua hai mươi mốt chương. Chúng ta đã dựng từ số 0: P-world là gì và ai trả tiền cho alpha, cách làm sạch dữ liệu và tính return cho đúng, bộ đồ nghề thống kê-econometrics, cách phát hiện regime, lý thuyết danh mục, factor models; rồi sang alpha research thật sự — behavioral foundations, backtesting kỷ luật, feature engineering; rồi từ tín hiệu tới P&L — portfolio construction, microstructure, execution, risk management; rồi bản đồ chiến lược, trading theo asset class, machine learning, credit & fixed-income relative value, volatility trading, performance attribution; và cuối cùng là nghề. Chương này là chương khép sách. Nó không dạy kỹ thuật mới; nó trả lời một câu hỏi khác, khó hơn: **bạn tự học lại toàn bộ thứ này như thế nào, theo trình tự nào, đọc cái gì trước cái gì, và làm sao biết mình đang tiến bộ chứ không phải đang tự lừa mình.** Vì quant là nghề mà đường tự học sai sẽ tốn ba năm, còn đường đúng tốn một.
 
 Một lời cảnh báo mở đầu, vì nó định hình cả chương: kiến thức trong nghề này không tuyến tính và không "học xong". Bạn sẽ đọc Grinold-Kahn, thấy hiểu, rồi sáu tháng sau tự viết một optimizer và mới vỡ ra mình chưa hiểu gì về transfer coefficient. Đó là chuyện bình thường — thậm chí là dấu hiệu bạn đang học đúng. Cuốn sách này, và lộ trình dưới đây, được thiết kế để bạn đi qua vòng lặp "đọc → code → thất bại → đọc lại" nhiều lần, mỗi lần sâu hơn. Không có con đường tắt nào vượt qua vòng lặp đó; chỉ có con đường đi qua nó nhanh hay chậm, và chương này là bản đồ để đi nhanh.
 
-## 19.1 Bản đồ 19 chương — bạn đang ở đâu
+## 22.1 Bản đồ 22 chương — bạn đang ở đâu
 
 Trước khi nói học tiếp thế nào, hãy nhìn lại toàn bộ lãnh thổ đã đi qua, vì bản thân mục lục là một lộ trình. Cuốn sách chia thành năm phần và ba phụ lục:
 
@@ -3327,15 +4026,15 @@ Trước khi nói học tiếp thế nào, hãy nhìn lại toàn bộ lãnh th�
 
 **Part III — Từ tín hiệu đến P&L (Ch11–14).** Ch11 Portfolio construction (từ signal thành weight). Ch12 Microstructure theory (Kyle lambda, order book). Ch13 Execution (Almgren-Chriss, market impact). Ch14 Risk management (VaR, drawdown control, factor risk).
 
-**Part IV — Chiến lược & ML (Ch15–17).** Ch15 Bản đồ chiến lược (momentum, mean-reversion, carry, stat-arb). Ch16 Trading theo asset class (equities, futures, FX, crypto). Ch17 Machine learning (ensemble, feature importance với kỷ luật Ch7-9).
+**Part IV — Chiến lược & ML (Ch15–20).** Ch15 Bản đồ chiến lược (momentum, mean-reversion, carry, stat-arb). Ch16 Trading theo asset class (equities, futures, FX, crypto). Ch17 Machine learning (ensemble, feature importance với kỷ luật Ch7-9). Ch18 Credit & fixed-income relative value (CDS-bond basis, curve trades, capital structure arb). Ch19 Volatility trading (variance risk premium, dispersion, gamma scalping). Ch20 Performance attribution (Brinson, factor-based, risk decomposition).
 
-**Part V — Nghề (Ch18–19).** Ch18 Industry (pod shops, career, structure của một quỹ). Ch19 Lộ trình (chương này).
+**Part V — Nghề (Ch21–22).** Ch21 Industry (pod shops, career, structure của một quỹ). Ch22 Lộ trình (chương này).
 
 **Phụ lục.** A — Ví dụ xuyên suốt (momentum → multi-signal, số nối mạch cả sách). B — Case studies (LTCM, quant quake 2007, GameStop). C — Glossary.
 
-Con số cần nhớ: **19 chương + 3 phụ lục.** Cấu trúc này không phải trang trí — nó là một dependency graph, và bạn có thể đọc nó ngược để chẩn đoán chỗ hổng của mình. Nếu bạn đọc một chương ở Part III mà thấy hụt hẫng vì chưa nắm factor model, tín hiệu đó bảo bạn quay lại Ch6. Nếu bạn viết một backtest ở Ch9 mà không hiểu vì sao phải purge, cái gốc nằm ở Ch7. Một quy tắc thực hành: khi một chương làm bạn khó chịu vì "không hiểu tại sao lại cần thứ này", gần như luôn luôn cái "tại sao" nằm ở một chương phía trước bạn đã đọc lướt. Quay lại đó trước khi đi tiếp.
+Con số cần nhớ: **22 chương + 3 phụ lục.** Cấu trúc này không phải trang trí — nó là một dependency graph, và bạn có thể đọc nó ngược để chẩn đoán chỗ hổng của mình. Nếu bạn đọc một chương ở Part III mà thấy hụt hẫng vì chưa nắm factor model, tín hiệu đó bảo bạn quay lại Ch6. Nếu bạn viết một backtest ở Ch9 mà không hiểu vì sao phải purge, cái gốc nằm ở Ch7. Một quy tắc thực hành: khi một chương làm bạn khó chịu vì "không hiểu tại sao lại cần thứ này", gần như luôn luôn cái "tại sao" nằm ở một chương phía trước bạn đã đọc lướt. Quay lại đó trước khi đi tiếp.
 
-## 19.2 Lộ trình 4 giai đoạn
+## 22.2 Lộ trình 4 giai đoạn
 
 Đây là trục xương sống của chương và của cả việc tự học. Bốn giai đoạn, mỗi giai đoạn có sách chủ đạo, có project bắt buộc, và có tiêu chí "xong" đo được. Đừng nhảy cóc: mỗi giai đoạn cài đặt phản xạ mà giai đoạn sau giả định bạn đã có. Người nhảy từ giai đoạn 1 thẳng lên giai đoạn 3 — đọc AFML và ML papers khi chưa từng tự dẫm phải một look-ahead bug — chính là chân dung điển hình của người "biết nhiều mà không làm được gì".
 
@@ -3393,7 +4092,7 @@ tức ~31 bps. Nghĩa là: đẩy 5% ADV vào thị trường một cách vô k�
 
 *Vol:* quay lại cuốn Q chương 5–6 rồi đọc Sinclair *Volatility Trading* (góc nhìn P thuần túy về vol — đúng giao điểm hai thế giới).
 
-## 19.3 Chống tự lừa: deflated Sharpe như một môn học suốt đời
+## 22.3 Chống tự lừa: deflated Sharpe như một môn học suốt đời
 
 Cần tách mục này ra vì nó là kỹ năng phân biệt researcher thật với người mơ mộng, và vì nó đúng ở mọi giai đoạn. Khi bạn thử nhiều cấu hình rồi chọn cái tốt nhất, Sharpe cao nhất bạn thấy *một phần là kỹ năng, một phần là may*. Deflated Sharpe Ratio định lượng phần may đó.
 
@@ -3405,7 +4104,7 @@ $$SR_0 \approx \sqrt{\frac{2\ln N}{T}} = \sqrt{\frac{2 \times \ln 1000}{10}} = \
 
 Hệ quả thực hành, cần khắc vào não: **đếm mọi thí nghiệm bạn đã chạy.** Nếu bạn không log số cấu hình đã thử, bạn không thể tính $N$, không thể tính $SR_0$, và bạn *sẽ* tin cấu hình may nhất. Đây là lý do research log không phải thủ tục hành chính mà là công cụ chống tự lừa. Mỗi lần bạn "thử thêm một lookback nữa xem sao", $N$ tăng, $SR_0$ tăng, và cái bar để một kết quả là thật cũng cao lên. Người nghiệp dư tối ưu Sharpe; người chuyên nghiệp tối ưu Sharpe *trừ đi* cái giá của số lần thử. Và cái bẫy tinh vi nhất là những thí nghiệm bạn không nhận ra mình đã chạy: mỗi lần bạn nhìn một biểu đồ, thấy nó xấu, rồi lặng lẽ đổi tham số — đó cũng là một lần thử, cũng phải tính vào $N$, dù bạn không viết code mới. Overfitting phần lớn xảy ra qua con mắt người nghiên cứu, không qua grid search.
 
-## 19.4 Sizing và sống sót: nửa còn lại của edge
+## 22.4 Sizing và sống sót: nửa còn lại của edge
 
 Có một khoảng trống mà người mới hay bỏ, và nó giết nhiều tài khoản hơn cả overfitting: ngay cả khi bạn có edge thật, đặt cược *quá nặng* vẫn phá sản bạn. Fundamental Law nói bạn có bao nhiêu edge; Kelly nói bạn được phép đặt bao nhiêu để edge đó không tự giết bạn. Đây là mảnh mà lộ trình đọc bắt buộc phải chạm tới, vì LTCM ở mục sau chết đúng ở đây chứ không phải ở tín hiệu.
 
@@ -3413,7 +4112,7 @@ Kelly criterion cho một cược đơn giản với xác suất thắng $p$, th
 
 Với danh mục liên tục (return chuẩn, không phải cược nhị phân), Kelly có dạng gọn $f^* = \mu/\sigma^2$: tỷ lệ giữa excess return kỳ vọng và variance. Ví dụ: một chiến lược có $\mu = 10\%$/năm excess và $\sigma = 20\%$/năm cho $f^* = 0.10/0.20^2 = 0.10/0.04 = 2.5$ — tức Kelly "khuyên" leverage 2.5×. Và đây chính là cái bẫy chết người: full-Kelly leverage 2.5× nghe như một lời khuyên toán học đáng tin, nhưng nó cực kỳ nhạy với sai số ước lượng $\mu$. Nếu $\mu$ thật chỉ bằng một nửa cái bạn tưởng (điều xảy ra thường xuyên do overfit), thì leverage 2.5× của bạn giờ là *double-Kelly* trên edge thật — và ta vừa thấy double-Kelly cho tăng trưởng âm. Đây là cây cầu định lượng dẫn thẳng tới LTCM: họ có edge thật, nhưng leverage quanh 25–30× đẩy họ vượt xa cả full-Kelly trên edge *đã đo*, để rồi khi correlation bung ra năm 1998 và edge thật hóa nhỏ hơn nhiều so với ước lượng, cùng cỡ lệnh đó chuyển từ "tối đa tăng trưởng" sang "chắc chắn phá sản". Sizing không phải phần phụ của nghề; nó là cái van an toàn quyết định bạn còn sống để đặt cược tiếp hay không.
 
-## 19.5 Kệ sách xếp theo vai
+## 22.5 Kệ sách xếp theo vai
 
 Bảng dưới là bản đồ mua sách theo mục đích. In đậm là sách bạn *phải* đọc, không phải nên đọc:
 
@@ -3429,9 +4128,9 @@ Bảng dưới là bản đồ mua sách theo mục đích. In đậm là sách 
 | Văn hóa / lịch sử | **Zuckerman *The Man Who Solved the Market*** (RenTec); Mallaby *More Money Than God*; Lowenstein *When Genius Failed* (LTCM); Patterson *The Quants* |
 | Phỏng vấn | Zhou *A Practical Guide to Quantitative Finance Interviews*; Crack *Heard on the Street*; Mosteller *50 Challenging Problems in Probability* |
 
-Một chú thích về Zuckerman *The Man Who Solved the Market*: đọc nó không phải để học kỹ thuật (nó cố tình không tiết lộ signal của RenTec) mà để hiệu chỉnh *khẩu vị*. Nó cho bạn thấy Medallion đạt gross return khoảng 66%/năm trước phí trong ba thập kỷ không phải nhờ một insight thiên tài mà nhờ hàng nghìn signal edge-nhỏ, kỷ luật thống kê tàn nhẫn, và văn hóa "không ai được tin trực giác nếu không có bằng chứng số". Hãy đọc con số 66% qua lăng kính Fundamental Law để thấy nó *nhất quán* với mọi thứ cuốn sách đã dạy chứ không phải phép màu: nếu edge mỗi cược nhỏ tới mức IC dưới 0.01, thì để ra một IR đủ để nuôi return đó bạn cần breadth cỡ hàng trăm nghìn tới hàng triệu cược độc lập mỗi năm — đúng thứ một hệ thống high-frequency, universe rộng, holding-ngắn tạo ra. Medallion không vi phạm $IR = IC\sqrt{BR}$; họ đẩy $BR$ tới cực hạn mà không ai khác chạm được. Đó chính là toàn bộ tinh thần cuốn sách này, viết thành một câu chuyện có thật. Mallaby và Lowenstein cho mặt kia của đồng xu — LTCM cho thấy edge thật + leverage sai (vượt Kelly, như mục 19.4) + không hiểu limits to arbitrage = phá sản, dù có hai Nobel laureate trong phòng.
+Một chú thích về Zuckerman *The Man Who Solved the Market*: đọc nó không phải để học kỹ thuật (nó cố tình không tiết lộ signal của RenTec) mà để hiệu chỉnh *khẩu vị*. Nó cho bạn thấy Medallion đạt gross return khoảng 66%/năm trước phí trong ba thập kỷ không phải nhờ một insight thiên tài mà nhờ hàng nghìn signal edge-nhỏ, kỷ luật thống kê tàn nhẫn, và văn hóa "không ai được tin trực giác nếu không có bằng chứng số". Hãy đọc con số 66% qua lăng kính Fundamental Law để thấy nó *nhất quán* với mọi thứ cuốn sách đã dạy chứ không phải phép màu: nếu edge mỗi cược nhỏ tới mức IC dưới 0.01, thì để ra một IR đủ để nuôi return đó bạn cần breadth cỡ hàng trăm nghìn tới hàng triệu cược độc lập mỗi năm — đúng thứ một hệ thống high-frequency, universe rộng, holding-ngắn tạo ra. Medallion không vi phạm $IR = IC\sqrt{BR}$; họ đẩy $BR$ tới cực hạn mà không ai khác chạm được. Đó chính là toàn bộ tinh thần cuốn sách này, viết thành một câu chuyện có thật. Mallaby và Lowenstein cho mặt kia của đồng xu — LTCM cho thấy edge thật + leverage sai (vượt Kelly, như mục 22.4) + không hiểu limits to arbitrage = phá sản, dù có hai Nobel laureate trong phòng.
 
-## 19.6 Nguyên tắc học — phiên bản P
+## 22.6 Nguyên tắc học — phiên bản P
 
 Năm nguyên tắc dưới đây là phần tôi muốn bạn nhớ nếu quên hết những thứ còn lại. Chúng không phải mẹo; chúng là khác biệt giữa một người tự học ba năm mà vẫn dở và một người tự học một năm mà đã thuê được.
 
@@ -3439,13 +4138,13 @@ Năm nguyên tắc dưới đây là phần tôi muốn bạn nhớ nếu quên 
 
 **Hai — Một chiến lược đào sâu tốt hơn mười chiến lược lướt.** Theo momentum 12-1 từ raw data → tín hiệu → backtest → cost → optimize → tearsheet → viết memo như nộp cho investment committee. Khi bạn đưa một chiến lược đi trọn con đường đó *một lần*, bạn học được mọi module của nghề trong ngữ cảnh nối liền: bạn sẽ tự tay thấy IC 0.025 biến thành Sharpe 0.9 rồi bị phí bào còn 0.75 rồi bị transfer coefficient bào tiếp. Mười chiến lược làm dở dang chỉ dạy bạn mười cách bắt đầu và không cách nào kết thúc.
 
-**Ba — Đếm thí nghiệm của chính mình.** Giữ research log; tính DSR cho kết quả tốt nhất của bạn bằng đúng recipe ở mục 19.3. Đây là thói quen phân biệt researcher với người mơ mộng. Nếu bạn không thể trả lời "tôi đã thử bao nhiêu cấu hình để ra kết quả này", bạn không có quyền tin kết quả đó — vì không có $N$ thì không có $SR_0$, và không có $SR_0$ thì Sharpe 1.2 của bạn có thể là 1.18 của thuần may đội lốt.
+**Ba — Đếm thí nghiệm của chính mình.** Giữ research log; tính DSR cho kết quả tốt nhất của bạn bằng đúng recipe ở mục 22.3. Đây là thói quen phân biệt researcher với người mơ mộng. Nếu bạn không thể trả lời "tôi đã thử bao nhiêu cấu hình để ra kết quả này", bạn không có quyền tin kết quả đó — vì không có $N$ thì không có $SR_0$, và không có $SR_0$ thì Sharpe 1.2 của bạn có thể là 1.18 của thuần may đội lốt.
 
-**Bốn — Theo dõi live.** Chạy paper-trading tín hiệu của bạn vài tháng; khoảng cách giữa backtest và live dạy nhiều hơn mọi cuốn sách. Một chiến lược backtest Sharpe 1.5 mà live về 0.4 không phải thất bại — nó là *bài học đắt giá nhất* mà không sách nào truyền được, và nó có thể mổ xẻ thành từng phần cụ thể. Cái hụt 1.1 Sharpe đó gần như luôn phân rã được: một phần là deflation (backtest đã ăn một ít may trong selection, có thể 0.2–0.3 Sharpe khi bạn thử nhiều cấu hình), một phần là chi phí thực cao hơn giả định (impact và slippage bạn ước tính lạc quan, như square-root law ở 19.2 cảnh báo, dễ mất thêm 0.3–0.5), một phần là capacity và crowding (khi tiền vào thì chính bạn di chuyển giá, và người khác cùng tín hiệu làm alpha decay nhanh hơn). Học cách gán con số cho từng nguồn hụt đó — chính là học nghề. Sự sụp đổ từ 1.5 xuống 0.4 không phải nhiễu; nó là dữ liệu, và nó có cấu trúc.
+**Bốn — Theo dõi live.** Chạy paper-trading tín hiệu của bạn vài tháng; khoảng cách giữa backtest và live dạy nhiều hơn mọi cuốn sách. Một chiến lược backtest Sharpe 1.5 mà live về 0.4 không phải thất bại — nó là *bài học đắt giá nhất* mà không sách nào truyền được, và nó có thể mổ xẻ thành từng phần cụ thể. Cái hụt 1.1 Sharpe đó gần như luôn phân rã được: một phần là deflation (backtest đã ăn một ít may trong selection, có thể 0.2–0.3 Sharpe khi bạn thử nhiều cấu hình), một phần là chi phí thực cao hơn giả định (impact và slippage bạn ước tính lạc quan, như square-root law ở 22.2 cảnh báo, dễ mất thêm 0.3–0.5), một phần là capacity và crowding (khi tiền vào thì chính bạn di chuyển giá, và người khác cùng tín hiệu làm alpha decay nhanh hơn). Học cách gán con số cho từng nguồn hụt đó — chính là học nghề. Sự sụp đổ từ 1.5 xuống 0.4 không phải nhiễu; nó là dữ liệu, và nó có cấu trúc.
 
 **Năm — Học cả hai measure.** Vol trading, options flow, XVA hedging flows, dealer gamma positioning — những alpha thú vị nhất thập kỷ này nằm ở **ranh giới P/Q**, nơi rất ít người thông thạo cả hai ngôn ngữ. Khi dealer bán option, họ phải delta-hedge; dòng hedge đó là *flow có thể dự báo* trong measure $\mathbb{P}$ của bạn, sinh ra từ nhu cầu định giá trong measure $\mathbb{Q}$ của họ. Ai đọc được cả hai bên bảng cân đối này thấy alpha mà người chỉ biết một measure không thấy. Cuốn Q-world (`docs/q-world.md`) là nửa còn lại của bộ não đó.
 
-## 19.7 Sang Q-world — và lời khép
+## 22.7 Sang Q-world — và lời khép
 
 Cuốn sách này dạy bạn kiếm tiền dưới measure thực $\mathbb{P}$: dự báo cái *sẽ* xảy ra, và đặt cược khi thị trường định giá sai. Cuốn Q-world dạy nửa đối ngẫu: định giá và hedge dưới risk-neutral measure $\mathbb{Q}$, thế giới của dealer sell-side, nơi câu hỏi không phải "cái gì sẽ xảy ra" mà "hedge cost là bao nhiêu để tôi không quan tâm cái gì xảy ra". Hai measure không phải hai môn học rời — chúng là hai mặt của cùng một thị trường. Girsanov nối chúng bằng toán; nhưng thực chiến nối chúng bằng *flow*: mọi lần một dealer định giá và hedge trong $\mathbb{Q}$, họ tạo ra order flow mà bạn săn được trong $\mathbb{P}$.
 

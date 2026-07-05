@@ -1,8 +1,8 @@
 # Thực chiến Quant cho Thị trường Việt Nam — Áp dụng P-World & Q-World
 
-> Tài liệu companion cho hai cuốn [P-World](p-world.md) (alpha research, buy-side) và [Q-World](q-world.md) (derivatives pricing, sell-side). Đây là lớp "dịch" toàn bộ framework trong hai cuốn sang **thực chiến thị trường chứng khoán Việt Nam**: những gì áp dụng thẳng, những gì phải chỉnh, và những gì chưa dùng được — cùng lộ trình cụ thể để xây một hệ thống giao dịch định lượng tại VN. Bám cơ chế & quy định thị trường VN hiện hành (2026: hậu KRX go-live, nâng hạng FTSE Emerging Market).
+> Tài liệu companion cho hai cuốn [P-World](p-world.md) (alpha research, buy-side) và [Q-World](q-world.md) (derivatives pricing, sell-side). Đây là lớp "dịch" toàn bộ framework trong hai cuốn sang **thực chiến thị trường chứng khoán Việt Nam**: những gì áp dụng thẳng, những gì phải chỉnh, và những gì chưa dùng được — cùng lộ trình cụ thể để xây một hệ thống giao dịch định lượng tại VN. Bám cơ chế và quy định thị trường VN được kiểm tra đến **05/07/2026**: KRX đã go-live; việc FTSE Russell chuyển Việt Nam sang Secondary Emerging vẫn có hiệu lực dự kiến từ **21/09/2026**.
 >
-> **Lưu ý quan trọng:** đây là tài liệu *phương pháp*, không phải khuyến nghị đầu tư hay lời hứa sinh lời. Thị trường VN đang cải cách nhanh (KRX rollout 2026–2028: short selling, T+0, options); **luôn kiểm tra quy định & biểu phí hiện hành với công ty chứng khoán của bạn** trước khi triển khai vốn thật.
+> **Lưu ý quan trọng:** đây là tài liệu *phương pháp*, không phải khuyến nghị đầu tư hay lời hứa sinh lời. KRX là hạ tầng công nghệ; T+0, bán khống hay sản phẩm mới chỉ được coi là khả dụng khi có quy định và thông báo triển khai chính thức. **Luôn kiểm tra quy chế, lịch giao dịch, thuế và biểu phí hiện hành với Sở/VSDC/công ty chứng khoán trước khi triển khai vốn thật.**
 
 ---
 
@@ -25,43 +25,43 @@
 
 ## 1. Tư duy: vì sao Việt Nam khác, và cách dùng tài liệu này
 
-Bạn cầm tài liệu này vì bạn đã đọc — hoặc đang đọc — hai cuốn **P-World** và **Q-World**. Hai cuốn đó dạy bạn *bộ khung tư duy* của một quant: nghĩ về returns như biến ngẫu nhiên, hiểu một alpha được sinh ra rồi chết đi thế nào, backtest mà không tự lừa mình, lắp một danh mục từ hàng chục tín hiệu yếu. Đó là kiến thức không biên giới. Nhưng chúng viết cho một *thị trường mặc định* — kiểu thị trường phát triển như Mỹ: short thoải mái, vay cổ phiếu dễ, phái sinh trên gần như mọi thứ, dữ liệu sạch mấy chục năm, và đối thủ là những cỗ máy đã mài mòn gần hết mọi anomaly đơn giản.
+Bạn cầm tài liệu này vì bạn đã đọc — hoặc đang đọc — hai cuốn **P-World** và **Q-World**. Hai cuốn đó dạy bạn *bộ khung tư duy* của một quant: nghĩ về returns như biến ngẫu nhiên, hiểu một alpha được sinh ra rồi chết đi thế nào, backtest mà không tự lừa mình, lắp một danh mục từ hàng chục tín hiệu yếu. Đó là kiến thức không biên giới. Nhưng nhiều ví dụ dùng một *thị trường chuẩn hóa* gần với thị trường phát triển: cơ chế vay–bán khống đã vận hành, nhiều công cụ phòng hộ, dữ liệu dài và cạnh tranh arbitrage mạnh. Ngay cả ở các thị trường đó, short vẫn chịu locate/borrow, phí vay, margin, recall và hạn chế pháp lý — không bao giờ là miễn phí hay hoàn toàn tự do.
 
-Việt Nam không phải thị trường đó. Tài liệu này là **lớp dịch** — dịch bộ khung P/Q sang các ràng buộc, cơ chế và cơ hội thực tế của thị trường chứng khoán Việt Nam. Không phải để phủ nhận sách, mà để bạn biết: quy tắc nào bê nguyên xi được, quy tắc nào phải bẻ, và chỗ nào VN *dễ ăn hơn* chứ không phải khó hơn.
+Việt Nam không phải thị trường đó. Tài liệu này là **lớp dịch** — dịch bộ khung P/Q sang các ràng buộc, cơ chế và dữ liệu thực tế của thị trường chứng khoán Việt Nam. Không phải để phủ nhận sách, mà để bạn biết: quy tắc nào dùng nguyên được, quy tắc nào phải sửa, và giả thuyết nào cần kiểm định lại thay vì mặc định đúng.
 
-### Hai giả định của cuốn P sụp đổ ở VN
+### Hai điểm chuẩn phải hiệu chỉnh khi sang VN
 
-Cuốn P-World, ngay từ **Chương 1 (P là gì)** và **Chương 8 (Behavioral & limits to arbitrage)**, dựng lên hai giả định nền:
+Khi chuyển các ví dụ trong P-World — đặc biệt **Chương 1 (P là gì)** và **Chương 8 (Behavioral & limits to arbitrage)** — sang VN, hai điểm chuẩn vận hành cần được hiệu chỉnh:
 
-1. **Short tự do.** Muốn bán khống một cổ phiếu định giá cao, bạn vay rồi bán. Đây là điều kiện sống còn của cả một họ chiến lược: long/short equity, pairs trading, market-neutral stat-arb.
-2. **Thị trường tương đối hiệu quả.** Alpha đơn giản (một mình momentum, một mình value) đã bị arbitrage mài mòn; muốn sống bạn phải tinh vi, tốc độ cao, hoặc chấp nhận Sharpe mỏng.
+1. **Có cơ chế short cổ phiếu đủ dùng.** Muốn bán một cổ phiếu đang được định giá cao, chiến lược phải vay được đúng mã với chi phí và quy mô chấp nhận được. Đây là điều kiện triển khai của long/short equity, pairs trading và market-neutral stat-arb.
+2. **Cạnh tranh arbitrage đủ mạnh.** Một tín hiệu đơn giản có thể bị nhiều người khai thác, khiến lợi nhuận sau chi phí giảm dần. Đây là giả thuyết về mức cạnh tranh, không phải định luật rằng momentum hay value luôn “đã chết”.
 
-Ở Việt Nam, **cả hai đều sai** — và sai theo hai hướng ngược nhau: một hướng *lấy đi* của bạn một công cụ, một hướng *tặng* bạn một lợi thế.
+Ở Việt Nam, điểm thứ nhất là một ràng buộc rõ ràng; điểm thứ hai phải được đo bằng dữ liệu, không thể suy ra chỉ từ cơ cấu nhà đầu tư.
 
-**Hệ quả (a) — mất công cụ short.** Bán khống cổ phiếu cơ sở với nhà đầu tư retail ở VN **hiện chưa làm được**; lộ trình securities borrowing & lending và covered short đang được xây dựng dần theo giai đoạn 2026–2028 qua hệ thống KRX, còn chờ khung pháp lý. Nghĩa là toàn bộ họ chiến lược dựa trên short *trên cổ phiếu* — market-neutral, pairs, stat-arb hai chân long/short cùng lúc trên equity — **chưa chạy được**. Đây không phải chi tiết nhỏ: đó là nửa cái toolbox trong Chương 5 (lý thuyết danh mục), Chương 11 (portfolio construction) và Chương 15 (bản đồ chiến lược) của cuốn P. Nếu bạn muốn short hoặc phòng hộ, cửa duy nhất hiện nay là **VN30 Index Futures** — niêm yết trên HNX, tài sản cơ sở là chỉ số VN30, cho phép long/short cả hai chiều, giao dịch intraday, có đòn bẩy. Vì thế Mục 4 chia thế giới của bạn làm đúng hai sân: *long-only trên cổ phiếu* và *hai chiều trên VN30 futures* — và bạn phải học sống trong ranh giới đó thay vì mơ về pairs trading trên hai mã ngân hàng.
+**Hệ quả (a) — thiếu chân short ở tầng cổ phiếu.** Tính đến 05/07/2026, bán khống cổ phiếu cơ sở chưa phải một cơ chế phổ biến sẵn có cho nhà đầu tư cá nhân. Vì vậy các chiến lược cần short từng mã — market-neutral, pairs hay stat-arb hai chân trên equity — **chưa thể bê nguyên trạng vào production**. Hợp đồng tương lai chỉ số **VN30 và VN100** cho phép giao dịch hai chiều; trong thực hành, VN30 futures vẫn là công cụ phòng hộ chỉ số chủ lực nhờ thanh khoản vượt trội, còn VN100 futures mới vận hành từ 10/10/2025 và cần kiểm tra thanh khoản trước mỗi chiến lược. Futures chỉ hedge được phần beta chỉ số/basis tương ứng, không thay thế hoàn hảo chân short của từng cổ phiếu.
 
-**Hệ quả (b) — được tặng behavioral edge.** Ở chỗ cuốn P bảo "anomaly đơn giản đã chết", VN nói ngược lại. Khoảng **85–90% khối lượng giao dịch** trên thị trường VN đến từ nhà đầu tư **cá nhân (retail) trong nước**. Một thị trường bị chi phối bởi noise trader là một thị trường **kém hiệu quả một cách có hệ thống**: momentum kéo dài hơn, đảo chiều (reversal) rõ hơn, dòng tiền (flow) để lại dấu vết đọc được — trong đó có cả **dòng tiền khối ngoại**, công bố theo mã mỗi ngày, một nguồn tín hiệu đặc thù của VN. Chính **Chương 8 (Behavioral & limits to arbitrage)** của cuốn P mô tả *cơ chế* sinh ra những anomaly này; điều nó không nói được là ở VN cỗ máy đó chạy *mạnh hơn* vì thiếu lực arbitrage để dập — mà một phần chính vì không short được (hệ quả (a) quay lại thành lợi thế). Kết luận thực chiến: **tín hiệu đơn giản sống khỏe ở VN hơn ở thị trường phát triển.** Bạn không cần một mô hình 200 feature. Một momentum sạch, một filter thanh khoản, một chút kỷ luật risk — đã là một chiến lược thật.
+**Hệ quả (b) — behavioral edge là giả thuyết nghiên cứu, không phải quà tặng.** Nhà đầu tư cá nhân trong nước thường chiếm tỷ trọng lớn trong giao dịch, nhưng tỷ trọng thay đổi theo giai đoạn và không tự động chứng minh thị trường “kém hiệu quả có hệ thống”. Momentum, reversal, thanh khoản hay dòng tiền khối ngoại đều là **ứng viên tín hiệu** hợp lý theo cơ chế ở Chương 8; giá trị dự báo của chúng vẫn phải được kiểm định point-in-time, ngoài mẫu và sau toàn bộ chi phí. Tín hiệu đơn giản có lợi thế ở khả năng giải thích và chống overfit — không có nghĩa một momentum cộng filter thanh khoản mặc nhiên là chiến lược có lãi.
 
-### Bạn không đấu với Citadel
+### Lợi thế thực tế của một người làm quant độc lập
 
-Đây là điểm tư duy quan trọng nhất, và là lý do để lạc quan. Ở Mỹ, bạn — một cá nhân với laptop — ngồi cùng bàn poker với các HFT shop nuốt order flow theo microsecond và các quant fund với đội PhD. Ở VN, **cấu trúc thị trường không đặt bạn vào ván đó.** Đối thủ chủ đạo của bạn là đám đông retail giao dịch bằng cảm xúc, tin đồn room chat, và FOMO. Lợi thế của bạn không phải tốc độ hay vốn — mà là **kỷ luật và quy trình**: backtest trung thực, quản trị rủi ro, không đuổi giá trần. Phần lớn người thua ở VN thua vì **thiếu kỷ luật, không phải thiếu cơ hội.** Cơ hội thì thị trường kém hiệu quả này rải đầy; cái khan hiếm là người đủ tỉnh táo để nhặt nó một cách hệ thống.
+Bạn vẫn cạnh tranh với công ty chứng khoán, desk tự doanh, quỹ trong và ngoài nước, market maker và những nhà đầu tư có dữ liệu hoặc hạ tầng tốt hơn. Lợi thế khả dĩ của một cá nhân không phải là “không có đối thủ mạnh”, mà là **phạm vi nhỏ, tốc độ ra quyết định và kỷ luật quy trình**: chọn universe vừa sức, backtest trung thực, quản trị rủi ro, tránh đuổi giá khi khả năng khớp thấp, và không cần triển khai quy mô vốn quá lớn. Đó là lợi thế vận hành cần được chứng minh bằng track record sau chi phí, không phải lời đảm bảo về alpha.
 
-Nói vậy không phải để coi thường rủi ro. VN có những cái bẫy riêng: đội lái pump-and-dump trên smallcap, corporate action dày đặc làm hỏng data lịch sử, lịch sử giá ngắn khiến overfitting cực dễ. Những cái đó là nội dung của Mục 3, 5 và 9. Nhưng chúng là *bẫy để né*, không phải *bức tường để bỏ cuộc*.
+VN có những rủi ro riêng: thao túng giá ở mã thanh khoản thấp, corporate action làm sai dữ liệu lịch sử, lịch sử quan sát ngắn và thay đổi chế độ thị trường khiến overfitting dễ xảy ra. Mục 3, 5 và 9 sẽ biến các rủi ro đó thành điều kiện lọc, kiểm tra dữ liệu và giới hạn triển khai cụ thể.
 
 ### Một phép tính minh họa cho trực giác chi phí
 
-Để bạn cảm được vì sao "đơn giản nhưng kỷ luật" thắng, hãy nhìn chi phí một vòng mua–bán. *Ví dụ minh họa* (giá cổ phiếu là số giả định; phí/thuế lấy theo khoảng thực tế của thị trường): bạn mua một cổ phiếu HOSE giá 50.000đ, phí môi giới ~0,2%/chiều (áp cả mua và bán), thuế thu nhập khi bán 0,1% trên giá trị bán. Chi phí một vòng:
+Để thấy vì sao turnover có thể giết một tín hiệu yếu, hãy nhìn chi phí một vòng mua–bán. *Ví dụ minh họa, không phải biểu phí mặc định:* giả sử phí môi giới 0,2% mỗi chiều và thuế thu nhập cá nhân khi bán là 0,1% trên giá trị chuyển nhượng. Chi phí trực tiếp một vòng xấp xỉ:
 
 $$c_{\text{round}} \approx \underbrace{0{,}2\%}_{\text{phí mua}} + \underbrace{0{,}2\%}_{\text{phí bán}} + \underbrace{0{,}1\%}_{\text{thuế bán}} \approx 0{,}5\%$$
 
-Một chiến lược quay vòng 2 lần/tuần ăn ~$0{,}5\% \times 2 = 1\%$/tuần chỉ riêng chi phí — cộng dồn thành cỡ vài chục phần trăm mỗi năm bốc hơi trước khi tính đến lãi. Chính **"điểm gãy chi phí" ở Chương 8–9 cuốn P** giết những chiến lược quay vòng nhanh mà lý thuyết trông đẹp. Bài học VN: mỗi lần bấm nút là mất tiền *chắc chắn*, còn alpha thì chỉ *kỳ vọng*. Tần suất thấp, tín hiệu khỏe, kỷ luật chi phí — đó là tinh thần xuyên suốt tài liệu.
+Nếu quay đủ 2 vòng/tuần trên toàn bộ cùng một lượng vốn danh nghĩa, phép cộng đơn giản là $0{,}5\% \times 2 \times 52 \approx 52\%$ **giá trị vốn luân chuyển mỗi năm** — không phải khẳng định tài khoản chắc chắn mất 52% hay một phép tính lãi kép. Con số thực tế còn phụ thuộc biểu phí, spread, market impact, tỷ lệ khớp, quy mô lệnh và turnover thật. Chính **"điểm gãy chi phí" ở Chương 8–9 cuốn P** giết nhiều chiến lược quay vòng nhanh trông đẹp trước phí. Mỗi lần giao dịch tạo chi phí tương đối chắc chắn, còn alpha chỉ là kỳ vọng; vì vậy cost model phải đứng trong backtest ngay từ đầu.
 
 ### Cách đọc tài liệu này
 
 Tài liệu gồm 12 mục, mỗi mục là một lớp dịch từ một mảng của P/Q sang VN, và mỗi mục **neo vào chương cụ thể** để bạn quay lại lý thuyết gốc khi cần:
 
 - **Mục 2–3** — cấu trúc thị trường VN (T+2, biên độ ±7% HOSE, bước giá, room ngoại) và các ràng buộc phá vỡ chiến lược sách, ánh xạ **Chương 12 (microstructure)**.
-- **Mục 4** — hai sân chơi: long-only equity vs **VN30 futures**, ánh xạ **Chương 16 (trading theo asset class)** và nền forward/futures ở **Q-World Chương 2 (nền tảng) và Chương 9 (lãi suất, futures/basis)**.
+- **Mục 4** — hai sân chơi: long-only equity vs **index futures** (trọng tâm VN30; luôn kiểm tra thanh khoản VN100), ánh xạ **Chương 16 (trading theo asset class)** và nền forward/futures ở **Q-World Chương 2 (nền tảng) và Chương 9 (lãi suất, futures/basis)**.
 - **Mục 5** — data (`vnstock`, PIT, corporate action) — nguồn lỗi backtest lớn nhất ở VN, nối **Chương 2 (dữ liệu & returns)**.
 - **Mục 6–7** — tín hiệu alpha cho VN (**Chương 7, 8, 10**) và backtest engine trung thực (**Chương 9**).
 - **Mục 8–9** — portfolio long-only + futures hedge (**Chương 5, 11, 14**) và regime & risk (**Chương 4, 14**).
@@ -70,34 +70,34 @@ Tài liệu gồm 12 mục, mỗi mục là một lớp dịch từ một mảng
 
 Bạn không cần đọc tuần tự cả hai cuốn P/Q trước. Cách dùng hiệu quả: đọc mục ở đây, thấy nó trỏ về chương nào thì mở đúng chương đó ra đọc sâu, rồi quay lại. Tài liệu này là **bản đồ dịch**, không phải bản thay thế sách gốc.
 
-Tinh thần chung: **VN không phải phiên bản khó hơn của Mỹ — nó là một thị trường *khác*, kém hiệu quả hơn, ràng buộc hơn, nhưng vì thế cũng *hào phóng* hơn với người có kỷ luật.** Việc của bạn không phải trở thành Citadel. Việc của bạn là biến bộ khung P/Q thành một quy trình chạy được trên các ràng buộc thật của VN — và làm nó một cách trung thực hơn 90% người đang giao dịch quanh bạn.
+Tinh thần chung: **VN không phải phiên bản khó hơn hay dễ hơn của Mỹ — nó là một thị trường có cơ chế, dữ liệu và tập công cụ khác.** Việc của bạn là biến bộ khung P/Q thành một quy trình chạy được trên các ràng buộc thật của VN, rồi để kiểm định ngoài mẫu và kết quả sau chi phí quyết định liệu edge có tồn tại hay không.
 
 
 ## 2. Cấu trúc thị trường Việt Nam — cơ chế bạn phải thuộc
 
-Trước khi viết một dòng alpha, bạn phải thuộc lòng bộ luật vật lý của sân chơi. Trong cả P-World lẫn Q-World, mọi công thức đều ngầm giả định một microstructure lý tưởng: bạn mua bán được ở đúng giá bạn thấy, không giới hạn hai chiều, thanh toán tức thời, thanh khoản vô hạn. Thị trường VN vi phạm gần hết các giả định đó theo những cách rất cụ thể — và mỗi vi phạm là một chỗ mà một backtest ngây thơ sẽ nói dối bạn, thường là nói dối *có lợi cho bạn*, tức khoe một Sharpe mà tài khoản thật không bao giờ chạm tới. Mục này liệt kê từng cơ chế và, quan trọng hơn, **ý nghĩa giao dịch** của nó: cái gì bạn không được làm, cái gì backtest không được giả định, cái gì mở ra edge mà thị trường phát triển không cho không. Đây là nền để mục 3 (những ràng buộc phá vỡ chiến lược trong sách) và mục 7 (backtest engine) đứng lên — đọc kỹ một lần ở đây, hai mục sau chỉ việc tham chiếu ngược lại.
+Trước khi viết alpha, bạn phải thuộc bộ luật vận hành của sân chơi. Các mô hình trong P-World và Q-World thường bắt đầu từ một baseline đơn giản hóa: giá quan sát được có thể giao dịch, vị thế hai chiều khả dụng, thanh toán và thanh khoản không tạo ràng buộc đáng kể. Không phải mọi công thức đều cần các giả định đó, nhưng một backtest triển khai lệnh thì có. Mục này tách **quy tắc thị trường** khỏi **giả định mô hình**, để engine không tự cấp cho mình mức giá, khả năng khớp hay lượng hàng chưa thực sự có. Trạng thái quy định dưới đây được kiểm tra đến **05/07/2026** và phải được đối chiếu lại trước khi chạy production.
 
-### 2.1 Ba sàn và các chỉ số
+### 2.1 Hai Sở, ba thị trường cổ phiếu và các chỉ số
 
-Chứng khoán VN chia làm **ba sàn**. **HOSE** (còn gọi HSX, đặt tại TP.HCM) là sàn của large-cap và là nơi thanh khoản dồn về — đây là sân chính của bạn. **HNX** (Hà Nội) nhỏ hơn, và **UPCoM** dành cho công ty đại chúng chưa niêm yết chuẩn — thanh khoản mỏng, biên độ rộng hơn, rủi ro cao, nên tránh cho bot định lượng trừ khi bạn biết chính xác mình đang làm gì.
+Việt Nam có **hai Sở giao dịch** là HOSE và HNX, cùng thuộc Sở Giao dịch Chứng khoán Việt Nam (VNX). Nếu nói theo venue cổ phiếu thì có ba thị trường chính: cổ phiếu niêm yết trên **HOSE**, cổ phiếu niêm yết trên **HNX**, và **UPCoM do HNX tổ chức** cho cổ phiếu đăng ký giao dịch của công ty đại chúng chưa niêm yết. Không nên gọi UPCoM là “Sở thứ ba”. HOSE thường là universe khởi đầu phù hợp vì tập trung nhiều cổ phiếu vốn hóa lớn và thanh khoản cao; HNX và UPCoM không phải mặc định “không dùng được”, nhưng cần ngưỡng thanh khoản, spread và market-impact nghiêm hơn.
 
-Chỉ số cần thuộc: **VN-Index** phủ toàn bộ HOSE (đây là "thị trường" khi người ta nói thị trường lên hay xuống); **VN30** là rổ 30 large-cap thanh khoản nhất HOSE, **đổi định kỳ khoảng 2 lần/năm**. VN30 là trục xương sống của toàn bộ tài liệu này vì ba lý do sẽ lặp lại xuyên suốt: nó là universe long-only mặc định (thanh khoản dày, ít bị đội lái), nó là tài sản cơ sở của hợp đồng phái sinh chủ lực mà retail dùng được (VN30 Index Futures, mục 4), và bản thân việc rổ đổi định kỳ mở ra một sự kiện event-driven có thể khai thác (index rebalance, mục 6). Ngoài ra có HNX-Index, VN100, VNMidcap, VNSmallcap — hữu ích để phân tầng thanh khoản khi bạn cần một universe rộng hơn, nhưng đừng để một tín hiệu "đẹp" trên smallcap dụ bạn ra ngoài rổ large-cap: phần lớn cái "đẹp" đó là sóng làm giá chứ không phải edge (mục 3).
+Chỉ số cần thuộc: **VN-Index** phản ánh cổ phiếu niêm yết trên HOSE; **VN30** gồm 30 cổ phiếu được chọn theo bộ tiêu chí về tư cách, free-float, vốn hóa và thanh khoản — không đơn giản là “30 mã thanh khoản nhất”. Chỉ số được xem xét định kỳ theo quy tắc của HOSE; ngày dữ liệu, ngày công bố và ngày hiệu lực phải lấy từ lịch chỉ số từng kỳ, không hardcode “mỗi sáu tháng” vào chiến lược event-driven. VN30 là universe tham chiếu hữu ích và là tài sản cơ sở của hợp đồng tương lai thanh khoản nhất, nhưng “large-cap” không đồng nghĩa miễn nhiễm thao túng, concentration risk hay mất thanh khoản. HNX-Index, VN100, VNMidcap và VNSmallcap giúp phân tầng thị trường; universe nào cũng phải qua filter khả năng giao dịch tại đúng thời điểm lịch sử.
 
-### 2.2 Giờ giao dịch và ba phiên khớp lệnh
+### 2.2 Giờ giao dịch khác nhau theo venue
 
-Ngày giao dịch cổ phiếu chia làm phiên sáng **9:00–11:30** và phiên chiều **13:00–14:45**, và — đây là điểm khác biệt lớn nhất so với microstructure trong Ch12 P-World — nó **không phải một phiên khớp lệnh liên tục duy nhất**. Cấu trúc gồm ba giai đoạn khác nhau về bản chất khớp lệnh:
+Không có một lịch “9:00–14:45” áp dụng đồng nhất cho cả ba venue:
 
-- **ATO** (khớp lệnh mở cửa, 9:00–9:15): một phiên đấu giá định kỳ (call auction) xác định giá mở cửa. Lệnh gom lại rồi khớp một lần ở **một mức giá clearing duy nhất** — không có khái niệm "khớp dần" trong giai đoạn này.
-- **Khớp lệnh liên tục** (continuous matching): đây là giai đoạn giống mô hình sổ lệnh limit-order-book chuẩn trong sách, khớp theo ưu tiên giá–thời gian. Phần lớn thanh khoản nội phiên nằm ở đây.
-- **ATC** (khớp lệnh đóng cửa, 14:30–14:45): lại là một call auction, xác định **giá đóng cửa** — chính là mức bạn thường dùng làm giá tham chiếu cho phiên sau và làm giá điều chỉnh trong data lịch sử.
+- **HOSE, cổ phiếu thông thường:** ATO 9:00–9:15; khớp liên tục 9:15–11:30 và 13:00–14:30; ATC 14:30–14:45. Giao dịch thỏa thuận có khung giờ riêng và có thể tiếp tục đến 15:00.
+- **HNX, cổ phiếu niêm yết:** khớp liên tục 9:00–11:30 và 13:00–14:30; ATC 14:30–14:45; sau đó có phiên khớp lệnh sau giờ (PLO) 14:45–15:00.
+- **UPCoM:** khớp liên tục 9:00–11:30 và 13:00–15:00; không có ATO/ATC như HOSE. Giá tham chiếu được xác định theo bình quân gia quyền của giá giao dịch lô chẵn theo phương thức khớp lệnh của ngày trước.
 
-Ngoài ra còn có **phiên thỏa thuận** (block/negotiated trades) — nơi các lệnh lớn khớp trực tiếp theo thương lượng, ngoài sổ lệnh liên tục.
+ATO/ATC là đấu giá định kỳ: lệnh có thể được khớp toàn bộ hoặc một phần tại **một mức giá khớp lệnh duy nhất** của đợt, chứ không phải tất cả lệnh “khớp một lần và khớp hết”. Trong phiên liên tục, lệnh khớp theo nguyên tắc ưu tiên giá rồi thời gian. Giao dịch thỏa thuận là cơ chế riêng, không nên trộn volume của nó vào mô hình tác động giá trên sổ lệnh nếu chưa xử lý đúng.
 
-**Ý nghĩa giao dịch.** Hai phiên ATO/ATC là call auction, nên khái niệm "spread bid-ask tại thời điểm khớp" của Ch12 không áp dụng nguyên: giá đóng cửa là giá clearing của cả một tập lệnh gom lại, không phải mid-price của một sổ lệnh đang chạy liên tục. Nếu chiến lược của bạn tính tín hiệu trên giá close (ATC) rồi giả định vào lệnh tại chính giá đó, bạn đang phạm một dạng look-ahead tinh vi: tại đúng lúc bạn *biết* giá ATC, phiên đã đóng, không còn ai để khớp nữa. Đây chính là cạm bẫy look-ahead của Ch9 P-World (Backtesting), nhưng ở VN nó sắc hơn một bậc vì giá close sinh ra từ một cơ chế đấu giá riêng chứ không phải là giao dịch cuối cùng của phiên liên tục — bạn không thể lập luận "thì tôi đặt lệnh ngay sát giờ đóng" để né. Quy tắc an toàn, sẽ đóng đinh trong engine ở mục 7: tín hiệu tính trên close của ngày $t$ chỉ được phép thực thi từ phiên $t+1$ trở đi.
+**Ý nghĩa giao dịch.** Giá đóng cửa từ ATC là giá auction, không phải mid-price của sổ lệnh liên tục. Nếu tín hiệu cần **giá close cuối cùng** của ngày $t$, bạn chưa thể đồng thời biết giá đó rồi quyết định đặt lệnh để chắc chắn khớp tại chính close. Quy tắc backtest an toàn là thực thi từ phiên $t+1$; ngoại lệ chỉ hợp lệ khi tín hiệu được chốt trước hạn nhận lệnh ATC và engine mô phỏng riêng auction, partial fill và độ bất định của giá đóng cửa.
 
 ### 2.3 Lô chẵn 100 và bước giá (tick size)
 
-Lô giao dịch chuẩn (lô chẵn) trên HOSE là **100 cổ phiếu**; số lẻ 1–99 cổ phiếu (lô lẻ) giao dịch theo cơ chế riêng, thanh khoản kém. Với người xây danh mục, điều này nghĩa là **số lượng cổ phiếu mỗi lệnh phải làm tròn về bội số của 100** — bạn không đặt được vị thế "137 cổ phiếu" một cách trơn tru. Ràng buộc lô chẵn này ăn thẳng vào bài toán position sizing của Ch11 P-World (Portfolio construction): với tài khoản nhỏ và cổ phiếu giá cao, bước nhảy 100 cổ phiếu có thể là một phần đáng kể vốn, làm trọng số danh mục thực tế lệch khỏi mục tiêu tối ưu mà bộ tối ưu hóa trả về. Đây là một nguồn tracking error hệ thống mà backtest phải mô phỏng chứ không được bỏ qua — nếu không, engine sẽ giả định bạn nắm được đúng trọng số phân số mà thị trường không cho phép.
+Lô giao dịch chuẩn trên HOSE là **100 cổ phiếu**. Lô lẻ 1–99 cổ phiếu có cơ chế giao dịch riêng, nên khả năng khớp và chất lượng thực thi có thể khác lô chẵn. Với danh mục chạy bằng lệnh lô chẵn, số lượng mục tiêu phải làm tròn về bội số 100; tài khoản nhỏ hoặc cổ phiếu giá cao vì thế tạo tracking error đáng kể. Nếu chiến lược cho phép dùng lô lẻ, backtest phải mô phỏng nó như một luồng lệnh riêng thay vì coi “137 cổ phiếu” có cùng thanh khoản với lệnh lô chẵn.
 
 **Bước giá (tick)** trên HOSE phụ thuộc mức giá:
 
@@ -107,55 +107,57 @@ Lô giao dịch chuẩn (lô chẵn) trên HOSE là **100 cổ phiếu**; số l
 | $10.000$–$< 50.000$đ | 50đ |
 | $\ge 50.000$đ | 100đ |
 
-Tick không đồng nhất nghĩa là spread tối thiểu tính theo phần trăm khác nhau rõ rệt giữa các mã. *Ví dụ minh họa (giá cổ phiếu là số giả định):* một cổ phiếu giá 12.000đ có tick 50đ, tức một bước giá đã là $50/12000 \approx 0{,}42\%$; một cổ phiếu 80.000đ có tick 100đ, chỉ $100/80000 = 0{,}125\%$. Cổ phiếu giá thấp chịu spread tương đối lớn hơn — một cost drag mà cost model của bạn (mục 7) nên phản ánh theo từng mã thay vì áp một hằng số phí phẳng cho toàn universe. Chi tiết này nhỏ, nhưng với chiến lược turnover cao nó là hiệu số giữa "lãi trên giấy" và "lỗ thật".
+Tick không đồng nhất làm **một bước giá** chiếm tỷ lệ khác nhau theo mức giá. *Ví dụ minh họa:* ở 12.000đ, tick 50đ tương đương khoảng $0{,}42\%$; ở 80.000đ, tick 100đ tương đương $0{,}125\%$. Đây không phải khẳng định spread luôn đúng một tick: spread thực có thể nhiều tick, còn khi không có đủ hai phía thì thậm chí không xác định được spread hữu dụng. Cost model nên dùng quote/order-book hoặc giả định spread theo từng nhóm thanh khoản, không lấy tick làm toàn bộ chi phí giao dịch.
 
 ### 2.4 Thanh toán T+2 — luật vật lý quan trọng nhất
 
-Chu kỳ thanh toán là **T+2**: cổ phiếu bạn mua chỉ thực sự về tài khoản vào khoảng ngày T+2, và **cổ phiếu vừa mua CHƯA bán được cho tới khi nó về**. (Trước đây là T+3; hệ thống KRX đang mở đường cho T+1.)
+Chu kỳ thanh toán cổ phiếu, chứng chỉ quỹ và chứng quyền là **T+2** theo ngày làm việc. Với giao dịch mua thông thường, chứng khoán được phân bổ để nhà đầu tư có thể bán từ **phiên chiều T+2** theo quy trình hiện hành; thời điểm hiển thị và sức mua cụ thể còn phụ thuộc hệ thống của công ty chứng khoán. T+1 chưa phải quy tắc đang áp dụng và KRX go-live không tự động đổi chu kỳ thanh toán.
 
-**Ý nghĩa giao dịch — đây là ràng buộc bạn phải khắc cốt.** Trên thị trường cơ sở, bạn **không thể day-trade cùng một lô cổ phiếu**: mua sáng nay thì không bán được đúng lô đó chiều nay hay ngày mai, phải chờ tới khi cổ phiếu về (~T+2). Hệ quả trực tiếp cho quant: mọi chiến lược high-turnover intraday hay mean-reversion nhanh *trên cổ phiếu* — vốn là xương sống của nhiều ví dụ trong Ch7 (Alpha research) và Ch9 (Backtesting) P-World — **không chạy được nguyên trạng trên equity VN**. Turnover thực tế bị chặn cứng bởi chu kỳ nắm giữ tối thiểu ~2 phiên. Nếu bạn cần tốc độ intraday và giao dịch được cả hai chiều, sân chơi phải chuyển sang VN30 futures (mục 4), nơi giao dịch intraday được phép và cơ chế thanh toán không khóa vị thế như cổ phiếu cơ sở. Backtest engine (mục 7) bắt buộc phải mã hóa T+2 như một hard constraint — nếu không, nó sẽ báo cáo một turnover và một Sharpe mà thị trường cơ sở, xét thuần vật lý thanh toán, không cho phép bạn đạt được. Đây là dạng lỗi backtest nguy hiểm nhất vì nó không crash, nó chỉ lặng lẽ thổi phồng kết quả.
+**Ý nghĩa giao dịch.** Bạn không thể mua một lô mới rồi bán chính lô đó trong ngày; engine phải theo dõi **inventory khả dụng** theo settlement date. Không nên biến T+2 thành câu “mọi vị thế bắt buộc giữ đủ hai phiên”: cổ phiếu có sẵn từ trước vẫn có thể bán, và nghiệp vụ bán–mua cùng mã còn phụ thuộc inventory cùng quy định của broker. Điều đúng để mã hóa là mỗi lô mua chỉ trở thành hàng bán được khi hoàn tất phân bổ. Futures VN30/VN100 cho phép giao dịch hai chiều trong ngày nhưng có cơ chế margin, mark-to-market, basis và thanh khoản riêng — không phải lối tắt miễn phí quanh T+2.
 
 ### 2.5 Biên độ dao động ±7/10/15% — trần, sàn, và bẫy khớp lệnh
 
-Mỗi phiên, giá mỗi mã chỉ được dao động trong một **biên độ** quanh giá tham chiếu: HOSE **±7%**, HNX **±10%**, UPCoM **±15%**. Ngày chào sàn (giao dịch đầu tiên) biên rộng hơn (HOSE ±20%). Chạm biên trên gọi là **giá trần** ("kịch trần"), chạm biên dưới là **giá sàn** ("kịch sàn").
+Trong ngày giao dịch thông thường, giá đặt lệnh bị giới hạn quanh giá tham chiếu: HOSE **±7%**, HNX **±10%**, UPCoM **±15%**, sau khi áp dụng quy tắc làm tròn bước giá. Một số trường hợp có biên độ riêng — như ngày giao dịch đầu tiên, ngày giao dịch trở lại sau thời gian đình chỉ dài hoặc ngày không hưởng quyền đặc biệt; ví dụ biên độ ngày đầu trên HOSE là **±20%**. Vì vậy engine phải lưu rule theo venue và trạng thái phiên, không chỉ cột `exchange`.
 
-**Ý nghĩa giao dịch — và cái bẫy backtest lớn nhất.** Khi một cổ phiếu kịch trần, gần như *ai cũng muốn mua và không ai muốn bán*; khi kịch sàn thì ngược lại. Ở hai trạng thái này **thường không có bên đối ứng để khớp**: bạn treo lệnh mua ở giá trần nhưng không có người bán, lệnh của bạn nằm im **không khớp**. Đây là điều một backtest ngây thơ luôn làm sai — nó thấy trong data "giá đóng cửa = giá trần" và hồn nhiên giả định lệnh của bạn được fill ở đó, biến một phiên bạn *không thể mua được* thành một phiên bạn mua trọn vẹn. **Backtest KHÔNG được giả định luôn khớp ở giá trần/sàn.** Cách làm đúng là mô hình hóa xác suất không-khớp khi mã chạm biên, và coi các phiên kịch biên như một chế độ khớp lệnh riêng (chi tiết ở mục 7).
+**Ý nghĩa giao dịch.** Chạm trần/sàn không đồng nghĩa tuyệt đối “không có đối ứng”: vẫn có thể có giao dịch tại giá biên. Vấn đề là mất cân bằng sổ lệnh và hàng đợi có thể khiến lệnh của bạn không được ưu tiên hoặc chỉ khớp một phần. Backtest OHLCV không biết vị trí hàng đợi, nên **không được mặc định fill toàn bộ chỉ vì high/low/close bằng giá biên**. Mức tối thiểu là dùng volume thực tại giá biên, participation cap và quy tắc partial/no-fill bảo thủ; tốt hơn là dùng dữ liệu order book nếu có.
 
-Biên độ còn đặt một trần cứng lên phân phối return ngày: return một phiên trên HOSE bị chặn trong $[-7\%, +7\%]$. Điều này bóp đuôi phân phối và ảnh hưởng tới mọi ước lượng rủi ro trong Ch14 (Risk management) P-World — VaR và vol tính từ dữ liệu bị censoring ở biên sẽ thiên lệch xuống, khiến bạn *đánh giá thấp* rủi ro thật. Và một chuỗi "kịch sàn nhiều phiên liên tiếp" chính là dấu hiệu một cú sập bị biên độ *trải mỏng ra nhiều ngày* thay vì rơi hết trong một phiên: cú giảm 25% ngoài đời có thể hiện ra trong data thành bốn phiên sàn trông "hiền" — một cái bẫy khác cho bất kỳ mô hình rủi ro nào đọc return ngày một cách máy móc.
+Biên độ giới hạn **giá thực thi so với giá tham chiếu** trong phiên thông thường, không phải lúc nào cũng chặn total return kinh tế ở đúng $[-7\%,+7\%]$: corporate action, giá tham chiếu đặc biệt và các phiên có biên độ riêng tạo ngoại lệ. Price limit có thể trì hoãn price discovery và biến một cú sốc thành chuỗi nhiều phiên kịch sàn/trần; rủi ro quan trọng là **không thoát được vị thế**, không chỉ là volatility quan sát thấp. VaR/ES nên bổ sung stress nhiều ngày, limit-hit state và giả định thanh khoản thoát lệnh, thay vì tự động coi mọi quan sát ở biên là dữ liệu bị censor rồi kết luận một chiều về độ lệch.
 
 ### 2.6 Room ngoại và dòng tiền khối ngoại
 
-Mỗi mã có **trần tỷ lệ sở hữu nước ngoài** (room ngoại): nhiều mã ở mức 49%, riêng ngân hàng 30%. Mã **hết room** thì nhà đầu tư nước ngoài chỉ mua thêm được qua thỏa thuận, và thường phải trả **premium**. Song song, **giao dịch mua/bán ròng của khối ngoại được công bố hằng ngày theo từng mã**.
+Mỗi mã có **tỷ lệ sở hữu nước ngoài tối đa** phụ thuộc pháp luật chuyên ngành, cam kết quốc tế, điều lệ doanh nghiệp và quyết định của cơ quan có thẩm quyền; không nên hardcode “49% cho mọi doanh nghiệp, 30% cho mọi ngân hàng”. VSDC công bố tỷ lệ tối đa theo từng mã và cập nhật khi có thay đổi. Khi room tổng đã đầy, nhà đầu tư nước ngoài không thể làm tăng thêm tổng sở hữu vượt trần; giao dịch giữa các nhà đầu tư nước ngoài hoặc giao dịch thỏa thuận phải tuân thủ cơ chế cụ thể, và **premium không phải kết quả bắt buộc**.
 
-**Ý nghĩa giao dịch.** Foreign flow (dòng tiền khối ngoại mua/bán ròng) là **một nguồn tín hiệu đặc thù VN** — một dòng dữ liệu công khai, hằng ngày, theo từng mã, có thể trở thành feature (mục 6) mà nhiều thị trường phát triển không phơi bày sẵn một cách gọn gàng như vậy. Đây là một trong số ít chỗ VN cho bạn *nhiều* thông tin hơn thị trường phát triển, chứ không ít hơn. Room ngoại thì là một ràng buộc mềm cần biết khi xây danh mục: một mã sắp hết room có động lực giá riêng (cầu ngoại dồn nén), và nếu bạn giao dịch qua tài khoản có yếu tố nước ngoài thì khả năng vào lệnh có thể bị chặn ở mã đã hết room — universe khả dụng của bạn hẹp hơn universe trên bảng giá.
+**Ý nghĩa giao dịch.** Dữ liệu mua/bán của nhà đầu tư nước ngoài theo mã là một feature có thể nghiên cứu, nhưng cần xác định rõ nguồn, thời điểm dữ liệu thực sự khả dụng và cách xử lý thỏa thuận. “Mua ròng ngoại” không mặc nhiên dự báo lợi nhuận; phải kiểm định ngoài mẫu sau chi phí. Với tài khoản nước ngoài, room là **hard constraint** của universe và order validation; với tài khoản trong nước, room vẫn có thể ảnh hưởng cung–cầu nhưng không nên gán trước một dấu alpha cố định.
 
-### 2.7 Bối cảnh 2025–2028: thị trường đang chuyển mình
+### 2.7 Bối cảnh chuyển đổi hạ tầng và phân loại thị trường
 
-Ba diễn biến định hình 3 năm tới, và cả ba đều là lý do để kiến trúc hệ thống của bạn **tách cấu hình cơ chế khỏi logic chiến lược** — vì chính các con số cơ chế sẽ đổi dưới chân bạn:
+Ba mốc cần theo dõi và diễn đạt đúng mức độ chắc chắn:
 
-- **Hệ thống KRX go-live 5/5/2025** (công nghệ Hàn Quốc): nền tảng kỹ thuật cho T+0, bán khống, options và settlement nhanh hơn — nhưng phần lớn tính năng **rollout dần trong 2026–2028**, còn chờ khung pháp lý. Nghĩa là: đừng viết chiến lược dựa trên một tính năng "sắp có" cho tới khi nó thực sự bật.
-- **FTSE Russell nâng hạng VN lên Emerging Market** (secondary emerging): kéo dòng vốn ngoại thụ động (ETF và quỹ index) vào các mã trong rổ → mở cơ hội **event-driven** quanh nâng hạng và rebalance rổ chỉ số.
-- **CCP** (central counterparty clearing) dự kiến khoảng **Q1/2027** — hạ tầng bù trừ đối tác trung tâm, nền tảng cho nhiều sản phẩm mới và cho việc giảm rủi ro thanh toán.
+- **KRX đã go-live ngày 05/05/2025.** Đây là thay đổi hạ tầng giao dịch, không phải bằng chứng rằng T+0, bán khống hay options đã tự động được phép. Mỗi chức năng cần quy chế, thông báo kích hoạt và hỗ trợ thực tế từ broker trước khi đưa vào strategy config.
+- **FTSE Russell đã xác nhận tái phân loại Việt Nam từ Frontier lên Secondary Emerging, dự kiến có hiệu lực khi mở cửa ngày 21/09/2026.** Việc đưa vào các chỉ số được lên kế hoạch theo nhiều đợt từ tháng 9/2026 đến tháng 9/2027. Đây vẫn là sự kiện tương lai tại ngày chốt nội dung, nên mô hình event-driven phải dùng thông báo và danh sách chính thức từng kỳ, không coi dòng vốn dự kiến là khoản mua chắc chắn.
+- **CCP cho thị trường cơ sở nằm trong lộ trình hướng tới năm 2027.** Đây là mục tiêu triển khai, không phải cam kết chính xác “Q1/2027”; kiến trúc hệ thống không được giả định ngày go-live cho đến khi có thông báo chính thức.
 
-Với retail ở thời điểm hiện tại, **bán khống cổ phiếu cơ sở vẫn CHƯA làm được** (đang xây lộ trình triển khai dần trong 2026–2028); muốn short hay đòn bẩy hai chiều thì dùng VN30 futures. Chính vì lịch trình mở tính năng còn phụ thuộc khung pháp lý và có thể trượt, quy tắc kỹ sư ở đây rất rõ: đừng hardcode "T+2" hay "±7%" rải rác khắp code — đặt chúng vào một **registry cấu hình cơ chế thị trường** để khi T+1 hay short retail bật lên, bạn đổi đúng một chỗ chứ không phải viết lại engine. Đây không phải lời khuyên chung chung về "code sạch"; nó là hệ quả trực tiếp của việc bạn đang xây trên một thị trường mà các hằng số microstructure có ngày hết hạn.
+Quy tắc kỹ sư là tách **registry cơ chế thị trường có hiệu lực theo ngày** khỏi logic chiến lược: venue, loại chứng khoán, phiên, tick, biên độ, settlement, room và trạng thái sản phẩm đều phải versioned. Khi quy định đổi, bạn thêm một regime mới thay vì sửa lịch sử hoặc hardcode “T+2”, “±7%” và “short=false” rải rác trong code.
 
 ### 2.8 Bảng tóm tắt cơ chế
 
 | Cơ chế | Con số / quy định | Ý nghĩa giao dịch |
 |---|---|---|
-| Sàn | HOSE (large-cap), HNX, UPCoM | Bám HOSE/VN30; tránh UPCoM cho bot |
-| Chỉ số | VN-Index (toàn HOSE), VN30 (30 large-cap, đổi ~2 lần/năm) | VN30 = universe + tài sản cơ sở futures + event rebalance |
-| Giờ | Sáng 9:00–11:30, chiều 13:00–14:45 | Không phải một phiên liên tục duy nhất |
-| Phiên | ATO (9:00–9:15), khớp liên tục, ATC (14:30–14:45), thỏa thuận | Close = giá call-auction; tín hiệu trên close thực thi từ $t+1$ |
-| Lô chẵn | 100 cổ phiếu (HOSE) | Position size làm tròn bội số 100 → tracking error |
-| Tick | <10k: 10đ; 10k–<50k: 50đ; ≥50k: 100đ | Spread tương đối lớn hơn ở cổ phiếu giá thấp |
-| Thanh toán | T+2 (đang hướng T+1) | Không day-trade cùng lô ở cổ phiếu; turnover bị chặn |
-| Biên độ | HOSE ±7%, HNX ±10%, UPCoM ±15% (chào sàn HOSE ±20%) | Kịch trần/sàn thường KHÔNG khớp → backtest không được giả định fill |
-| Room ngoại | Nhiều mã 49%, ngân hàng 30% | Hết room → chặn mua; foreign flow = tín hiệu đặc thù |
-| Short cơ sở | Retail CHƯA làm được (lộ trình 2026–2028) | Muốn short/leverage → VN30 futures |
-| Bối cảnh | KRX 5/2025; FTSE EM; CCP ~Q1/2027 | Cấu hình cơ chế phải tách khỏi logic → dễ đổi khi T+1/short bật |
+| Venue | Hai Sở: HOSE, HNX; UPCoM do HNX tổ chức | Chọn universe bằng khả năng giao dịch, không chỉ nhãn sàn |
+| Chỉ số | VN-Index; VN30 theo tiêu chí HOSE và lịch review từng kỳ | VN30 là benchmark và underlying futures chủ lực, không phải universe “an toàn” mặc định |
+| Giờ | HOSE/HNX/UPCoM có lịch và loại phiên khác nhau | Engine dùng calendar theo venue; không hardcode một giờ đóng cửa |
+| Auction | HOSE có ATO/ATC; HNX có ATC; UPCoM không có ATO/ATC tương tự | Tín hiệu biết sau close thường chỉ thực thi từ $t+1$ |
+| Lô chẵn | 100 cổ phiếu trên HOSE; lô lẻ có cơ chế riêng | Làm tròn vị thế và mô phỏng tracking error/partial fill |
+| Tick HOSE | <10k: 10đ; 10k–<50k: 50đ; ≥50k: 100đ | Tick là bước giá, không đồng nhất với spread thực |
+| Thanh toán | T+2; lô mua thường bán được từ chiều T+2 | Theo dõi inventory khả dụng theo settlement date |
+| Biên độ thường | HOSE ±7%, HNX ±10%, UPCoM ±15%; có phiên ngoại lệ | Mô phỏng queue, partial/no-fill và stress nhiều phiên |
+| Room ngoại | Mức tối đa theo từng mã và có thể thay đổi | Là hard constraint cho tài khoản nước ngoài; foreign flow chỉ là feature ứng viên |
+| Giao dịch hai chiều | Chưa có short cổ phiếu phổ biến cho retail; có futures VN30 và VN100 | VN30 futures thanh khoản hơn; futures không thay thế short từng mã |
+| Bối cảnh | KRX live 05/05/2025; FTSE dự kiến hiệu lực 21/09/2026; CCP theo lộ trình đến 2027 | Version mọi rule theo effective date; không giao dịch tính năng “sắp có” |
 
-Nắm chắc mười một dòng bảng này, bạn đã có bộ ràng buộc để đối chiếu mọi chiến lược trong hai cuốn sách: cái nào chạy thẳng trên equity VN, cái nào phải lách (mục 3), và cái nào buộc phải chuyển sang futures (mục 4). Mọi mục còn lại của chương này đều là hệ quả của mười một dòng đó.
+Mười một dòng trên là checklist khởi đầu, không thay thế rulebook. Trước khi live, đối chiếu tối thiểu với quy định giao dịch của HOSE/HNX, quy trình thanh toán và room của VSDC, cùng thông báo sản phẩm từ Sở và broker.
+
+**Nguồn chính thức để kiểm tra phiên bản hiện hành:** [HOSE — quy định giao dịch](https://staticfile.hsx.vn/Uploads/News/437a3bc734a845fc853283b0c627a593/20250429_20250429%20-%20HOSE%20-%20Quy%20dinh%20giao%20dich%20dang%20website%20HOSE.pdf), [HNX — hỏi đáp giao dịch](https://www.hnx.vn/vi-vn/hoi-dap.html), [VSDC — thanh toán T+2](https://www.vsd.vn/vi/ad/152750), [HNX — VN100 futures](https://stoxvn.hnx.vn/vi-vn/chi-tiet-su-kien-60021659-0-hnx.html?_page=1), [HOSE — KRX chính thức vận hành](https://staticfile.hsx.vn/Uploads/UploadDocuments/2372398/20250505%20-%20HOSE%20-%20Thong%20tin%20ve%20ngay%20dau%20tien%20He%20thong%20cong%20nghe%20thong%20tin%20moi%20chinh%20thuc%20van%20hanh.docx.pdf), [UBCKNN — lộ trình CCP](https://ssc.gov.vn/webcenter/portal/ssc/pages_r/l/chitit?dDocName=APPSSCGOVVN1620156877), [FTSE Russell — xác nhận tái phân loại Việt Nam](https://www.lseg.com/en/media-centre/press-releases/ftse-russell/2026/ftse-russell-announces-results-march-2026-semi-annual-country-classification-review-equities-fixed-income).
 
 
 ## 3. Những ràng buộc phá vỡ chiến lược trong sách — và cách lách

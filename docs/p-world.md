@@ -6,7 +6,8 @@
 
 ## Mục lục
 
-**Phần I — Nền tảng**
+### Phần I — Nền tảng
+
 1. P-world là gì
 2. Dữ liệu và returns
 3. Thống kê và econometrics
@@ -14,19 +15,22 @@
 5. Lý thuyết danh mục
 6. Factor models
 
-**Phần II — Alpha**
+### Phần II — Alpha
+
 7. Alpha research
 8. Nền tảng hành vi và giới hạn arbitrage
 9. Backtesting
 10. Feature engineering và labeling
 
-**Phần III — Từ tín hiệu đến P&L**
+### Phần III — Từ tín hiệu đến P&L
+
 11. Portfolio construction
 12. Lý thuyết vi cấu trúc thị trường
 13. Execution
 14. Risk management
 
-**Phần IV — Chiến lược & Machine learning**
+### Phần IV — Chiến lược & Machine learning
+
 15. Bản đồ các chiến lược
 16. Trading theo asset class
 17. Machine learning trong tài chính
@@ -34,11 +38,13 @@
 19. Volatility trading (buy-side)
 20. Performance attribution và P&L decomposition
 
-**Phần V — Nghề**
+### Phần V — Nghề
+
 21. Industry — văn hóa, career, tech stack
 22. Lộ trình học và tài nguyên
 
-**Phụ lục**
+### Phụ lục
+
 - A. Ví dụ xuyên suốt — xây một book đa-tín-hiệu
 - B. Case studies — phân tích định lượng
 - C. Từ điển thuật ngữ P-world

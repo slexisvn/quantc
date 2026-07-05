@@ -6,41 +6,49 @@
 
 ## Mục lục
 
-**Phần I — Nền tảng**
+### Phần I — Nền tảng
+
 1. Quant là gì — và hai thế giới P vs Q
 2. Nền tảng tài chính
 3. Toán xác suất và quá trình ngẫu nhiên
 4. No-arbitrage và định giá risk-neutral
 
-**Phần II — Vanilla & Volatility**
+### Phần II — Vanilla & Volatility
+
 5. Black-Scholes và Greeks
 6. Volatility
 7. Fourier và transform pricing
 8. Equity exotics
 
-**Phần III — Lãi suất & các asset class**
+### Phần III — Lãi suất & các asset class
+
 9. Lãi suất
 10. FX derivatives
 11. Commodities và inflation
 
-**Phần IV — Phương pháp số**
+### Phần IV — Phương pháp số
+
 12. Phương pháp số: Monte Carlo, PDE, American MC, AAD
 
-**Phần V — Credit, XVA, Vốn quy định**
+### Phần V — Credit, XVA, Vốn quy định
+
 13. Credit
 14. XVA
 15. Vốn quy định (Basel, FRTB, SA-CCR, SIMM)
 
-**Phần VI — Sản phẩm cấu trúc & chuyên sâu**
+### Phần VI — Sản phẩm cấu trúc & chuyên sâu
+
 16. Convertible bonds và hybrid capital
 17. MBS, callable bonds và OAS
 18. Rates exotics (Bermudan, TARN, snowball, range accrual, CMS spread, PRDC)
 
-**Phần VII — Nghề**
+### Phần VII — Nghề
+
 19. Kiến trúc pricing library và model validation
 20. Lộ trình học và tài nguyên
 
-**Phụ lục**
+### Phụ lục
+
 - A. Từ điển thuật ngữ Q-world
 - B. Case studies — phân tích định lượng
 

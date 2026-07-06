@@ -1,14 +1,14 @@
 {
-  "name": "quill-language",
-  "displayName": "Quill",
+  "name": "quill-dsl",
+  "displayName": "Quill quant-finance payoff/contract DSL",
   "description": "Language support for the Quill quant-finance payoff/contract DSL (.quill): syntax highlighting, diagnostics, completion, hover, formatting, and pricing.",
-  "version": "0.2.3",
-  "publisher": "quantc",
+  "version": "0.1.0",
+  "publisher": "slexisvn",
   "license": "MIT",
   "icon": "icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/quantc/quantc"
+    "url": "https://github.com/slexisvn/quantc"
   },
   "engines": {
     "vscode": "^1.75.0"

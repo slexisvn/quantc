@@ -207,7 +207,7 @@ Dùng đúng running example của sách: swap payer 10 năm, notional 100 tri�
 
 $$\text{CVA} = (1-R)\int_0^T D(0,t)\,\text{EE}(t)\, \lambda\, e^{-\lambda t}\, dt.$$
 
-Ước lượng thô bằng một điểm đại diện (tạm đặt $D(0,t) \approx 1$ để giữ số học đơn giản; tích phân đầy đủ có chiết khấu ở Chương 14 vẫn cho $\approx 0.172$M): loss-given-default $(1-R) = 0.60$; xác suất vỡ nợ tích lũy xấp xỉ qua 10 năm với $\lambda=2\%$ là $1 - e^{-0.02\times 10} = 1 - e^{-0.2} = 1 - 0.8187 = 0.1813$ (khoảng 18%); expected exposure *trung bình theo thời gian* (không phải đỉnh) cỡ 1.6 triệu vì profile chỉ chạm 2.3 triệu ở đỉnh rồi thoải về hai đầu. Ghép lại:
+Ước lượng thô bằng một điểm đại diện (tạm đặt $D(0,t) \approx 1$ để giữ số học đơn giản; tích phân đầy đủ có chiết khấu ở Chương 14 vẫn cho $\approx 0.172\,\text{M}$): loss-given-default $(1-R) = 0.60$; xác suất vỡ nợ tích lũy xấp xỉ qua 10 năm với $\lambda=2\%$ là $1 - e^{-0.02\times 10} = 1 - e^{-0.2} = 1 - 0.8187 = 0.1813$ (khoảng 18%); expected exposure *trung bình theo thời gian* (không phải đỉnh) cỡ 1.6 triệu vì profile chỉ chạm 2.3 triệu ở đỉnh rồi thoải về hai đầu. Ghép lại:
 
 $$\text{CVA} \approx 0.60 \times 0.1813 \times 1.6\text{M} \approx 0.174\text{M}.$$
 
@@ -1037,7 +1037,7 @@ Tách hai số hạng. Số hạng thứ nhất: $(F-K)\int_{-d}^{\infty}\phi(z)
 
 $$C = e^{-rT}\Big[(F-K)\,N(d) + \sigma_N\sqrt{T}\,\phi(d)\Big], \qquad d = \frac{F-K}{\sigma_N\sqrt{T}}$$
 
-Bachelier là chuẩn quote cho swaption từ khi lãi suất âm xuất hiện (2015+): lognormal của BS cấm $F$ âm nên vô dụng khi rate quanh 0 hoặc âm, còn normal thì cho $F$ âm thoải mái. Vol Bachelier $\sigma_N$ đo bằng **bp annualized** (chênh lệch *tuyệt đối*, không phải tương đối như %) — về chiều đơn vị nó là bp trên căn-năm (bp·năm$^{-1/2}$), vì trong $dF = \sigma_N\,dW$ ta có $[dW] = \sqrt{\text{năm}}$ nên độ lệch chuẩn của $F$ sau $T$ năm là $\sigma_N\sqrt{T}$. Một swaption ATM với $\sigma_N = 80\,\text{bp}$ annualized nghĩa là forward rate có std $\approx 80\,\text{bp}$ quanh mức hiện tại sau một năm ($\sigma_N\sqrt{1}$), một ngôn ngữ tự nhiên hơn nhiều cho người trade lãi suất.
+Bachelier là chuẩn quote cho swaption từ khi lãi suất âm xuất hiện (2015+): lognormal của BS cấm $F$ âm nên vô dụng khi rate quanh 0 hoặc âm, còn normal thì cho $F$ âm thoải mái. Vol Bachelier $\sigma_N$ đo bằng **bp annualized** (chênh lệch *tuyệt đối*, không phải tương đối như %) — về chiều đơn vị nó là bp trên căn-năm ($\text{bp}\cdot\text{năm}^{-1/2}$), vì trong $dF = \sigma_N\,dW$ ta có $[dW] = \sqrt{\text{năm}}$ nên độ lệch chuẩn của $F$ sau $T$ năm là $\sigma_N\sqrt{T}$. Một swaption ATM với $\sigma_N = 80\,\text{bp}$ annualized nghĩa là forward rate có std $\approx 80\,\text{bp}$ quanh mức hiện tại sau một năm ($\sigma_N\sqrt{1}$), một ngôn ngữ tự nhiên hơn nhiều cho người trade lãi suất.
 
 **Bachelier bằng số** — swaption ATM ($F = K$), $\sigma_N = 80\,\text{bp}$ annualized $= 0.0080$, $T = 1$, chiết khấu $r = 5\%$. Khi $F = K$ thì $d = 0$, $N(0) = 0.5$, $\phi(0) = 0.3989$, và số hạng $(F-K)N(d)$ tắt hẳn — giá option ATM rút gọn về đúng một công thức đẹp:
 
@@ -1090,7 +1090,7 @@ Ba quan sát từ bảng: (1) vega lớn khủng khiếp so với theta ngày �
 
 *Vanna* $= \partial^2 V/\partial S\partial\sigma$ — delta đổi khi vol đổi, hay tương đương vega đổi khi spot đổi. Công thức $\text{Vanna} = -\phi(d_1)\dfrac{d_2}{\sigma}$. Thay số: $-0.3752\times\frac{0.15}{0.20} = -0.2814$ (trên một đơn vị vol = 1.00; tức $-0.00281$ trên mỗi vol-point 1%). Dấu âm ở call OTM-side nghĩa là khi vol tăng, delta của call *giảm* nhẹ — trung tâm của việc hedge FX smile: risk reversal chính là một vị thế vanna.
 
-*Volga (vomma)* $= \partial^2 V/\partial\sigma^2$ — độ lồi của giá theo vol. Công thức $\text{Volga} = \mathcal{V}\dfrac{d_1 d_2}{\sigma}$. Thay số: $37.52\times\frac{0.35\times 0.15}{0.20} = 9.85$ (trên vol$^2$; tức $\approx 0.000985$ trên mỗi (vol-point)$^2$). Volga dương nghĩa là vega tăng khi vol tăng — đó là cơ chế toán học khiến một butterfly (long volga) có giá, và là lý do smile tồn tại nhìn từ góc vol-of-vol.
+*Volga (vomma)* $= \partial^2 V/\partial\sigma^2$ — độ lồi của giá theo vol. Công thức $\text{Volga} = \mathcal{V}\dfrac{d_1 d_2}{\sigma}$. Thay số: $37.52\times\frac{0.35\times 0.15}{0.20} = 9.85$ (trên $\text{vol}^2$; tức $\approx 0.000985$ trên mỗi $(\text{vol-point})^2$). Volga dương nghĩa là vega tăng khi vol tăng — đó là cơ chế toán học khiến một butterfly (long volga) có giá, và là lý do smile tồn tại nhìn từ góc vol-of-vol.
 
 *Charm* $= \partial^2 V/\partial S\partial t = \partial\Delta/\partial t$ — delta rò rỉ theo thời gian dù spot đứng yên. Với call không dividend, $\text{Charm} = -\phi(d_1)\dfrac{2rT - d_2\sigma\sqrt{T}}{2T\sigma\sqrt{T}} = -0.0657$/năm, tức $\approx -0.00026$/ngày. Nhỏ, nhưng charm là lý do desk phải re-hedge trước cuối tuần và ngày lễ: giữ nguyên delta qua ba ngày không giao dịch, delta "thật" đã trôi đi $3\times(-0.00026)\approx -0.0008$ — gần một phần nghìn cổ phiếu trên mỗi option, mà thị trường chưa mở để chỉnh. Nhân với một book vài trăm nghìn option, đó là cả một khối delta lặng lẽ tích lại qua đêm thứ Sáu.
 
@@ -2119,7 +2119,7 @@ Hai công thức thực chiến của khu vực này phải nắm. Thứ nhất,
 
 $$V = A(0)\,\sigma_N\sqrt{T}\,\big[d\,N(d) + \phi(d)\big], \qquad d = \frac{S_0 - K}{\sigma_N\sqrt{T}}$$
 
-Chú ý $\sigma_N$ quote bằng **bp** (annualized) chứ không phải phần trăm kiểu lognormal — nhưng về *thứ nguyên* nó là bp trên **căn** năm (bp·năm$^{-1/2}$), vì chính $\sigma_N\sqrt{T}$ mới ra một mức dịch chuyển rate tính bằng bp; đừng viết "bp/năm". Swaption USD 1Y10Y quote quanh 80–120bp tùy regime. Một ví dụ số cho **một payer swaption ATM 1Y10Y**: ATM nghĩa $S_0 = K$, nên $d=0$; lấy $\sigma_N = 100\,\text{bp}$ $= 0.01$, $T=1$, annuity $A(0)=8$ (swap 10Y). Tại $d=0$ có $N(0)=0.5$, $\phi(0)=0.3989$, nên
+Chú ý $\sigma_N$ quote bằng **bp** (annualized) chứ không phải phần trăm kiểu lognormal — nhưng về *thứ nguyên* nó là bp trên **căn** năm ($\text{bp}\cdot\text{năm}^{-1/2}$), vì chính $\sigma_N\sqrt{T}$ mới ra một mức dịch chuyển rate tính bằng bp; đừng viết "bp/năm". Swaption USD 1Y10Y quote quanh 80–120bp tùy regime. Một ví dụ số cho **một payer swaption ATM 1Y10Y**: ATM nghĩa $S_0 = K$, nên $d=0$; lấy $\sigma_N = 100\,\text{bp}$ $= 0.01$, $T=1$, annuity $A(0)=8$ (swap 10Y). Tại $d=0$ có $N(0)=0.5$, $\phi(0)=0.3989$, nên
 
 $$V = 8 \times 0.01 \times \sqrt{1} \times [0 + 0.3989] = 0.0319.$$
 
@@ -2753,7 +2753,7 @@ $$\mathbb{E}^{\mathbb{Q}_n}\!\big[I(T)\big] = F_I(0,T)\,\times\, \exp\big(C_T\bi
 
 với $C_T$ là hạng convexity đến từ vol và correlation — chính là *khoảng cách giữa kỳ vọng và forward* (hệt FX: forward $\neq$ kỳ vọng risk-neutral của tỷ giá khi tỷ giá có covariance với numéraire). Điểm mấu chốt để **không** tự mâu thuẫn với 11.7.1: **ZCIS chỉ dùng forward** $F_I = I(0)P_r/P_n$ (chân floating discount rồi lấy kỳ vọng ra đúng forward), nên breakeven ZCIS **không** mang $C_T$ — nó vol-free tuyệt đối. Hạng $\exp(C_T)$ chỉ xuất hiện khi payoff phụ thuộc *kỳ vọng* của $I(T)$ hay tỷ số index dưới measure khác forward — tức **YoY convexity và option** (LPI cap/floor) — chứ không phải khi quote ZCIS.
 
-*$C_T$ đến từ đâu.* Khi đổi index từ real numéraire sang nominal numéraire, log-forward index nhặt thêm một **cumulative covariance** giữa index và bond numéraire nominal. Ở bậc dẫn đầu (order $\sigma^2 T$), đóng góp chi phối là covariance giữa index và nominal rate, tích lũy qua vol của nominal zero-coupon bond kỳ hạn $T$. Với Hull-White, vol tích lũy của một bond kỳ hạn $T$ đi qua **B-factor** $B_n(T) = \frac{1 - e^{-a_n T}}{a_n}$ (đo "duration hiệu dụng" mà mean-reversion tạo ra). Ở **bậc dẫn đầu** — nhấn mạnh đây là *xấp xỉ*, không phải đẳng thức chặt: dạng đúng là một **tích phân theo thời gian** của covariance tức thời giữa index và nominal bond, kiểu $\int_0^T \rho_{nI}\,\sigma_n\,\sigma_I\,B_n(s)\,ds$, và biểu thức gọn dưới đây là giá trị đã rút gọn của tích phân đó (giữ đúng thứ nguyên vol$\times$vol$\times$thời-gian) — ta được:
+*$C_T$ đến từ đâu.* Khi đổi index từ real numéraire sang nominal numéraire, log-forward index nhặt thêm một **cumulative covariance** giữa index và bond numéraire nominal. Ở bậc dẫn đầu (order $\sigma^2 T$), đóng góp chi phối là covariance giữa index và nominal rate, tích lũy qua vol của nominal zero-coupon bond kỳ hạn $T$. Với Hull-White, vol tích lũy của một bond kỳ hạn $T$ đi qua **B-factor** $B_n(T) = \frac{1 - e^{-a_n T}}{a_n}$ (đo "duration hiệu dụng" mà mean-reversion tạo ra). Ở **bậc dẫn đầu** — nhấn mạnh đây là *xấp xỉ*, không phải đẳng thức chặt: dạng đúng là một **tích phân theo thời gian** của covariance tức thời giữa index và nominal bond, kiểu $\int_0^T \rho_{nI}\,\sigma_n\,\sigma_I\,B_n(s)\,ds$, và biểu thức gọn dưới đây là giá trị đã rút gọn của tích phân đó (giữ đúng thứ nguyên vol×vol×thời-gian) — ta được:
 
 $$C_T \approx \rho_{n I}\,\sigma_n\,\sigma_I\,B_n(T).$$
 
@@ -2769,7 +2769,7 @@ Nhân vào forward growth để ra **kỳ vọng risk-neutral** của index grow
 
 $$K_{\text{ZCIS}} = 1.11838^{1/5} - 1 = 2.2628\% \quad (\text{không đổi, không có } C_T).$$
 
-Cái $C_5$ này là *khoảng cách kỳ-vọng–forward* (quy sang rate thì chỉ $\approx +0.26$bp), và nó **không** đi vào quote ZCIS — chỗ nó thật sự cắn là YoY convexity (11.7.2) và option inflation (11.7.3), nơi payoff phụ thuộc *kỳ vọng* chứ không phải forward. Điểm cốt lõi không phải độ lớn (rất nhỏ vì vol thấp), mà là **dấu và nguồn gốc**: hạng này derive chặt chẽ từ B-factor và covariance, tăng cùng $\rho_{nI}$, $\sigma_I$, $\sigma_n$ và horizon $T$ (qua $B_n(T)$). Chính sự nhất quán ấy là dấu hiệu một inflation desk *đúng*: quote ZCIS (vol-free) và quote option inflation (cần vol) phải **cùng đến từ một mô hình JY đã calibrate** — một bộ tham số sinh ra cả forward lẫn convexity — chứ không phải hai mô hình rời rạc dùng tham số vênh nhau, vì nếu vênh, arbitrage nội bộ sẽ hé mở giữa hai sản phẩm.
+Cái $C_5$ này là *khoảng cách kỳ-vọng–forward* (quy sang rate thì chỉ $\approx +0.26\,\text{bp}$), và nó **không** đi vào quote ZCIS — chỗ nó thật sự cắn là YoY convexity (11.7.2) và option inflation (11.7.3), nơi payoff phụ thuộc *kỳ vọng* chứ không phải forward. Điểm cốt lõi không phải độ lớn (rất nhỏ vì vol thấp), mà là **dấu và nguồn gốc**: hạng này derive chặt chẽ từ B-factor và covariance, tăng cùng $\rho_{nI}$, $\sigma_I$, $\sigma_n$ và horizon $T$ (qua $B_n(T)$). Chính sự nhất quán ấy là dấu hiệu một inflation desk *đúng*: quote ZCIS (vol-free) và quote option inflation (cần vol) phải **cùng đến từ một mô hình JY đã calibrate** — một bộ tham số sinh ra cả forward lẫn convexity — chứ không phải hai mô hình rời rạc dùng tham số vênh nhau, vì nếu vênh, arbitrage nội bộ sẽ hé mở giữa hai sản phẩm.
 
 Đóng lại vòng: một mô hình JY hoàn chỉnh calibrate ba khối — nominal curve (từ OIS và nominal bonds), real curve (từ linkers/TIPS), và vol/correlation matrix (từ inflation caps/floors và ZCIS options). Sau calibration, *cùng một* mô hình định giá nhất quán mọi thứ: ZCIS (không vol), YoY (với convexity đúng như 11.7.2), LPI (với cap/floor như 11.7.3), và mọi inflation exotic khác — không arbitrage, và nói cùng ngôn ngữ Hull-White với phần rates của book. Đó chính là điều industry đòi hỏi: một mô hình duy nhất, calibrate một lần, phục vụ cả sổ.
 
@@ -2932,7 +2932,7 @@ Duality gap là
 
 $$\overline V - \underline V = 6.061 - 6.052 = 0.009,$$
 
-tức **0.9bp của notional** ($0.009$ điểm giá trên $K=100$) — hay tương đương $\approx 0.15\%$ ($\sim 15$bp) *của chính giá option* $6.05$; đọc "bp" phải nói rõ mẫu số kẻo lẫn ba thứ (điểm giá, bp notional, bp giá option). Giá thật bị **kẹp** trong khoảng $[6.052,\ 6.061]$: ta không chỉ có một con số ước lượng, mà có một cặp bound chứng minh sai số của chính engine dưới $1\,\text{bp}$. Đây chính là ý nghĩa "bằng số" của duality — nếu thay vào đó gap bung ra $50\,\text{bp}$ (chẳng hạn $\underline V = 6.00,\ \overline V = 6.50$), đó là tín hiệu đỏ rằng basis functions cần cải thiện, **không** phải rằng "MC vốn ồn". Một Bermudan swaption được implement tốt thường cho gap dưới vài basis point của notional; con số ấy là thước đo chất lượng engine, và desk nào chạy Bermudan mà không báo cáo cặp bound thì đang bay không đồng hồ. Trong `quantc`, engine dual này là `src/engines/bermudan-dual`.
+tức **0.9bp của notional** ($0.009$ điểm giá trên $K=100$) — hay tương đương $\approx 0.15\%$ ($\sim 15\,\text{bp}$) *của chính giá option* $6.05$; đọc "bp" phải nói rõ mẫu số kẻo lẫn ba thứ (điểm giá, bp notional, bp giá option). Giá thật bị **kẹp** trong khoảng $[6.052,\ 6.061]$: ta không chỉ có một con số ước lượng, mà có một cặp bound chứng minh sai số của chính engine dưới $1\,\text{bp}$. Đây chính là ý nghĩa "bằng số" của duality — nếu thay vào đó gap bung ra $50\,\text{bp}$ (chẳng hạn $\underline V = 6.00,\ \overline V = 6.50$), đó là tín hiệu đỏ rằng basis functions cần cải thiện, **không** phải rằng "MC vốn ồn". Một Bermudan swaption được implement tốt thường cho gap dưới vài basis point của notional; con số ấy là thước đo chất lượng engine, và desk nào chạy Bermudan mà không báo cáo cặp bound thì đang bay không đồng hồ. Trong `quantc`, engine dual này là `src/engines/bermudan-dual`.
 
 ## 12.3 PDE / Finite Differences — khi ít chiều nhưng cần optionality sạch
 
@@ -3538,7 +3538,7 @@ tức ~2,000 USD/năm — nhỏ so với các chữ lớn, nhưng trên một bo
 
 $$V_{\text{thật}} = V_{\text{sạch}} - \text{CVA} + \text{DVA} - \text{FVA} - \text{MVA} - \text{KVA} - \text{ColVA}.$$
 
-Một lưu ý convention để bảng và công thức không đá nhau: trong **công thức** này mỗi ký hiệu ($\text{CVA}, \text{FVA}, \dots$) là **độ lớn dương** và dấu $\pm$ nằm tường minh ngoài ký hiệu (CVA/FVA/... trừ, DVA cộng). Còn cột "Giá trị" trong **bảng** thì đã *gắn sẵn dấu* (CVA $=-0.172$M, DVA $=+0.036$M...), nên muốn ráp từ bảng thì chỉ việc **cộng dồn cả cột**: $V_{\text{thật}} = V_{\text{sạch}} + \sum(\text{Giá trị đã ký dấu})$. Đừng cắm số đã-ký-dấu của bảng vào công thức độ-lớn kẻo trừ hai lần.
+Một lưu ý convention để bảng và công thức không đá nhau: trong **công thức** này mỗi ký hiệu ($\text{CVA}, \text{FVA}, \dots$) là **độ lớn dương** và dấu $\pm$ nằm tường minh ngoài ký hiệu (CVA/FVA/... trừ, DVA cộng). Còn cột "Giá trị" trong **bảng** thì đã *gắn sẵn dấu* (CVA $=-0.172\,\text{M}$, DVA $=+0.036\,\text{M}$...), nên muốn ráp từ bảng thì chỉ việc **cộng dồn cả cột**: $V_{\text{thật}} = V_{\text{sạch}} + \sum(\text{Giá trị đã ký dấu})$. Đừng cắm số đã-ký-dấu của bảng vào công thức độ-lớn kẻo trừ hai lần.
 
 Pre-deal pricing hiện đại chạy **gần real-time** toàn bộ chuỗi này khi sales chào giá — cái mà desk gọi là "XVA quote" — dù trên thực tế các chữ nặng (KVA, MVA nested) thường được xấp xỉ bằng grid/sensitivity precompute hoặc lấy từ batch qua đêm, chứ không tính lại full-nested mỗi lần bấm giá.
 
@@ -4115,7 +4115,7 @@ So với callable bond, MBS phức tạp hơn ở chỗ: không phải một iss
 
 **CPR (Conditional Prepayment Rate)** là tỷ lệ prepayment *hằng năm hóa*: phần trăm số dư gốc còn lại (đã trừ scheduled amortization) sẽ được prepay trong một năm nếu tốc độ hiện tại kéo dài. CPR 6% nghĩa là kỳ vọng 6% dư nợ prepay trong năm.
 
-**SMM (Single Monthly Mortality)** là tỷ lệ prepayment *hằng tháng* tương ứng. Vì prepayment "bào mòn" dư nợ theo cấp số nhân, quan hệ CPR↔SMM là qua phần *sống sót* (không prepay): sống sót cả năm = (sống sót một tháng)$^{12}$:
+**SMM (Single Monthly Mortality)** là tỷ lệ prepayment *hằng tháng* tương ứng. Vì prepayment "bào mòn" dư nợ theo cấp số nhân, quan hệ CPR↔SMM là qua phần *sống sót* (không prepay): sống sót cả năm = $(\text{sống sót một tháng})^{12}$:
 
 $$
 1 - \text{CPR} = (1 - \text{SMM})^{12}
@@ -4386,7 +4386,7 @@ Cấu trúc điển hình: mỗi kỳ trả một coupon có tính "inverse floa
 
 **Ví dụ số — cashflow qua vài kỳ đến target 8%.** Target $T^* = 8\%$ tổng coupon. Coupon mỗi kỳ (annual) là $c_k = \max(0,\ 6\% - 1.0\times\text{LIBOR}_k)$ — một inverse floater không leverage. Giả sử đường LIBOR thực hiện theo một kịch bản:
 
-| Kỳ $k$ | LIBOR$_k$ | Coupon thô $6\%-\text{LIBOR}$ | Coupon trả | Tổng tích lũy |
+| Kỳ $k$ | $\text{LIBOR}_k$ | Coupon thô $6\%-\text{LIBOR}$ | Coupon trả | Tổng tích lũy |
 |---|---|---|---|---|
 | 1 | 2.0% | 4.00% | 4.00% | 4.00% |
 | 2 | 2.5% | 3.50% | 3.50% | 7.50% |
@@ -4425,7 +4425,7 @@ với $c_0$ một coupon khởi tạo. Vì $c_k$ nhớ $c_{k-1}$, payoff **path-
 
 **Ví dụ số — 3 kỳ.** Cho $c_0 = 4\%$, spread $= 3\%$, và một đường ref (LIBOR):
 
-| Kỳ $k$ | ref$_k$ | $c_{k-1} + \text{spread} - \text{ref}_k$ | Coupon $c_k = \max(0,\cdot)$ |
+| Kỳ $k$ | $\text{ref}_k$ | $c_{k-1} + \text{spread} - \text{ref}_k$ | Coupon $c_k = \max(0,\cdot)$ |
 |---|---|---|---|
 | 1 | 2.0% | $4.0 + 3.0 - 2.0 = 5.0\%$ | **5.00%** |
 | 2 | 2.5% | $5.0 + 3.0 - 2.5 = 5.5\%$ | **5.50%** |

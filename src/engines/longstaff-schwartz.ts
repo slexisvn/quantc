@@ -1,4 +1,5 @@
 import { MersenneTwister } from '../numerics/rng/mersenne-twister'
+import { intrinsic } from '../numerics/analytic/payoff'
 import { inverseNormalCdf } from '../numerics/rng/inverse-normal-cdf'
 import { solveLinearSystem } from '../numerics/linalg/solve'
 import { ridgeRegression } from '../alpha/regression'
@@ -16,10 +17,6 @@ export interface BermudanSpec {
   readonly seed: number
   readonly basis?: Basis
   readonly ridgeLambda?: number
-}
-
-function intrinsic(spot: number, strike: number, isCall: boolean): number {
-  return isCall ? Math.max(spot - strike, 0) : Math.max(strike - spot, 0)
 }
 
 function simulatePaths(spec: BermudanSpec): Float64Array[] {

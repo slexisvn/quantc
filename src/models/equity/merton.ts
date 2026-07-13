@@ -1,4 +1,5 @@
 import { MersenneTwister } from '../../numerics/rng/mersenne-twister'
+import { poissonSample } from '../../numerics/rng/poisson'
 import { inverseNormalCdf } from '../../numerics/rng/inverse-normal-cdf'
 import { Welford } from '../../numerics/stats/welford'
 
@@ -18,17 +19,6 @@ export interface MertonMcSpec {
 export interface MertonMcResult {
   readonly price: number
   readonly standardError: number
-}
-
-function poissonSample(mean: number, generator: MersenneTwister): number {
-  const threshold = Math.exp(-mean)
-  let count = 0
-  let product = 1
-  for (;;) {
-    product *= generator.nextDouble()
-    if (product <= threshold) return count
-    count += 1
-  }
 }
 
 export function priceMertonCall(spec: MertonMcSpec): MertonMcResult {

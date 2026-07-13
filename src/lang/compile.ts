@@ -5,9 +5,11 @@ import { runMonteCarlo } from '../engines/mc-core'
 import { evaluate } from '../eval/interpreter'
 import { solveLinearSystem } from '../numerics/linalg/solve'
 import { cholesky } from '../numerics/linalg/cholesky'
+import { identity } from '../numerics/linalg/matrix'
 import { DiscountCurve } from '../marketdata/curve'
 import { standardNormals } from '../numerics/sampling'
 import { MersenneTwister } from '../numerics/rng/mersenne-twister'
+import { poissonSample } from '../numerics/rng/poisson'
 import { inverseNormalCdf } from '../numerics/rng/inverse-normal-cdf'
 import { hwAlpha, hwDecay, hwStepStd, hwBondLogA, hwBFactor } from '../models/rates/hull-white-affine'
 import { g2ppVariance, type G2ppSpec } from '../models/rates/g2pp'
@@ -908,17 +910,6 @@ function scalar(value: number): Float64Array {
 
 const JUMP_SEED_BASE = 0x9e3779b1
 
-function poissonSample(mean: number, generator: MersenneTwister): number {
-  const threshold = Math.exp(-mean)
-  let count = 0
-  let product = 1
-  for (;;) {
-    product *= generator.nextDouble()
-    if (product <= threshold) return count
-    count += 1
-  }
-}
-
 function compoundPoissonJumps(paths: number, meanCount: number, jumpMean: number, jumpVol: number, seed: number): Float64Array {
   const out = new Float64Array(paths)
   if (meanCount <= 0) return out
@@ -929,10 +920,6 @@ function compoundPoissonJumps(paths: number, meanCount: number, jumpMean: number
     out[p] = count * jumpMean + jumpVol * Math.sqrt(count) * z
   }
   return out
-}
-
-function identityMatrix(n: number): number[][] {
-  return Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))
 }
 
 function discountFactorOf(market: ProductMarket, t: number): number {
@@ -1008,7 +995,7 @@ function valueCompiled(compiled: CompiledProduct, market: ProductMarket, paths: 
   for (const { time, value } of compiled.discountInputs.values()) bindings.set(value.id, scalar(discountFactorOf(market, time)))
 
   if (!single && compiled.cholInputs !== null) {
-    const factor = cholesky(market.correlation ?? identityMatrix(assetOrder.length))
+    const factor = cholesky(market.correlation ?? identity(assetOrder.length))
     for (let i = 0; i < compiled.cholInputs.length; i += 1) {
       for (let j = 0; j < compiled.cholInputs[i].length; j += 1) bindings.set(compiled.cholInputs[i][j].id, scalar(factor[i][j]))
     }

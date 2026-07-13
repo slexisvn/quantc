@@ -1,4 +1,5 @@
 import { solveLinearSystem } from '../numerics/linalg/solve'
+import { sumSquares } from '../numerics/vector'
 import { blackScholes } from '../numerics/analytic/black-scholes'
 
 export interface LevenbergMarquardtOptions {
@@ -14,12 +15,6 @@ export interface CalibrationResult {
 }
 
 const DEFAULT_OPTIONS: LevenbergMarquardtOptions = { maxIterations: 200, tolerance: 1e-12, initialDamping: 1e-3 }
-
-function sumSquares(values: number[]): number {
-  let total = 0
-  for (const value of values) total += value * value
-  return total
-}
 
 function jacobian(residual: (x: number[]) => number[], x: number[], base: number[]): number[][] {
   const m = base.length

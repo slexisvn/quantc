@@ -1,6 +1,8 @@
 import { solveLinearSystem } from '../numerics/linalg/solve'
 import type { Matrix } from './types'
 
+export { identity } from '../numerics/linalg/matrix'
+
 export function matVec(m: Matrix, v: number[]): number[] {
   return m.map((row) => row.reduce((sum, x, j) => sum + x * v[j], 0))
 }
@@ -44,10 +46,6 @@ export function symmetrize(m: Matrix): Matrix {
 
 export function addMatrices(a: Matrix, b: Matrix): Matrix {
   return a.map((row, i) => row.map((x, j) => x + b[i][j]))
-}
-
-export function identity(n: number): Matrix {
-  return Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))
 }
 
 export function invert(m: Matrix): Matrix {

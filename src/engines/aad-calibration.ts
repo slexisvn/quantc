@@ -1,16 +1,11 @@
 import { Tape, ANumber, variable, gradientOf } from '../aad/tape'
 import { solveLinearSystem } from '../numerics/linalg/solve'
+import { sumSquares } from '../numerics/vector'
 import type { LevenbergMarquardtOptions, CalibrationResult } from './calibration'
 
 export type TapeResidual = (parameters: ANumber[], tape: Tape) => ANumber[]
 
 const DEFAULT_OPTIONS: LevenbergMarquardtOptions = { maxIterations: 200, tolerance: 1e-12, initialDamping: 1e-3 }
-
-function sumSquares(values: number[]): number {
-  let total = 0
-  for (const value of values) total += value * value
-  return total
-}
 
 export function evaluateResidualJacobian(model: TapeResidual, x: number[]): { residuals: number[]; jacobian: number[][] } {
   const tape = new Tape()

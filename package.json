@@ -21,8 +21,6 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "prepare": "node scripts/build.mjs && tsc -p tsconfig.build.json",
     "build": "node scripts/build.mjs && tsc -p tsconfig.build.json",
     "build:bundles": "node scripts/build.mjs",
     "build:types": "tsc -p tsconfig.build.json"

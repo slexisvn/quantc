@@ -1,4 +1,5 @@
 import { MersenneTwister } from '../numerics/rng/mersenne-twister'
+import { intrinsic } from '../numerics/analytic/payoff'
 import { inverseNormalCdf } from '../numerics/rng/inverse-normal-cdf'
 import { ridgeRegression } from '../alpha/regression'
 import { evaluateBasis, type Basis } from '../numerics/basis'
@@ -18,10 +19,6 @@ export interface AmcSpec {
   readonly ridgeLambda: number
   readonly bermudan: boolean
   readonly quantity: number
-}
-
-function intrinsic(spot: number, strike: number, isCall: boolean): number {
-  return isCall ? Math.max(spot - strike, 0) : Math.max(strike - spot, 0)
 }
 
 function simulate(spec: AmcSpec): { times: number[]; levels: Float64Array[] } {

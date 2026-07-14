@@ -2,18 +2,13 @@ import type { Graph } from '../ir/graph'
 import type { Value } from '../ir/value'
 import { evaluate } from '../eval/interpreter'
 import { reverse } from '../aad/reverse'
+import { requireValue } from '../aad/values'
 import { Welford } from '../numerics/stats/welford'
 
 export interface McOutput {
   readonly price: number
   readonly standardError: number
   readonly gradients: ReadonlyMap<number, number>
-}
-
-function requireValue(values: Map<number, Float64Array>, id: number): Float64Array {
-  const value = values.get(id)
-  if (value === undefined) throw new Error(`missing value ${id}`)
-  return value
 }
 
 export function runMonteCarlo(graph: Graph, bindings: Map<number, Float64Array>, batchSize: number, price: Value, sample: Value, riskFactors: readonly Value[]): McOutput {

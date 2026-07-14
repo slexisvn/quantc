@@ -1,5 +1,6 @@
 import { evaluate } from '../eval/interpreter'
 import { reverse } from '../aad/reverse'
+import { requireValue } from '../aad/values'
 import { buildEuropeanGraph } from './european-graph'
 import { standardNormals } from '../numerics/sampling'
 import { Welford } from '../numerics/stats/welford'
@@ -25,12 +26,6 @@ export interface PricingResult {
 
 function scalar(value: number): Float64Array {
   return new Float64Array([value])
-}
-
-function requireValue(values: Map<number, Float64Array>, id: number): Float64Array {
-  const value = values.get(id)
-  if (value === undefined) throw new Error(`missing value ${id}`)
-  return value
 }
 
 interface ValuationWithGradient {

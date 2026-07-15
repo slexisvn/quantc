@@ -1,8 +1,10 @@
 import * as esbuild from 'esbuild'
+import { chmod, rm, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const dist = resolve(root, 'dist')
 const entry = resolve(root, 'src/index.ts')
 const driverStub = resolve(root, 'src/runtime/cuda/driver.browser.ts')
 
@@ -28,8 +30,49 @@ const browserStubs = {
   },
 }
 
-const common = { entryPoints: [entry], bundle: true, format: 'esm', logLevel: 'info' }
+const common = {
+  bundle: true,
+  format: 'esm',
+  logLevel: 'info',
+  sourcemap: false,
+  legalComments: 'none',
+}
 
-await esbuild.build({ ...common, outfile: resolve(root, 'dist/quantc.node.js'), platform: 'node', target: 'node18', external: ['koffi'] })
-await esbuild.build({ ...common, outfile: resolve(root, 'dist/quantc.browser.js'), platform: 'browser', target: 'es2020', plugins: [browserStubs] })
-console.log('built dist/quantc.node.js (node, full) and dist/quantc.browser.js (browser, no cuda)')
+await rm(dist, { recursive: true, force: true })
+
+await Promise.all([
+  esbuild.build({
+    ...common,
+    entryPoints: [entry],
+    outfile: resolve(dist, 'index.node.js'),
+    platform: 'node',
+    target: 'node18',
+    external: ['koffi'],
+  }),
+  esbuild.build({
+    ...common,
+    entryPoints: [entry],
+    outfile: resolve(dist, 'index.browser.js'),
+    platform: 'browser',
+    target: 'es2020',
+    conditions: ['browser'],
+    mainFields: ['browser', 'module', 'main'],
+    plugins: [browserStubs],
+  }),
+])
+
+const cli = `#!/usr/bin/env node
+import { runCli } from './index.node.js'
+
+try {
+  process.stdout.write(\`\${runCli(process.argv.slice(2))}\\n\`)
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error)
+  process.stderr.write(\`quantc: \${message}\\n\`)
+  process.exitCode = 1
+}
+`
+
+const cliOutfile = resolve(dist, 'index.cli.js')
+await writeFile(cliOutfile, cli)
+await chmod(cliOutfile, 0o755)

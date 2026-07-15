@@ -1,29 +1,58 @@
 {
-  "name": "quantc",
+  "name": "@slexisvn/quantc",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "description": "A quant-finance pricing/risk compiler: the Quill payoff DSL to vectorised Monte Carlo and AAD Greeks",
-  "main": "./dist/quantc.node.js",
-  "module": "./dist/quantc.node.js",
-  "browser": "./dist/quantc.browser.js",
-  "types": "./dist/types/src/index.d.ts",
+  "keywords": [
+    "quant",
+    "finance",
+    "monte-carlo",
+    "risk",
+    "derivatives",
+    "aad",
+    "quill"
+  ],
+  "license": "MIT",
+  "author": "slexisvn",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/slexisvn/quantc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/slexisvn/quantc/issues"
+  },
+  "homepage": "https://github.com/slexisvn/quantc#readme",
+  "main": "./dist/index.node.js",
+  "module": "./dist/index.node.js",
+  "browser": "./dist/index.browser.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "quantc": "./dist/index.cli.js"
+  },
   "exports": {
     ".": {
-      "types": "./dist/types/src/index.d.ts",
-      "browser": "./dist/quantc.browser.js",
-      "node": "./dist/quantc.node.js",
-      "default": "./dist/quantc.node.js"
+      "types": "./dist/index.d.ts",
+      "browser": "./dist/index.browser.js",
+      "node": "./dist/index.node.js",
+      "default": "./dist/index.node.js"
     },
     "./package.json": "./package.json"
   },
-  "files": ["dist", "src"],
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "build": "node scripts/build.mjs && tsc -p tsconfig.build.json",
-    "build:bundles": "node scripts/build.mjs",
-    "build:types": "tsc -p tsconfig.build.json"
+    "pack:dry": "npm pack --dry-run",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

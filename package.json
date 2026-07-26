@@ -1,5 +1,5 @@
 {
-  "name": "quantc",
+  "name": " @slexisvn/quantc",
   "version": "0.1.1",
   "type": "module",
   "description": "A quant-finance pricing/risk compiler: the Quill payoff DSL to vectorised Monte Carlo and AAD Greeks",

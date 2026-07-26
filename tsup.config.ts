@@ -1,10 +1,13 @@
-import * as esbuild from 'esbuild'
-import { fileURLToPath } from 'node:url'
-import { dirname, resolve } from 'node:path'
+import { resolve } from 'node:path'
+import { mkdirSync, rmSync } from "node:fs"
+import { defineConfig } from 'tsup'
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const entry = resolve(root, 'src/index.ts')
-const driverStub = resolve(root, 'src/runtime/cuda/driver.browser.ts')
+const entry = ['src/index.ts']
+const dist = resolve(import.meta.dirname, "dist");
+const driverStub = resolve('src/runtime/cuda/driver.browser.ts')
+
+rmSync(dist, { recursive: true, force: true });
+mkdirSync(dist, { recursive: true });
 
 const nodeBuiltinStub = `const fail = () => { throw new Error('Node built-ins are unavailable in the browser build') }
 export const readFileSync = fail
@@ -28,8 +31,31 @@ const browserStubs = {
   },
 }
 
-const common = { entryPoints: [entry], bundle: true, format: 'esm', logLevel: 'info' }
-
-await esbuild.build({ ...common, outfile: resolve(root, 'dist/quantc.node.js'), platform: 'node', target: 'node18', external: ['koffi'] })
-await esbuild.build({ ...common, outfile: resolve(root, 'dist/quantc.browser.js'), platform: 'browser', target: 'es2020', plugins: [browserStubs] })
-console.log('built dist/quantc.node.js (node, full) and dist/quantc.browser.js (browser, no cuda)')
+export default defineConfig([
+  {
+    entry,
+    bundle: true,
+    clean: true,
+    dts: true,
+    format: ['esm'],
+    outDir: 'dist',
+    platform: 'node',
+    splitting: false,
+    target: 'node18',
+    external: ['koffi'],
+    outExtension: () => ({ js: '.node.js' }),
+  },
+  {
+    entry,
+    bundle: true,
+    clean: false,
+    dts: false,
+    esbuildPlugins: [browserStubs],
+    format: ['esm'],
+    outDir: 'dist',
+    platform: 'browser',
+    splitting: false,
+    target: 'es2020',
+    outExtension: () => ({ js: '.browser.js' }),
+  },
+])

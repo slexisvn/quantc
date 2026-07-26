@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { mkdirSync, rmSync } from "node:fs"
 import { defineConfig } from 'tsup'
+import type { Plugin } from 'esbuild'
 
 const entry = ['src/index.ts']
 const dist = resolve(import.meta.dirname, "dist");
@@ -17,7 +18,7 @@ export const join = fail
 export const fileURLToPath = fail
 export default new Proxy({}, { get: () => fail })`
 
-const browserStubs = {
+const browserStubs: Plugin = {
   name: 'browser-stubs',
   setup(build) {
     build.onResolve({ filter: /driver$/ }, (args) => {
@@ -25,7 +26,10 @@ const browserStubs = {
       return target.endsWith('runtime/cuda/driver') ? { path: driverStub } : undefined
     })
     build.onResolve({ filter: /^koffi$/ }, () => ({ path: 'koffi', namespace: 'stub-empty' }))
-    build.onResolve({ filter: /^node:(fs|module|path|url|os|crypto)$/ }, (args) => ({ path: args.path, namespace: 'stub-node' }))
+     build.onResolve(
+      { filter: /^(node:)?(fs|module|path|url|os|crypto)$/ },
+      (args) => ({ path: args.path, namespace: 'stub-node' }),
+    )
     build.onLoad({ filter: /.*/, namespace: 'stub-empty' }, () => ({ contents: 'export default {}', loader: 'js' }))
     build.onLoad({ filter: /.*/, namespace: 'stub-node' }, () => ({ contents: nodeBuiltinStub, loader: 'js' }))
   },

@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync } from 'fs'
 import { parseProduct } from './parser'
 import { checkProduct } from './typecheck'
 import { printProduct } from './printer'
